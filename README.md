@@ -1,4 +1,7 @@
 # Wasp - Discrete Design for Grasshopper
+
+![wasp logo](https://github.com/ar0551/Wasp/blob/master/Graphics/Logo_01_hexaBkg.png?raw=true)
+
 Discrete Design with Grasshopper plug-in (GPL) initiated by Andrea Rossi
 
 Wasp is a set of Grasshopper components, developed in Python, directed at representing and designing with discrete elements (Rossi and Tessmann 2017). This is achieved by combining geometric representation and abstract graph information (Klavins et al. 2004) of individual modules, as well as providing different procedures for modular aggregation.
@@ -19,6 +22,8 @@ You should have received a copy of the GNU General Public License along with Was
 
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
+
+![ddu logo](http://www.dg.architektur.tu-darmstadt.de/media/architektur/fachgruppe_b/ika/flash/DDU_Logo_Website_182x0.jpg)
 Significant parts of Wasp have been developed by Andrea Rossi as part of research on digital materials and discrete design at DDU Digital Design Unit - Prof. Oliver Tessmann - Technische Universität Darmstadt (http://www.dg.architektur.tu-darmstadt.de/dg/startseite_3/index.de.jsp)
 
 Wasp is heavily influenced by Ladybug (https://github.com/mostaphaRoudsari/ladybug), a free and open source environmental plugin for Grasshopper. It is using its code template, and follows the Labybug code organization. Some methods from Ladybug may have also been copied.
