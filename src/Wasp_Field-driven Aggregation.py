@@ -93,22 +93,22 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, aggr_coll):
                 if aggr_field.bbox.Contains(next_center) == True:
                     current_target_val = aggr_field.return_pt_val(next_center)
                     if current_target_val > max_val:
-                        close_neighbour = False
+                        close_neighbour_check = False
                         for ex_part in sc.sticky[aggr_id]:
                             dist = ex_part.center.DistanceTo(next_center)
                             if dist < sc.sticky['model_tolerance']:
-                                close_neighbour = True
+                                close_neighbour_check = True
                                 break
                         
                         collision_check = False
-                        if aggr_coll == True and close_neighbour == False:
+                        if aggr_coll == True and close_neighbour_check == False:
                             next_part_collider = next_part.transform_collider(orientTransform)
                             for ex_part in sc.sticky[aggr_id]:
                                 if len(rg.Intersect.Intersection.MeshMeshFast(ex_part.collider, next_part_collider)) > 0:
                                     collision_check = True
                                     break
                         
-                        if close_neighbour == False and collision_check == False:
+                        if close_neighbour_check == False and collision_check == False:
                             max_val = current_target_val
                             best_rule = rule
                             best_conn = conn_01

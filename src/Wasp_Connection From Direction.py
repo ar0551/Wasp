@@ -77,7 +77,6 @@ def main(part_geo, conn_centers, conn_ups):
         if check_data:
             connections = []
             out_planes = []
-            count = 0
             for i in range(len(conn_centers)):
                 
                 center = conn_centers[i]
@@ -104,8 +103,7 @@ def main(part_geo, conn_centers, conn_ups):
                     msg = "No valid plane provided for connection %d"%(i)
                     ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
                 else:
-                    conn = sc.sticky['Connection'](plane, "00", "", count)
-                    count += 1
+                    conn = sc.sticky['Connection'](plane, "00", "", -1)
                     connections.append(conn)
                     out_planes.append(plane)
             

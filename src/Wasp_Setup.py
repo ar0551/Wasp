@@ -64,7 +64,7 @@ except: pass
 import random as rnd
 import math
 import scriptcontext as sc
-import rhinoscriptsyntax as rs
+#import rhinoscriptsyntax as rs
 import Rhino.Geometry as rg
 import Rhino
 import Grasshopper.Kernel as gh
@@ -81,8 +81,12 @@ class Connection(object):
         
         self.pln = plane
         
-        flip_pln_Y = rs.VectorReverse(plane.YAxis)
-        self.flip_pln = rs.PlaneFromFrame(plane.Origin, plane.XAxis, flip_pln_Y)
+        #flip_pln_Y = rs.VectorReverse(plane.YAxis)
+        flip_pln_Y = rg.Vector3d(plane.YAxis)
+        flip_pln_Y.Reverse()
+        
+        #self.flip_pln = rs.PlaneFromFrame(plane.Origin, plane.XAxis, flip_pln_Y)
+        self.flip_pln = rg.Plane(plane.Origin, plane.XAxis, flip_pln_Y)
         
         self.type = type
         self.part = part
@@ -93,7 +97,8 @@ class Connection(object):
     
     ## return a transformed copy of the connection
     def transform(self, trans):
-        pln_trans = rs.PlaneFromFrame(self.pln.Origin, self.pln.XAxis, self.pln.YAxis)
+        #pln_trans = rs.PlaneFromFrame(self.pln.Origin, self.pln.XAxis, self.pln.YAxis)
+        pln_trans = rg.Plane(self.pln.Origin, self.pln.XAxis, self.pln.YAxis)
         conn_trans = Connection(pln_trans, self.type, self.part, self.id)
         conn_trans.pln.Transform(trans)
         conn_trans.flip_pln.Transform(trans)
@@ -124,6 +129,7 @@ class Part(object):
         count = 0
         for conn in connections:
             conn.part = self.name
+            conn.id = count
             self.connections.append(conn)
             self.active_connections.append(count)
             count += 1

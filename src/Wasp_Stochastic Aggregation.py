@@ -61,7 +61,7 @@ import Grasshopper.Kernel as gh
 import random as rnd
 
 
-def aggregate(aggr_id, aggr_parts, aggr_rules, iter):
+def aggregate(aggr_id, aggr_parts, aggr_rules, iter, coll):
     count = 0
     loops = 0
     while count < iter:
@@ -110,15 +110,15 @@ def aggregate(aggr_id, aggr_parts, aggr_rules, iter):
             orientTransform = rg.Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn_01.pln)
             next_part_center = next_part.transform_center(orientTransform)
             
-            close_neighbour = False
+            close_neighbour_check = False
             for ex_part in sc.sticky[aggr_id]:
                 dist = ex_part.center.DistanceTo(next_part_center)
                 if dist < sc.sticky['model_tolerance']:
-                    close_neighbour = True
+                    close_neighbour_check = True
                     break
             
             collision_check = False
-            if COLL == True and close_neighbour == False:
+            if coll == True and close_neighbour_check == False:
                 next_part_collider = next_part.transform_collider(orientTransform)
                 for ex_part in sc.sticky[aggr_id]:
                     intersections = rg.Intersect.Intersection.MeshMeshFast(ex_part.collider, next_part_collider)
@@ -126,7 +126,7 @@ def aggregate(aggr_id, aggr_parts, aggr_rules, iter):
                         collision_check = True
                         break
             
-            if close_neighbour == False and collision_check == False:
+            if close_neighbour_check == False and collision_check == False:
                 next_part_trans = next_part.transform(orientTransform)
                 next_part_trans.reset_part(aggr_rules)
                 for i in range(len(next_part_trans.active_connections)):
@@ -204,7 +204,7 @@ def main(parts, previous_parts, num_parts, rules, collision, aggregation_id, res
                         sc.sticky[aggregation_id].append(part)
             
             if num_parts > len(sc.sticky[aggregation_id]):
-                aggregate(aggregation_id, parts, rules, num_parts - len(sc.sticky[aggregation_id]))
+                aggregate(aggregation_id, parts, rules, num_parts - len(sc.sticky[aggregation_id]), collision)
             
             elif num_parts < len(sc.sticky[aggregation_id]):
                 sc.sticky[aggregation_id] = sc.sticky[aggregation_id][:num_parts]

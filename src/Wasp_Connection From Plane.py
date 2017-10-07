@@ -66,17 +66,13 @@ def main(conn_planes):
         if check_data:
             connections = []
             out_planes = []
-            count = 0
             for i in range(len(conn_planes)):
-                
                 plane = conn_planes[i]
-                
                 if plane is None:
                     msg = "No valid plane provided for connection %d"%(i)
                     ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
                 else:
-                    conn = sc.sticky['Connection'](plane, "00", "", count)
-                    count += 1
+                    conn = sc.sticky['Connection'](plane, "00", "", -1)
                     connections.append(conn)
                     out_planes.append(plane)
             
