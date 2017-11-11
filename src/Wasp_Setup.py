@@ -40,7 +40,7 @@ along with Wasp; If not, see <http://www.gnu.org/licenses/>.
 
 Source code is available at: xxxxx
 -
-Provided by Wasp 0.0.03
+Provided by Wasp 0.0.04
     Args:
         RUN: Setup all classes and variables required to run Wasp. Set it to True to start building.
     Returns:
@@ -49,7 +49,7 @@ Provided by Wasp 0.0.03
 
 ghenv.Component.Name = "Wasp_Setup"
 ghenv.Component.NickName = 'WaspSetup'
-ghenv.Component.Message = 'VER 0.0.03\nSEP_17_2017'
+ghenv.Component.Message = 'VER 0.0.04\nNOV_11_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "0 | Wasp"
