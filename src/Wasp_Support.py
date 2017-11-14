@@ -29,61 +29,25 @@
 #########################################################################
 
 """
-Extract information from a Connection.
+Support definition for constrained parts.
+Each set of lines defining support locations can be set
 -
 Provided by Wasp 0.0.04
     Args:
-        CONN: Connection to deconstruct
+        DIR: Directions of the support locations as lines.
     Returns:
-        PLN: Connection plane
-        ID: Connection ID
-        PART: Part to which the connection belongs to
-        T: Connection type
+        SUP: Support element
 """
 
-ghenv.Component.Name = "Wasp_Deconstruct Connection"
-ghenv.Component.NickName = 'DeConn'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_11_2017'
+ghenv.Component.Name = "Wasp_Support"
+ghenv.Component.NickName = 'Support'
+ghenv.Component.Message = 'VER 0.0.04\nNOV_14_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "0 | Wasp"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
-
 import scriptcontext as sc
-import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
 
-def main(conn_planes):
-    
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
-        
-        check_data = True
-        
-        ##check inputs
-        if CONN is None:
-            msg = "No connection provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Waring, msg)
-        
-        if check_data:
-            return CONN.pln, CONN.id, CONN.part, CONN.type
-        
-        else:
-            return -1
-    
-    else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        return -1
-
-
-result = main(PLN)
-
-if result != -1:
-    PLN = result[0]
-    ID = result[1]
-    PART = result[2]
-    T = result[3]
+SUP = sc.sticky['Support'](DIR)

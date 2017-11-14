@@ -32,11 +32,12 @@
 Create a connection on a given part geometry from center and X-asix direction
 (Z direction is determined based on the normals of the component geometry)
 -
-Provided by Wasp 0.0.03
+Provided by Wasp 0.0.04
     Args:
         GEO: Geometry of the part to which the connection belongs
         CEN: Origin of the connection plane
         UP: Line idetifying the X-axis of the connection plane - determines the plane orientation to mantain when transforming
+        T: OPTIONAL // Connection type (to be used with Rule Generator component)
     Returns:
         CONN: Connection object
         PLN_OUT: Plane for each connection object (for debugging)
@@ -44,7 +45,7 @@ Provided by Wasp 0.0.03
 
 ghenv.Component.Name = "Wasp_Connection From Direction"
 ghenv.Component.NickName = 'ConnDir'
-ghenv.Component.Message = 'VER 0.0.03\nSEP_17_2017'
+ghenv.Component.Message = 'VER 0.0.04\nNOV_14_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "0 | Wasp"
@@ -56,7 +57,7 @@ import scriptcontext as sc
 import Rhino.Geometry as rg
 import Grasshopper.Kernel as gh
 
-def main(part_geo, conn_centers, conn_ups):
+def main(part_geo, conn_centers, conn_ups, conn_type):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -74,6 +75,22 @@ def main(part_geo, conn_centers, conn_ups):
             msg = "Different amount of centers and up vectors provided"
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
         
+        types = []
+        if len(conn_type) == 0:
+            for i in range(len(conn_centers)):
+                types.append("00")
+        elif len(conn_type) == 1:
+            for i in range(len(conn_centers)):
+                types.append(conn_type[0])
+        elif len(conn_centers) != len(conn_type):
+            check_data = False
+            msg = "Different amount of centers and types provided"
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
+        else:
+            for i in range(len(conn_centers)):
+                types.append(conn_type[i])
+        
+        ## execute main code if all needed inputs are available
         if check_data:
             connections = []
             out_planes = []
@@ -103,7 +120,7 @@ def main(part_geo, conn_centers, conn_ups):
                     msg = "No valid plane provided for connection %d"%(i)
                     ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
                 else:
-                    conn = sc.sticky['Connection'](plane, "00", "", -1)
+                    conn = sc.sticky['Connection'](plane, types[i], "", -1)
                     connections.append(conn)
                     out_planes.append(plane)
             
@@ -120,7 +137,7 @@ def main(part_geo, conn_centers, conn_ups):
         return -1
 
 
-result = main(GEO, CEN, UP)
+result = main(GEO, CEN, UP, T)
 
 if result != -1:
     CONN = result[0]

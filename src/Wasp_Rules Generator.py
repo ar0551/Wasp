@@ -33,43 +33,67 @@ Extract information from a Connection.
 -
 Provided by Wasp 0.0.04
     Args:
-        CONN: Connection to deconstruct
+        PART: Parts from which to generate aggregation rules
+        SELF_P: OPTIONAL // Create rules between connections belonging to the same part (True by default)
+        SELF_C: OPTIONAL // Create rules between connection with same id (True by default)
     Returns:
-        PLN: Connection plane
-        ID: Connection ID
-        PART: Part to which the connection belongs to
-        T: Connection type
+        R: Generated aggregation rules
 """
 
-ghenv.Component.Name = "Wasp_Deconstruct Connection"
-ghenv.Component.NickName = 'DeConn'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_11_2017'
+ghenv.Component.Name = "Wasp_Rules Generator"
+ghenv.Component.NickName = 'RuleGen'
+ghenv.Component.Message = 'VER 0.0.04\nNOV_14_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "0 | Wasp"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
-
 import scriptcontext as sc
-import Rhino.Geometry as rg
 import Grasshopper.Kernel as gh
 
-def main(conn_planes):
-    
+def main(parts, self_part, self_connection):
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
         
         check_data = True
         
         ##check inputs
-        if CONN is None:
-            msg = "No connection provided"
+        if len(parts) == 0 or parts is None:
+            check_data = False
+            msg = "No part provided"
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Waring, msg)
         
-        if check_data:
-            return CONN.pln, CONN.id, CONN.part, CONN.type
+        if self_part == None:
+            self_part = True
         
+        if self_connection == None:
+            self_connection = True
+        
+        if check_data:
+            rules = []
+            
+            for part in parts:
+                for conn in part.connections:
+                    for other_part in parts:
+                        skip_part = False
+                        if self_part == False:
+                            if part.name == other_part.name:
+                                skip_part = True
+                            
+                        if skip_part == False:
+                            for other_conn in other_part.connections:
+                                skip_conn = False
+                                if self_connection == False:
+                                    if conn.id == other_conn.id:
+                                        skip_conn = True
+                                
+                                if skip_conn == False:
+                                    if conn.type == other_conn.type:
+                                        r = sc.sticky['Rule'](part.name, conn.id, other_part.name, other_conn.id)
+                                        rules.append(r)
+            
+            return [rules]
         else:
             return -1
     
@@ -80,10 +104,10 @@ def main(conn_planes):
         return -1
 
 
-result = main(PLN)
+
+result = main(PART, SELF_P, SELF_C)
 
 if result != -1:
-    PLN = result[0]
-    ID = result[1]
-    PART = result[2]
-    T = result[3]
+    R = result[0]
+
+

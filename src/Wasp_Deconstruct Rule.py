@@ -29,33 +29,32 @@
 #########################################################################
 
 """
-Extract information from a Connection.
+Generate an aggregation rule from part names and connections ids
 -
 Provided by Wasp 0.0.04
     Args:
-        CONN: Connection to deconstruct
+        R: Rule
     Returns:
-        PLN: Connection plane
-        ID: Connection ID
-        PART: Part to which the connection belongs to
-        T: Connection type
+        P1: Name of base part
+        C1: Id of base connection
+        P2: Name of new part to be aggregated
+        C2: Id of new connection
+        TXT: Text representation of rule
 """
 
-ghenv.Component.Name = "Wasp_Deconstruct Connection"
-ghenv.Component.NickName = 'DeConn'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_11_2017'
+ghenv.Component.Name = "Wasp_Deconstruct Rule"
+ghenv.Component.NickName = 'DeRule'
+ghenv.Component.Message = 'VER 0.0.04\nNOV_14_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "0 | Wasp"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
-
 import scriptcontext as sc
-import Rhino.Geometry as rg
 import Grasshopper.Kernel as gh
 
-def main(conn_planes):
+def main(rule):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -63,13 +62,19 @@ def main(conn_planes):
         check_data = True
         
         ##check inputs
-        if CONN is None:
-            msg = "No connection provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Waring, msg)
+        if rule is None:
+            check_data = False
+            msg = "No rule provided"
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         
         if check_data:
-            return CONN.pln, CONN.id, CONN.part, CONN.type
-        
+            p1 = rule.part1
+            c1 = rule.conn1
+            p2 = rule.part2
+            c2 = rule.conn2
+            rule_txt = "%s|%s_%s|%s"%(p1,c1,p2,c2)
+            
+            return p1, c1, p2, c2, rule_txt
         else:
             return -1
     
@@ -80,10 +85,14 @@ def main(conn_planes):
         return -1
 
 
-result = main(PLN)
+result = main(R)
 
 if result != -1:
-    PLN = result[0]
-    ID = result[1]
-    PART = result[2]
-    T = result[3]
+    P1 = result[0]
+    C1 = result[1]
+    P2 = result[2]
+    C2 = result[3]
+    TXT = result[4]
+
+
+R = sc.sticky['Rule'](P1, C1, P2, C2, GH_Component = ghenv.Component)

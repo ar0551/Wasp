@@ -144,6 +144,8 @@ class Part(object):
         self.attributes = []
         if len(attributes) > 0:
             self.attributes = attributes
+        
+        self.is_constrained = False
     
     def reset_part(self, rules):
         count = 0
@@ -181,7 +183,7 @@ class Part(object):
             for attr in self.attributes:
                 attributes_trans.append(attr.transform(trans))
         
-        part_trans = sc.sticky['Part'](self.name, geo_trans, connections_trans, collider_trans, attributes_trans)
+        part_trans = Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans)
         part_trans.transformation = trans
         return part_trans
     
@@ -196,6 +198,56 @@ class Part(object):
         collider_trans = self.collider.Duplicate()
         collider_trans.Transform(trans)
         return collider_trans
+
+
+#################################################################### Constrained Component
+class Constrained_Part(Part):
+    
+    ## constructor
+    def __init__(self, name, geometry, connections, collider, attributes, additional_collider, support_directions):
+        
+        super(self.__class__, self).__init__(name, geometry, connections, collider, attributes)
+        
+        self.add_collider = None
+        if additional_collider != None:
+            self.add_collider = additional_collider
+        
+        self.support_dir = []
+        if len(support_directions) > 0:
+            self.support_dir = support_directions
+    
+    ## function to transform component
+    def transform(self, trans):
+        geo_trans = self.geo.Duplicate()
+        geo_trans.Transform(trans)
+        
+        collider_trans = self.collider.Duplicate()
+        collider_trans.Transform(trans)
+        
+        connections_trans = []
+        for conn in self.connections:
+            connections_trans.append(conn.transform(trans))
+        
+        attributes_trans = []
+        if len(self.attributes) > 0:
+            for attr in self.attributes:
+                attributes_trans.append(attr.transform(trans))
+        
+        add_collider_trans = None
+        if(self.add_collider != None):
+            add_collider_trans = self.add_collider.Duplicate()
+            add_collider_trans.Transform(trans)
+            
+        support_dir_trans = []
+        if len(self.support_dir) > 0:
+            for sup in self.support_dir:
+                sup_trans = sup.transform(trans)
+                support_dir_trans.append(sup_trans)
+        
+        part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, support_dir_trans)
+        part_trans.transformation = trans
+        part_trans.is_constrained = True
+        return part_trans
 
 
 #################################################################### Rule
@@ -278,7 +330,7 @@ class Field(object):
 
 
 #################################################################### Attribute
-class Attribute:
+class Attribute(object):
     
     def __init__(self, name, values, transformable):
         
@@ -306,69 +358,23 @@ class Attribute:
 ##                                 WIP                                 ##
 #########################################################################
 
-#################################################################### Constrained Component
-class Constrained_Part(Part):
+class Support(object):
     
-    ## constructor
-    def __init__(self, name, geometry, connections, collider, additional_collider, support_directions, attributes, tolerance, GH_Component):
+    def __init__(self, support_directions):
         
-        super(self.__class__, self).__init__(name, geometry, connections, collider, attributes, tolerance, GH_Component)
-        
-        self.add_collider = None
-        if additional_collider != None:
-            self.add_collider = additional_collider
-        
-        self.support_dir = support_directions
+        self.sup_dir = support_directions
     
-    ## function to transform component
+    def is_supported(self, mesh):
+        pass
+    
     def transform(self, trans):
-        geo_trans = self.geo.Duplicate()
-        geo_trans.Transform(trans)
-        
-        collider_trans = self.collider.Duplicate()
-        collider_trans.Transform(trans)
-        
-        connections_trans = []
-        for conn in self.connections:
-            connections_trans.append(conn.transform(trans))
-        
-        add_collider_trans = None
-        if(self.add_collider != None):
-            add_collider_trans = self.add_collider.Duplicate()
-            add_collider_trans.Transform(trans)
-            
-        support_dir_trans = []
-        if len(self.support_dir) > 0:
-            for i in range(len(self.support_dir)):
-                support_dir_trans.append([])
-                for j in range(len(self.support_dir[i])):
-                    dir_trans = self.support_dir[i][j].Duplicate()
-                    dir_trans.Transform(trans)
-                    support_dir_trans[i].append(dir_trans)
-        
-        attributes_trans = []
-        if len(self.attributes) > 0:
-            for attr in self.attributes:
-                attributes_trans.append(attr.transform(trans))
-        
-        comp_trans = Component(self.name, geo_trans, connections_trans, collider_trans, add_collider_trans, support_dir_trans, attributes_trans, self.tolerance, self.gh)
-        comp_trans.transformation = trans
-        return comp_trans
-    
-    ## return transformed center point
-    def transform_center(self, trans):
-        center_trans = rg.Point3d(self.center)
-        center_trans.Transform(trans)
-        return center_trans
-    
-    ## return transformed collider mesh
-    def transform_collider(self, trans):
-        collider_trans = self.collider.Duplicate()
-        collider_trans.Transform(trans)
-        return collider_trans
-
-
-
+        sup_dir_trans = []
+        for dir in self.sup_dir:
+            dir_trans = dir.Duplicate()
+            dir_trans.Transform(trans)
+            sup_dir_trans.append(dir_trans)
+        sup_trans = Support(sup_dir_trans)
+        return sup_trans
 
 
 
@@ -387,14 +393,16 @@ if RUN:
     log.append("Connection class created...")
     sc.sticky['Part'] = Part
     log.append("Part class created...")
-    #sc.sticky['Constrained_Part'] = Constrained_Component
-    #log.append("Constrained_Part class created...")
+    sc.sticky['Constrained_Part'] = Constrained_Part
+    log.append("Constrained_Part class created...")
     sc.sticky['Rule'] = Rule
     log.append("Rule class created...")
     sc.sticky['Field'] = Field
     log.append("Field class created...")
     sc.sticky['Attribute'] = Attribute
     log.append("Attribute class created...")
+    sc.sticky['Support'] = Support
+    log.append("Support class created...")
     
     sc.sticky['model_tolerance'] = Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance*5
     sc.sticky['WaspSetup'] = 1

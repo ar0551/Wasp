@@ -32,9 +32,10 @@
 Create a connection from a given plane.
 It can create connections which cause collisions and overlapping of components
 -
-Provided by Wasp 0.0.03
+Provided by Wasp 0.0.04
     Args:
         PLN: Connection plane
+        T: OPTIONAL // Connection type (to be used with Rule Generator component)
     Returns:
         CONN: Connection object
         PLN_OUT: Connection plane (for debugging)
@@ -42,7 +43,7 @@ Provided by Wasp 0.0.03
 
 ghenv.Component.Name = "Wasp_Connection From Plane"
 ghenv.Component.NickName = 'ConnPln'
-ghenv.Component.Message = 'VER 0.0.03\nSEP_17_2017'
+ghenv.Component.Message = 'VER 0.0.04\nNOV_14_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "0 | Wasp"
@@ -54,7 +55,7 @@ import scriptcontext as sc
 import Rhino.Geometry as rg
 import Grasshopper.Kernel as gh
 
-def main(conn_planes):
+def main(conn_planes, conn_type):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -62,6 +63,21 @@ def main(conn_planes):
         check_data = True
         
         ##check inputs
+        types = []
+        if len(conn_type) == 0:
+            for i in range(len(conn_planes)):
+                types.append("00")
+        elif len(conn_type) == 1:
+            for i in range(len(conn_planes)):
+                types.append(conn_type[0])
+        elif len(conn_planes) != len(conn_type):
+            check_data = False
+            msg = "Different amount of planes and types provided"
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
+        else:
+            for i in range(len(conn_planes)):
+                types.append(conn_type[i])
+        
         
         if check_data:
             connections = []
@@ -72,7 +88,7 @@ def main(conn_planes):
                     msg = "No valid plane provided for connection %d"%(i)
                     ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
                 else:
-                    conn = sc.sticky['Connection'](plane, "00", "", -1)
+                    conn = sc.sticky['Connection'](plane, types[i], "", -1)
                     connections.append(conn)
                     out_planes.append(plane)
             
@@ -88,7 +104,7 @@ def main(conn_planes):
         return -1
 
 
-result = main(PLN)
+result = main(PLN, T)
 
 if result != -1:
     CONN = result[0]
