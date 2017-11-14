@@ -64,8 +64,9 @@ def main(conn_planes):
         
         ##check inputs
         if CONN is None:
+            check_data = False
             msg = "No connection provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Waring, msg)
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         
         if check_data:
             return CONN.pln, CONN.id, CONN.part, CONN.type
