@@ -84,9 +84,12 @@ conn_list = []
 conn_pln_list = []
 children_list = []
 attributes_list = []
-
+print PART
 if len(PART) == 0:
     msg = "No part provided"
+    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+elif PART[0] is None:
+    msg = "Provided part is null"
     ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
 else:
     for comp in PART:

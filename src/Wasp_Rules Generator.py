@@ -62,7 +62,7 @@ def main(parts, self_part, self_connection):
         if len(parts) == 0 or parts is None:
             check_data = False
             msg = "No part provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Waring, msg)
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         
         if self_part == None:
             self_part = True
