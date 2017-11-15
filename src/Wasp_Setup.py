@@ -204,7 +204,7 @@ class Part(object):
 class Constrained_Part(Part):
     
     ## constructor
-    def __init__(self, name, geometry, connections, collider, attributes, additional_collider, support_directions):
+    def __init__(self, name, geometry, connections, collider, attributes, additional_collider, supports):
         
         super(self.__class__, self).__init__(name, geometry, connections, collider, attributes)
         
@@ -212,9 +212,9 @@ class Constrained_Part(Part):
         if additional_collider != None:
             self.add_collider = additional_collider
         
-        self.support_dir = []
-        if len(support_directions) > 0:
-            self.support_dir = support_directions
+        self.supports = []
+        if len(supports) > 0:
+            self.supports = supports
     
     ## function to transform component
     def transform(self, trans):
@@ -238,13 +238,13 @@ class Constrained_Part(Part):
             add_collider_trans = self.add_collider.Duplicate()
             add_collider_trans.Transform(trans)
             
-        support_dir_trans = []
-        if len(self.support_dir) > 0:
-            for sup in self.support_dir:
+        supports_trans = []
+        if len(self.supports) > 0:
+            for sup in self.supports:
                 sup_trans = sup.transform(trans)
-                support_dir_trans.append(sup_trans)
+                supports_trans.append(sup_trans)
         
-        part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, support_dir_trans)
+        part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans)
         part_trans.transformation = trans
         part_trans.is_constrained = True
         return part_trans
@@ -364,7 +364,7 @@ class Support(object):
         
         self.sup_dir = support_directions
     
-    def is_supported(self, mesh):
+    def is_intersecting(self, mesh):
         pass
     
     def transform(self, trans):

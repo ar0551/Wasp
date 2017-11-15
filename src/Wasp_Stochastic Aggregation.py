@@ -32,13 +32,14 @@
 Aggregate the given parts in a stochastic process, selecting parts and rules randomly at every step.
 The component works additively, hence increasing the number of parts in an aggregation just adds new parts on the existing ones, without triggering recomputing of the previous element.
 -
-Provided by Wasp 0.0.03
+Provided by Wasp 0.0.04
     Args:
         PART: Parts to be aggregated (can be more than one)
         PREV: Previous aggregated parts. It is possible to input the results of a previous aggregation, or parts transformed with the TransformPart component
         N: Number of parts to be aggregated (does not count parts provided in PREV)
         RULES: Rules for the aggregation
         COLL: OPTIONAL // Collision detection. By default is active and checks for collisions between the aggregated parts
+        MODE: OPTIONAL // Switches between aggregation modes: 0 = Basic (only parts collision check), 1 = Constrained (checks all constraints set on the part)
         ID: OPTIONAL // Aggregation ID (to avoid overwriting when having different aggregation components in the same file)
         RESET: Recompute the whole aggregation
     Returns:
@@ -47,7 +48,7 @@ Provided by Wasp 0.0.03
 
 ghenv.Component.Name = "Wasp_Stochastic Aggregation"
 ghenv.Component.NickName = 'RndAggr'
-ghenv.Component.Message = 'VER 0.0.03\nSEP_17_2017'
+ghenv.Component.Message = 'VER 0.0.04\nNOV_15_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "0 | Wasp"
@@ -61,7 +62,7 @@ import Grasshopper.Kernel as gh
 import random as rnd
 
 
-def aggregate(aggr_id, aggr_parts, aggr_rules, iter, coll):
+def aggregate(aggr_id, aggr_parts, aggr_rules, iter, coll, aggr_mode):
     count = 0
     loops = 0
     while count < iter:
@@ -93,7 +94,6 @@ def aggregate(aggr_id, aggr_parts, aggr_rules, iter, coll):
                     if len(conn_01.active_rules) > 0:
                         next_rule_id = conn_01.active_rules[rnd.randint(0, len(conn_01.active_rules)-1)]
                         next_rule = conn_01.rules_table[next_rule_id]
-                        print "//", next_rule.part1, next_rule.conn1, next_rule.part2, next_rule.conn2
                         break
             
             if next_rule == None:
@@ -106,10 +106,10 @@ def aggregate(aggr_id, aggr_parts, aggr_rules, iter, coll):
                 if part.name == next_rule.part2:
                     next_part = part
             
-            
             orientTransform = rg.Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn_01.pln)
             next_part_center = next_part.transform_center(orientTransform)
             
+            ## overlap check
             close_neighbour_check = False
             for ex_part in sc.sticky[aggr_id]:
                 dist = ex_part.center.DistanceTo(next_part_center)
@@ -117,6 +117,7 @@ def aggregate(aggr_id, aggr_parts, aggr_rules, iter, coll):
                     close_neighbour_check = True
                     break
             
+            ## collision check
             collision_check = False
             if coll == True and close_neighbour_check == False:
                 next_part_collider = next_part.transform_collider(orientTransform)
@@ -126,7 +127,41 @@ def aggregate(aggr_id, aggr_parts, aggr_rules, iter, coll):
                         collision_check = True
                         break
             
-            if close_neighbour_check == False and collision_check == False:
+            ## constraints check
+            add_collision_check = False
+            missing_supports_check = False
+            if aggr_mode == 1:
+                if close_neighbour_check == False and collision_check == False:
+                    if next_part.is_constrained:
+                        
+                        ## additional collider check
+                        if next_part.add_collider != None:
+                            add_collider = next_part.add_collider.Duplicate()
+                            add_collider.Transform(orientTransform)
+                            for ex_part in sc.sticky[aggr_id]:
+                                intersections = rg.Intersect.Intersection.MeshMeshFast(ex_part.collider, add_collider)
+                                if len(intersections) > 0:
+                                    add_collision_check = True
+                                    break
+                        
+                        ## supports check
+                        if len(next_part.supports) > 0:
+                            for sup in next_part.supports:
+                                missing_supports_check = True
+                                supports_count = 0
+                                for dir in sup.sup_dir:
+                                    dir_trans = dir.Duplicate()
+                                    dir_trans.Transform(orientTransform)
+                                    
+                                    for ex_part in sc.sticky[aggr_id]:
+                                        if len(rg.Intersect.Intersection.MeshPolyline(ex_part.collider, dir_trans)[0]) > 0:
+                                            supports_count += 1
+                                            break
+                                if supports_count == len(sup.sup_dir):
+                                    missing_supports_check = False
+                                    break
+            
+            if close_neighbour_check == False and collision_check == False and add_collision_check == False and missing_supports_check == False:
                 next_part_trans = next_part.transform(orientTransform)
                 next_part_trans.reset_part(aggr_rules)
                 for i in range(len(next_part_trans.active_connections)):
@@ -154,7 +189,7 @@ def aggregate(aggr_id, aggr_parts, aggr_rules, iter, coll):
                         break
 
 
-def main(parts, previous_parts, num_parts, rules, collision, aggregation_id, reset):
+def main(parts, previous_parts, num_parts, rules, collision, aggregation_mode, aggregation_id, reset):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -182,6 +217,9 @@ def main(parts, previous_parts, num_parts, rules, collision, aggregation_id, res
         if collision is None:
             collision = True
         
+        if aggregation_mode is None:
+            aggregation_mode = 0
+        
         if aggregation_id is None:
             aggregation_id = 'Aggregation'
         
@@ -204,7 +242,11 @@ def main(parts, previous_parts, num_parts, rules, collision, aggregation_id, res
                         sc.sticky[aggregation_id].append(part)
             
             if num_parts > len(sc.sticky[aggregation_id]):
-                aggregate(aggregation_id, parts, rules, num_parts - len(sc.sticky[aggregation_id]), collision)
+                aggregate(aggregation_id, parts, rules, num_parts - len(sc.sticky[aggregation_id]), collision, aggregation_mode)
+                if len(sc.sticky[aggregation_id]) < num_parts:
+                    msg = "Could not place " + str(num_parts - len(sc.sticky[aggregation_id])) + " parts"
+                    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+                    
             
             elif num_parts < len(sc.sticky[aggregation_id]):
                 sc.sticky[aggregation_id] = sc.sticky[aggregation_id][:num_parts]
@@ -226,7 +268,7 @@ def main(parts, previous_parts, num_parts, rules, collision, aggregation_id, res
         return -1
 
 
-result = main(PART, PREV, N, RULES, COLL, ID, RESET)
+result = main(PART, PREV, N, RULES, COLL, MODE, ID, RESET)
 
 if result != -1:
     PART_OUT = result
