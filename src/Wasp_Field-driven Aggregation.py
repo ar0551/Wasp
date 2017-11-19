@@ -30,15 +30,16 @@
 
 """
 Aggregate the given parts according to a given scalar field. New parts are added following higher values in the field.
-The component works additively, hence increasing the number of parts in an aggregation just adds new parts on the existing ones, without triggering recomputing of the previous element.
+The component works additively, hence increasing the number of parts in an aggregation just adds new parts on the existing ones, without triggering recomputing of the previous element
 -
-Provided by Wasp 0.0.03
+Provided by Wasp 0.0.04
     Args:
         PART: Parts to be aggregated (can be more than one)
         PREV: Previous aggregated parts. It is possible to input the results of a previous aggregation, or parts transformed with the TransformPart component
         N: Number of parts to be aggregated (does not count parts provided in PREV)
         RULES: Rules for the aggregation
         FIELD: Scalar field to drive the aggregation (parts will be added following higher values in the field)
+        THRES: OPTIONAL // If set, used to define a threshold value above which the placement of next part is accepted. If not set, aggregation will look for part with highest value in the whole field. Setting a low threshold helds less accurate results, but highly speeds up calculations
         COLL: OPTIONAL // Collision detection. By default is active and checks for collisions between the aggregated parts
         ID: OPTIONAL // Aggregation ID (to avoid overwriting when having different aggregation components in the same file)
         RESET: Recompute the whole aggregation
@@ -48,7 +49,7 @@ Provided by Wasp 0.0.03
 
 ghenv.Component.Name = "Wasp_Field-driven Aggregation"
 ghenv.Component.NickName = 'FieldAggregation'
-ghenv.Component.Message = 'VER 0.0.03\nSEP_17_2017'
+ghenv.Component.Message = 'VER 0.0.04\nNOV_19_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "0 | Wasp"
@@ -65,7 +66,7 @@ import copy
 
 
 ## find the rule that creates a component as closest as possible to the target surface
-def findBestRule(aggr_id, aggr_parts, aggr_field, aggr_coll):
+def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll):
     max_val = 0
     best_rule = None
     best_conn = None
@@ -114,6 +115,10 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, aggr_coll):
                             best_conn = conn_01
                             best_part_id = i
                             best_conn_id = conn_01_id
+                            
+                            if thres is not None and max_val > thres:
+                                break
+                            
                         else:
                             ## remove rules if they cause collisions or overlappings
                             for i4 in range(len(sc.sticky[aggr_id][i].connections[conn_01_id].active_rules)):
@@ -126,8 +131,10 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, aggr_coll):
                                 if sc.sticky[aggr_id][i].active_connections[i4] == conn_01_id:
                                     sc.sticky[aggr_id][i].active_connections.pop(i4)
                                     break
-                            
-                            
+            if thres is not None and max_val > thres:
+                break
+        if thres is not None and max_val > thres:
+            break
     
     if best_rule is not None:
         return best_conn, best_part_id, best_conn_id, best_rule.part2, best_rule.conn2, best_rule
@@ -136,7 +143,7 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, aggr_coll):
 
 
 
-def aggregate_field(aggr_id, aggr_parts, aggr_rules, aggr_field, aggr_coll, iter):
+def aggregate_field(aggr_id, aggr_parts, aggr_rules, aggr_field, aggr_threshold, aggr_coll, iter):
     count = 0
     loops = 0
     while count < iter:
@@ -157,7 +164,7 @@ def aggregate_field(aggr_id, aggr_parts, aggr_rules, aggr_field, aggr_coll, iter
         
         else:
             ## select part-rule couple creating next part in the highest point of field
-            conn_01, part_01_id, conn_01_id, next_part_name, next_conn_id, next_rule = findBestRule(aggr_id, aggr_parts, aggr_field, aggr_coll)
+            conn_01, part_01_id, conn_01_id, next_part_name, next_conn_id, next_rule = findBestRule(aggr_id, aggr_parts, aggr_field, aggr_threshold, aggr_coll)
             
             if conn_01_id == -1:
                 msg = "aborted after " + str(count) + " iterations"
@@ -186,7 +193,7 @@ def aggregate_field(aggr_id, aggr_parts, aggr_rules, aggr_field, aggr_coll, iter
 
 
 
-def main(parts, previous_parts, num_parts, rules, field, collision, aggregation_id, reset):
+def main(parts, previous_parts, num_parts, rules, field, threshold, collision, aggregation_id, reset):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -241,7 +248,7 @@ def main(parts, previous_parts, num_parts, rules, field, collision, aggregation_
                         sc.sticky[aggregation_id].append(part)
             
             if num_parts > len(sc.sticky[aggregation_id]):
-                aggregate_field(aggregation_id, parts, rules, field, collision, num_parts - len(sc.sticky[aggregation_id]))
+                aggregate_field(aggregation_id, parts, rules, field, threshold, collision, num_parts - len(sc.sticky[aggregation_id]))
             
             elif num_parts < len(sc.sticky[aggregation_id]):
                 sc.sticky[aggregation_id] = sc.sticky[aggregation_id][:num_parts]
@@ -263,7 +270,7 @@ def main(parts, previous_parts, num_parts, rules, field, collision, aggregation_
         return -1
 
 
-result = main(PART, PREV, N, RULES, FIELD, COLL, ID, RESET)
+result = main(PART, PREV, N, RULES, FIELD, THRES, COLL, ID, RESET)
 
 if result != -1:
     PART_OUT = result
