@@ -49,7 +49,7 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Setup"
 ghenv.Component.NickName = 'WaspSetup'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_11_2017'
+ghenv.Component.Message = 'VER 0.0.04\nNOV_21_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "0 | Wasp"

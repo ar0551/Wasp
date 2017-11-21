@@ -66,7 +66,7 @@ import copy
 
 
 ## find the rule that creates a component as closest as possible to the target surface
-def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll):
+def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll, aggr_mode):
     max_val = 0
     best_rule = None
     best_conn = None
@@ -86,14 +86,22 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll):
                     if part.name == rule.part2:
                         next_part = part
                         break
-                        
+                
                 next_center = rg.Point3d(next_part.center)
                 orientTransform = rg.Transform.PlaneToPlane(next_part.connections[rule.conn2].flip_pln, conn_01.pln)
                 next_center.Transform(orientTransform)
-                
+                    
                 if aggr_field.bbox.Contains(next_center) == True:
                     current_target_val = aggr_field.return_pt_val(next_center)
+                
                     if current_target_val > max_val:
+                        
+                        if next_center is None:
+                            next_center = rg.Point3d(next_part.center)
+                            orientTransform = rg.Transform.PlaneToPlane(next_part.connections[rule.conn2].flip_pln, conn_01.pln)
+                            next_center.Transform(orientTransform)
+                        
+                        ## overlap check
                         close_neighbour_check = False
                         for ex_part in sc.sticky[aggr_id]:
                             dist = ex_part.center.DistanceTo(next_center)
@@ -101,6 +109,7 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll):
                                 close_neighbour_check = True
                                 break
                         
+                        ## collision check
                         collision_check = False
                         if aggr_coll == True and close_neighbour_check == False:
                             next_part_collider = next_part.transform_collider(orientTransform)
@@ -109,7 +118,44 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll):
                                     collision_check = True
                                     break
                         
-                        if close_neighbour_check == False and collision_check == False:
+                        ## constraints check
+                        add_collision_check = False
+                        missing_supports_check = False
+                        if aggr_mode == 1:
+                            if close_neighbour_check == False and collision_check == False:
+                                if next_part.is_constrained:
+                                    
+                                    ## additional collider check
+                                    if next_part.add_collider != None:
+                                        add_collider = next_part.add_collider.Duplicate()
+                                        add_collider.Transform(orientTransform)
+                                        for ex_part in sc.sticky[aggr_id]:
+                                            intersections = rg.Intersect.Intersection.MeshMeshFast(ex_part.collider, add_collider)
+                                            if len(intersections) > 0:
+                                                add_collision_check = True
+                                                break
+                                    
+                                    ## supports check
+                                    if add_collision_check == False:
+                                        if len(next_part.supports) > 0:
+                                            for sup in next_part.supports:
+                                                missing_supports_check = True
+                                                supports_count = 0
+                                                for dir in sup.sup_dir:
+                                                    dir_trans = dir.Duplicate()
+                                                    dir_trans.Transform(orientTransform)
+                                                    
+                                                    for ex_part in sc.sticky[aggr_id]:
+                                                        if len(rg.Intersect.Intersection.MeshPolyline(ex_part.collider, dir_trans)[0]) > 0:
+                                                            supports_count += 1
+                                                            break
+                                                if supports_count == len(sup.sup_dir):
+                                                    missing_supports_check = False
+                                                    break
+                        
+                        
+                        
+                        if close_neighbour_check == False and collision_check == False and add_collision_check == False and missing_supports_check == False:
                             max_val = current_target_val
                             best_rule = rule
                             best_conn = conn_01
@@ -119,7 +165,7 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll):
                             if thres is not None and max_val > thres:
                                 break
                             
-                        else:
+                        elif missing_supports_check == False:
                             ## remove rules if they cause collisions or overlappings
                             for i4 in range(len(sc.sticky[aggr_id][i].connections[conn_01_id].active_rules)):
                                if sc.sticky[aggr_id][i].connections[conn_01_id].active_rules[i4] == rule_id:
@@ -143,10 +189,13 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll):
 
 
 
-def aggregate_field(aggr_id, aggr_parts, aggr_rules, aggr_field, aggr_threshold, aggr_coll, iter):
+def aggregate_field(aggr_id, aggr_parts, aggr_rules, aggr_field, aggr_threshold, iter, aggr_coll, aggr_mode):
     count = 0
     loops = 0
     while count < iter:
+        loops += 1
+        if loops > iter*100:
+            break
         ## if no part is present in the aggregation, add first random part
         if len(sc.sticky[aggr_id]) == 0:
             count += 1
@@ -164,7 +213,7 @@ def aggregate_field(aggr_id, aggr_parts, aggr_rules, aggr_field, aggr_threshold,
         
         else:
             ## select part-rule couple creating next part in the highest point of field
-            conn_01, part_01_id, conn_01_id, next_part_name, next_conn_id, next_rule = findBestRule(aggr_id, aggr_parts, aggr_field, aggr_threshold, aggr_coll)
+            conn_01, part_01_id, conn_01_id, next_part_name, next_conn_id, next_rule = findBestRule(aggr_id, aggr_parts, aggr_field, aggr_threshold, aggr_coll, aggr_mode)
             
             if conn_01_id == -1:
                 msg = "aborted after " + str(count) + " iterations"
@@ -193,7 +242,7 @@ def aggregate_field(aggr_id, aggr_parts, aggr_rules, aggr_field, aggr_threshold,
 
 
 
-def main(parts, previous_parts, num_parts, rules, field, threshold, collision, aggregation_id, reset):
+def main(parts, previous_parts, num_parts, rules, field, threshold, collision, aggregation_mode, aggregation_id, reset):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -248,7 +297,10 @@ def main(parts, previous_parts, num_parts, rules, field, threshold, collision, a
                         sc.sticky[aggregation_id].append(part)
             
             if num_parts > len(sc.sticky[aggregation_id]):
-                aggregate_field(aggregation_id, parts, rules, field, threshold, collision, num_parts - len(sc.sticky[aggregation_id]))
+                aggregate_field(aggregation_id, parts, rules, field, threshold, num_parts - len(sc.sticky[aggregation_id]), collision, aggregation_mode)
+                if len(sc.sticky[aggregation_id]) < num_parts:
+                    msg = "Could not place " + str(num_parts - len(sc.sticky[aggregation_id])) + " parts"
+                    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
             
             elif num_parts < len(sc.sticky[aggregation_id]):
                 sc.sticky[aggregation_id] = sc.sticky[aggregation_id][:num_parts]
@@ -270,7 +322,7 @@ def main(parts, previous_parts, num_parts, rules, field, threshold, collision, a
         return -1
 
 
-result = main(PART, PREV, N, RULES, FIELD, THRES, COLL, ID, RESET)
+result = main(PART, PREV, N, RULES, FIELD, THRES, COLL, MODE, ID, RESET)
 
 if result != -1:
     PART_OUT = result

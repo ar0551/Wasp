@@ -67,7 +67,7 @@ def main(boundaries, pts, count, resolution, values):
         if len(boundaries) == 0:
             boundaries.append(rg.BoundingBox(pts).ToBrep())
             msg = "No boundary provided. Boundary set to point grid bounding box"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
         
         if len(pts) == 0:
             check_data = False

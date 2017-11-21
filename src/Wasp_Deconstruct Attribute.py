@@ -31,7 +31,7 @@
 """
 Extract values stored in an atrribute
 -
-Provided by Wasp 0.0.02
+Provided by Wasp 0.0.03
     Args:
         ATTR: Attribute to deconstruct
     Returns:

@@ -62,7 +62,7 @@ import Grasshopper.Kernel as gh
 import random as rnd
 
 
-def aggregate(aggr_id, aggr_parts, aggr_rules, iter, coll, aggr_mode):
+def aggregate(aggr_id, aggr_parts, aggr_rules, iter, aggr_coll, aggr_mode):
     count = 0
     loops = 0
     while count < iter:
@@ -119,7 +119,7 @@ def aggregate(aggr_id, aggr_parts, aggr_rules, iter, coll, aggr_mode):
             
             ## collision check
             collision_check = False
-            if coll == True and close_neighbour_check == False:
+            if aggr_coll == True and close_neighbour_check == False:
                 next_part_collider = next_part.transform_collider(orientTransform)
                 for ex_part in sc.sticky[aggr_id]:
                     intersections = rg.Intersect.Intersection.MeshMeshFast(ex_part.collider, next_part_collider)
@@ -145,21 +145,22 @@ def aggregate(aggr_id, aggr_parts, aggr_rules, iter, coll, aggr_mode):
                                     break
                         
                         ## supports check
-                        if len(next_part.supports) > 0:
-                            for sup in next_part.supports:
-                                missing_supports_check = True
-                                supports_count = 0
-                                for dir in sup.sup_dir:
-                                    dir_trans = dir.Duplicate()
-                                    dir_trans.Transform(orientTransform)
-                                    
-                                    for ex_part in sc.sticky[aggr_id]:
-                                        if len(rg.Intersect.Intersection.MeshPolyline(ex_part.collider, dir_trans)[0]) > 0:
-                                            supports_count += 1
-                                            break
-                                if supports_count == len(sup.sup_dir):
-                                    missing_supports_check = False
-                                    break
+                        if add_collision_check == False:
+                            if len(next_part.supports) > 0:
+                                for sup in next_part.supports:
+                                    missing_supports_check = True
+                                    supports_count = 0
+                                    for dir in sup.sup_dir:
+                                        dir_trans = dir.Duplicate()
+                                        dir_trans.Transform(orientTransform)
+                                        
+                                        for ex_part in sc.sticky[aggr_id]:
+                                            if len(rg.Intersect.Intersection.MeshPolyline(ex_part.collider, dir_trans)[0]) > 0:
+                                                supports_count += 1
+                                                break
+                                    if supports_count == len(sup.sup_dir):
+                                        missing_supports_check = False
+                                        break
             
             if close_neighbour_check == False and collision_check == False and add_collision_check == False and missing_supports_check == False:
                 next_part_trans = next_part.transform(orientTransform)
