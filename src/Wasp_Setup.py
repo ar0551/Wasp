@@ -49,7 +49,7 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Setup"
 ghenv.Component.NickName = 'WaspSetup'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_21_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "0 | Wasp"
@@ -64,7 +64,6 @@ except: pass
 import random as rnd
 import math
 import scriptcontext as sc
-#import rhinoscriptsyntax as rs
 import Rhino.Geometry as rg
 import Rhino
 import Grasshopper.Kernel as gh
@@ -81,11 +80,8 @@ class Connection(object):
         
         self.pln = plane
         
-        #flip_pln_Y = rs.VectorReverse(plane.YAxis)
         flip_pln_Y = rg.Vector3d(plane.YAxis)
         flip_pln_Y.Reverse()
-        
-        #self.flip_pln = rs.PlaneFromFrame(plane.Origin, plane.XAxis, flip_pln_Y)
         self.flip_pln = rg.Plane(plane.Origin, plane.XAxis, flip_pln_Y)
         
         self.type = type
@@ -97,7 +93,6 @@ class Connection(object):
     
     ## return a transformed copy of the connection
     def transform(self, trans):
-        #pln_trans = rs.PlaneFromFrame(self.pln.Origin, self.pln.XAxis, self.pln.YAxis)
         pln_trans = rg.Plane(self.pln.Origin, self.pln.XAxis, self.pln.YAxis)
         conn_trans = Connection(pln_trans, self.type, self.part, self.id)
         conn_trans.pln.Transform(trans)
@@ -138,7 +133,6 @@ class Part(object):
         self.center = self.geo.GetBoundingBox(False).Center
         self.collider = collider
         
-        self.tolerance = sc.sticky['model_tolerance']
         self.children = []
         
         self.attributes = []
@@ -354,18 +348,12 @@ class Attribute(object):
         return attr_trans
 
 
-#########################################################################
-##                                 WIP                                 ##
-#########################################################################
-
+#################################################################### Support
 class Support(object):
     
     def __init__(self, support_directions):
         
         self.sup_dir = support_directions
-    
-    def is_intersecting(self, mesh):
-        pass
     
     def transform(self, trans):
         sup_dir_trans = []
@@ -377,8 +365,13 @@ class Support(object):
         return sup_trans
 
 
+#########################################################################
+##                                 WIP                                 ##
+#########################################################################
 
-
+## Aggregation class
+## Voxel class
+## Graph class
 
 #########################################################################
 ##                                 RUN                                 ##

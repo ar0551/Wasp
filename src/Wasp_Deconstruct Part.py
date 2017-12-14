@@ -31,7 +31,7 @@
 """
 Extract all information stored in a part. Useful for visualization or for further geometry processing
 -
-Provided by Wasp 0.0.03
+Provided by Wasp 0.0.04
     Args:
         PART: Parts to deconstruct
     Returns:
@@ -46,10 +46,10 @@ Provided by Wasp 0.0.03
 
 ghenv.Component.Name = "Wasp_Deconstruct Part"
 ghenv.Component.NickName = 'DePart'
-ghenv.Component.Message = 'VER 0.0.03\nSEP_17_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
+ghenv.Component.SubCategory = "2 | Parts"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 
@@ -84,7 +84,7 @@ conn_list = []
 conn_pln_list = []
 children_list = []
 attributes_list = []
-print PART
+
 if len(PART) == 0:
     msg = "No part provided"
     ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)

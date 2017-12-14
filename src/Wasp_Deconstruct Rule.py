@@ -29,7 +29,7 @@
 #########################################################################
 
 """
-Generate an aggregation rule from part names and connections ids
+Extract information from a rule instance.
 -
 Provided by Wasp 0.0.04
     Args:
@@ -44,10 +44,10 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Deconstruct Rule"
 ghenv.Component.NickName = 'DeRule'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_14_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
+ghenv.Component.SubCategory = "3 | Rules"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 

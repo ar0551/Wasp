@@ -29,30 +29,33 @@
 #########################################################################
 
 """
-Extract information from a Connection.
+Automated rules generator given a list of parts. It has two separate modes:
+- If no grammar is provided in the GR input, the component generates rules between connections of the same type.
+- If a grammar is provided, rules are created between connections of different types, according to the specified grammar rules.
 -
 Provided by Wasp 0.0.04
     Args:
         PART: Parts from which to generate aggregation rules
         SELF_P: OPTIONAL // Create rules between connections belonging to the same part (True by default)
         SELF_C: OPTIONAL // Create rules between connection with same id (True by default)
+        GR: OPTIONAL // Custom connection grammar with format "ConnType">"ConnType"
     Returns:
         R: Generated aggregation rules
 """
 
 ghenv.Component.Name = "Wasp_Rules Generator"
 ghenv.Component.NickName = 'RuleGen'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_14_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
+ghenv.Component.SubCategory = "3 | Rules"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
 import scriptcontext as sc
 import Grasshopper.Kernel as gh
 
-def main(parts, self_part, self_connection):
+def main(parts, self_part, self_connection, grammar):
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
         
@@ -73,26 +76,53 @@ def main(parts, self_part, self_connection):
         if check_data:
             rules = []
             
-            for part in parts:
-                for conn in part.connections:
-                    for other_part in parts:
-                        skip_part = False
-                        if self_part == False:
-                            if part.name == other_part.name:
-                                skip_part = True
-                            
-                        if skip_part == False:
-                            for other_conn in other_part.connections:
-                                skip_conn = False
-                                if self_connection == False:
-                                    if conn.id == other_conn.id:
-                                        skip_conn = True
+            if len(grammar) == 0:
+                for part in parts:
+                    for conn in part.connections:
+                        for other_part in parts:
+                            skip_part = False
+                            if self_part == False:
+                                if part.name == other_part.name:
+                                    skip_part = True
                                 
-                                if skip_conn == False:
-                                    if conn.type == other_conn.type:
-                                        r = sc.sticky['Rule'](part.name, conn.id, other_part.name, other_conn.id)
-                                        rules.append(r)
-            
+                            if skip_part == False:
+                                for other_conn in other_part.connections:
+                                    skip_conn = False
+                                    if self_connection == False:
+                                        if conn.id == other_conn.id:
+                                            skip_conn = True
+                                    
+                                    if skip_conn == False:
+                                        if conn.type == other_conn.type:
+                                            r = sc.sticky['Rule'](part.name, conn.id, other_part.name, other_conn.id)
+                                            rules.append(r)
+            else:
+                for gr_rule in grammar:
+                    start_type = gr_rule.split(">")[0]
+                    end_type = gr_rule.split(">")[1]
+                    
+                    for part in parts:
+                        for conn in part.connections:
+                            if conn.type == start_type:
+                                for other_part in parts:
+                                    skip_part = False
+                                    if self_part == False:
+                                        if part.name == other_part.name:
+                                            skip_part = True
+                                        
+                                    if skip_part == False:
+                                        for other_conn in other_part.connections:
+                                            if other_conn.type == end_type:
+                                                skip_conn = False
+                                                if self_connection == False:
+                                                    if conn.id == other_conn.id:
+                                                        skip_conn = True
+                                                
+                                                if skip_conn == False:
+                                                    r = sc.sticky['Rule'](part.name, conn.id, other_part.name, other_conn.id)
+                                                    rules.append(r)
+                    
+                    
             return [rules]
         else:
             return -1
@@ -105,7 +135,7 @@ def main(parts, self_part, self_connection):
 
 
 
-result = main(PART, SELF_P, SELF_C)
+result = main(PART, SELF_P, SELF_C, GR)
 
 if result != -1:
     R = result[0]

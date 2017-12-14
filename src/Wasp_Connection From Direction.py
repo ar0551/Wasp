@@ -45,11 +45,11 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Connection From Direction"
 ghenv.Component.NickName = 'ConnDir'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_14_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.SubCategory = "1 | Elements"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 
@@ -78,7 +78,7 @@ def main(part_geo, conn_centers, conn_ups, conn_type):
         types = []
         if len(conn_type) == 0:
             for i in range(len(conn_centers)):
-                types.append("00")
+                types.append("0")
         elif len(conn_type) == 1:
             for i in range(len(conn_centers)):
                 types.append(conn_type[0])

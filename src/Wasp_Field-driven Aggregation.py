@@ -41,6 +41,7 @@ Provided by Wasp 0.0.04
         FIELD: Scalar field to drive the aggregation (parts will be added following higher values in the field)
         THRES: OPTIONAL // If set, used to define a threshold value above which the placement of next part is accepted. If not set, aggregation will look for part with highest value in the whole field. Setting a low threshold helds less accurate results, but highly speeds up calculations
         COLL: OPTIONAL // Collision detection. By default is active and checks for collisions between the aggregated parts
+        MODE: OPTIONAL // Switches between aggregation modes: 0 = Basic (Default: only parts collision check), 1 = Constrained (checks all constraints set on the part)
         ID: OPTIONAL // Aggregation ID (to avoid overwriting when having different aggregation components in the same file)
         RESET: Recompute the whole aggregation
     Returns:
@@ -49,11 +50,11 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Field-driven Aggregation"
 ghenv.Component.NickName = 'FieldAggregation'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_19_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "5"
+ghenv.Component.SubCategory = "4 | Aggregation"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
 
@@ -67,7 +68,7 @@ import copy
 
 ## find the rule that creates a component as closest as possible to the target surface
 def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll, aggr_mode):
-    max_val = 0
+    max_val = None
     best_rule = None
     best_conn = None
     best_conn_id = -1
@@ -94,7 +95,7 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll, aggr_mode):
                 if aggr_field.bbox.Contains(next_center) == True:
                     current_target_val = aggr_field.return_pt_val(next_center)
                 
-                    if current_target_val > max_val:
+                    if current_target_val > max_val or max_val == None:
                         
                         if next_center is None:
                             next_center = rg.Point3d(next_part.center)
@@ -154,7 +155,6 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll, aggr_mode):
                                                     break
                         
                         
-                        
                         if close_neighbour_check == False and collision_check == False and add_collision_check == False and missing_supports_check == False:
                             max_val = current_target_val
                             best_rule = rule
@@ -193,9 +193,11 @@ def aggregate_field(aggr_id, aggr_parts, aggr_rules, aggr_field, aggr_threshold,
     count = 0
     loops = 0
     while count < iter:
+        ## avoid endless loops
         loops += 1
         if loops > iter*100:
             break
+        
         ## if no part is present in the aggregation, add first random part
         if len(sc.sticky[aggr_id]) == 0:
             count += 1
@@ -237,11 +239,9 @@ def aggregate_field(aggr_id, aggr_parts, aggr_rules, aggr_field, aggr_threshold,
             sc.sticky[aggr_id].append(next_part_trans)
             
             count += 1
-            if count == iter:
-                print "successfully completed all " + str(count) + " iterations"
 
 
-
+## Main code execution
 def main(parts, previous_parts, num_parts, rules, field, threshold, collision, aggregation_mode, aggregation_id, reset):
     
     ## check if Wasp is setup
@@ -277,6 +277,8 @@ def main(parts, previous_parts, num_parts, rules, field, threshold, collision, a
         
         if aggregation_id is None:
             aggregation_id = 'Aggregation'
+            msg = "Default name 'Aggregation' assigned"
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
         
         if reset is None:
             reset = False

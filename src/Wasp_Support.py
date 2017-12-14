@@ -34,20 +34,64 @@ Each set of lines defining support locations can be set
 -
 Provided by Wasp 0.0.04
     Args:
-        DIR: Directions of the support locations as lines.
+        DIR: Directions of the support locations as lines
+        GEO: OPTIONAL // Geometry of the part the support belongs to
     Returns:
         SUP: Support element
 """
 
 ghenv.Component.Name = "Wasp_Support"
 ghenv.Component.NickName = 'Support'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_14_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.SubCategory = "1 | Elements"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 
-import scriptcontext as sc
 
-SUP = sc.sticky['Support'](DIR)
+import scriptcontext as sc
+import Rhino.Geometry as rg
+import Grasshopper.Kernel as gh
+
+
+def main(sup_dir, part_geo):
+    
+    ## check if Wasp is setup
+    if sc.sticky.has_key('WaspSetup'):
+        
+        check_data = True
+        
+        ##check inputs
+        if len(sup_dir) == 0:
+            check_data = False
+            msg = "Please provide a valid list of lines as support directions"
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+        
+        if part_geo is not None:
+            for i in range(len(sup_dir)):
+                intersection = rg.Intersect.Intersection.MeshPolyline(part_geo, sup_dir[i])
+                if len(intersection[0]) == 0:
+                    msg = "Support direction " + str(i) + " does not intersect with the part geometry. Please verify this is intended."
+                    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+        else:
+            msg = "No part geometry provided. Correct position of supports cannot be verified."
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
+        
+        if check_data:
+            support = sc.sticky['Support'](DIR)
+            return support
+        else:
+            return -1
+    
+    else:
+        ## throw warining
+        msg = "You must run the SetupWasp component before starting to build!"
+        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+        return -1
+
+
+result = main(DIR, GEO)
+
+if result != -1:
+    SUP = result

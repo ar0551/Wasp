@@ -39,7 +39,7 @@ Provided by Wasp 0.0.04
         N: Number of parts to be aggregated (does not count parts provided in PREV)
         RULES: Rules for the aggregation
         COLL: OPTIONAL // Collision detection. By default is active and checks for collisions between the aggregated parts
-        MODE: OPTIONAL // Switches between aggregation modes: 0 = Basic (only parts collision check), 1 = Constrained (checks all constraints set on the part)
+        MODE: OPTIONAL // Switches between aggregation modes: 0 = Basic (Default: only parts collision check), 1 = Constrained (checks all constraints set on the part)
         ID: OPTIONAL // Aggregation ID (to avoid overwriting when having different aggregation components in the same file)
         RESET: Recompute the whole aggregation
     Returns:
@@ -48,11 +48,11 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Stochastic Aggregation"
 ghenv.Component.NickName = 'RndAggr'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_15_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "5"
+ghenv.Component.SubCategory = "4 | Aggregation"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
 
@@ -223,6 +223,8 @@ def main(parts, previous_parts, num_parts, rules, collision, aggregation_mode, a
         
         if aggregation_id is None:
             aggregation_id = 'Aggregation'
+            msg = "Default name 'Aggregation' assigned"
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
         
         if reset is None:
             reset = False

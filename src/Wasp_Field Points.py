@@ -42,11 +42,11 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Field Points"
 ghenv.Component.NickName = 'FieldPts'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_21_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
+ghenv.Component.SubCategory = "4 | Aggregation"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 import scriptcontext as sc
@@ -81,7 +81,7 @@ def main(boundaries, resolution):
             x_size = global_bbox.Max.X - global_bbox.Min.X
             resolution = int(x_size / 10)
             
-            msg = "No resolution provided. Default resolution set to %d"%(resolution)
+            msg = "No resolution provided. Default resolution set to %d units"%(resolution)
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
             
         if check_data:
@@ -93,7 +93,7 @@ def main(boundaries, resolution):
                     global_bbox = bbox
                 else:
                     global_bbox.Union(bbox)
-            print global_bbox
+            
             x_size = global_bbox.Max.X - global_bbox.Min.X
             x_count = int(math.ceil(x_size / resolution)) + 1
             y_size = global_bbox.Max.Y - global_bbox.Min.Y

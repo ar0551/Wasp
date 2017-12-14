@@ -31,7 +31,7 @@
 """
 Create a basic Wasp Part to be used for aggregation
 -
-Provided by Wasp 0.0.03
+Provided by Wasp 0.0.04
     Args:
         NAME: Part name
         GEO: Part geometry. It will be converted to mesh - to improve performance, perform the conversion before adding to the part and user a low-poly count
@@ -44,10 +44,10 @@ Provided by Wasp 0.0.03
 
 ghenv.Component.Name = "Wasp_Basic Part"
 ghenv.Component.NickName = 'Part'
-ghenv.Component.Message = 'VER 0.0.03\nSEP_17_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
+ghenv.Component.SubCategory = "2 | Parts"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 
@@ -67,7 +67,7 @@ def main(part_name, part_geo, connections, collider, attributes):
         if part_name is None:
             part_name = 'P1'
             msg = "Default name 'P1' assigned to part"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
         
         if part_geo is None:
             check_data = False

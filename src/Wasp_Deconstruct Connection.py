@@ -43,11 +43,11 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Deconstruct Connection"
 ghenv.Component.NickName = 'DeConn'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_11_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.SubCategory = "1 | Elements"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 
@@ -55,7 +55,7 @@ import scriptcontext as sc
 import Rhino.Geometry as rg
 import Grasshopper.Kernel as gh
 
-def main(conn_planes):
+def main(connection):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -63,13 +63,13 @@ def main(conn_planes):
         check_data = True
         
         ##check inputs
-        if CONN is None:
+        if connection is None:
             check_data = False
             msg = "No connection provided"
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         
         if check_data:
-            return CONN.pln, CONN.id, CONN.part, CONN.type
+            return connection.pln, connection.id, connection.part, connection.type
         
         else:
             return -1
@@ -81,7 +81,7 @@ def main(conn_planes):
         return -1
 
 
-result = main(PLN)
+result = main(CONN)
 
 if result != -1:
     PLN = result[0]

@@ -31,7 +31,7 @@
 """
 Generate an aggregation rule from part names and connections ids
 -
-Provided by Wasp 0.0.03
+Provided by Wasp 0.0.04
     Args:
         P1: Name of base part
         C1: Id of base connection
@@ -43,10 +43,10 @@ Provided by Wasp 0.0.03
 
 ghenv.Component.Name = "Wasp_Rule"
 ghenv.Component.NickName = 'Rule'
-ghenv.Component.Message = 'VER 0.0.03\nSEP_17_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
+ghenv.Component.SubCategory = "3 | Rules"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
@@ -63,7 +63,7 @@ def main(part1, conn1, part2, conn2):
         ##check inputs
         if part1 is None or conn1 is None or part2 is None or conn2 is None:
             check_data = False
-            msg = "Missing data"
+            msg = "Missing data. Please provide data for all inputs."
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         
         if check_data:

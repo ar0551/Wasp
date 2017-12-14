@@ -33,7 +33,7 @@ Attribute to be attached to a part.
 Could be geometry or any other kind of data (eg. text, numeric variables, color).
 If Geometry, Transformable must be set to True to mantain the geometry attached to the part during aggregation.
 -
-Provided by Wasp 0.0.03
+Provided by Wasp 0.0.04
     Args:
         ID: Name of the attribute
         VAL: Value of the attribute (any type of Gh-compatible data possible)
@@ -44,10 +44,10 @@ Provided by Wasp 0.0.03
 
 ghenv.Component.Name = "Wasp_Attribute"
 ghenv.Component.NickName = 'Attribute'
-ghenv.Component.Message = 'VER 0.0.03\nSEP_17_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
+ghenv.Component.SubCategory = "1 | Elements"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
@@ -66,7 +66,7 @@ def main(id, values, transformable = False):
         if id is None:
             id = 'ATTR_01'
             msg = "Default name 'ATTR_01' assigned to attribute"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
         
         if len(values) == 0:
             check_data = False
@@ -75,7 +75,7 @@ def main(id, values, transformable = False):
         
         if transformable is None:
             msg = "Transformable set to False by default"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
         
         if transformable == True:
             val_count = 0

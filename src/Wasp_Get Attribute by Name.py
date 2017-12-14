@@ -29,7 +29,7 @@
 #########################################################################
 
 """
-Extract values stored in an atrribute
+Extract values stored in an atrribute with the given name.
 -
 Provided by Wasp 0.0.04
     Args:
@@ -41,16 +41,20 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Get Attribute by Name"
 ghenv.Component.NickName = 'GetAttr'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_16_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
+ghenv.Component.SubCategory = "1 | Elements"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
+import Grasshopper.Kernel as gh
 
-if ATTR is None:
+if len(ATTR) == 0:
     msg = "No attribute provided"
+    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+elif ID is None:
+    msg = "No id provided"
     ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
 else:
     VAL = []

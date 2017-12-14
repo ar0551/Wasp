@@ -43,11 +43,11 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Connection From Plane"
 ghenv.Component.NickName = 'ConnPln'
-ghenv.Component.Message = 'VER 0.0.04\nNOV_14_2017'
+ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.SubCategory = "1 | Elements"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 
