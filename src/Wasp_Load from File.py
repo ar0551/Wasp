@@ -42,7 +42,7 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Load from File"
 ghenv.Component.NickName = 'WaspLoad'
-ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
+ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

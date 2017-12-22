@@ -31,7 +31,7 @@
 """
 Create a Wasp Part with additional constraints (supports, additional colliders)
 -
-Provided by Wasp 0.0.04
+Provided by Wasp 0.1.0
     Args:
         NAME: Part name
         GEO: Part geometry. It will be converted to mesh - to improve performance, perform the conversion before adding to the part and user a low-poly count
@@ -46,7 +46,7 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Constrained Part"
 ghenv.Component.NickName = 'ConstrPart'
-ghenv.Component.Message = 'VER 0.0.04\nDEC_13_2017'
+ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
