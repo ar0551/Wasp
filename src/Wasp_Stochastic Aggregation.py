@@ -48,7 +48,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Stochastic Aggregation"
 ghenv.Component.NickName = 'RndAggr'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.1.1\nMAR_06_2018'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -150,15 +150,13 @@ def aggregate(aggr_id, aggr_parts, aggr_rules, iter, aggr_coll, aggr_mode):
                                 for sup in next_part.supports:
                                     missing_supports_check = True
                                     supports_count = 0
-                                    for dir in sup.sup_dir:
-                                        dir_trans = dir.Duplicate()
-                                        dir_trans.Transform(orientTransform)
-                                        
+                                    sup_trans = sup.transform(orientTransform)
+                                    for dir in sup_trans.sup_dir:
                                         for ex_part in sc.sticky[aggr_id]:
-                                            if len(rg.Intersect.Intersection.MeshPolyline(ex_part.collider, dir_trans)[0]) > 0:
+                                            if len(rg.Intersect.Intersection.MeshLine(ex_part.collider, dir)[0]) > 0:
                                                 supports_count += 1
                                                 break
-                                    if supports_count == len(sup.sup_dir):
+                                    if supports_count == len(sup_trans.sup_dir):
                                         missing_supports_check = False
                                         break
             

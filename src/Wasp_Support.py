@@ -42,7 +42,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Support"
 ghenv.Component.NickName = 'Support'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.1.1\nMAR_06_2018'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
@@ -63,14 +63,21 @@ def main(sup_dir, part_geo):
         check_data = True
         
         ##check inputs
+        support_lines = []
         if len(sup_dir) == 0:
             check_data = False
             msg = "Please provide a valid list of lines as support directions"
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+        else:
+            for sup in sup_dir:
+                start = sup.PointAtStart
+                end = sup.PointAtEnd
+                sup_ln = rg.Line(start, end)
+                support_lines.append(sup_ln)
         
         if part_geo is not None:
-            for i in range(len(sup_dir)):
-                intersection = rg.Intersect.Intersection.MeshPolyline(part_geo, sup_dir[i])
+            for i in range(len(support_lines)):
+                intersection = rg.Intersect.Intersection.MeshLine(part_geo, support_lines[i])
                 if len(intersection[0]) == 0:
                     msg = "Support direction " + str(i) + " does not intersect with the part geometry. Please verify this is intended."
                     ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)

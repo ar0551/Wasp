@@ -38,7 +38,7 @@ along with Wasp; If not, see <http://www.gnu.org/licenses/>.
 
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-Source code is available at: xxxxx
+Source code is available at: https://github.com/ar0551/Wasp
 -
 Provided by Wasp 0.1.0
     Args:
@@ -49,7 +49,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Setup"
 ghenv.Component.NickName = 'WaspSetup'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.1.1\nMAR_06_2018'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "0 | Wasp"
@@ -275,6 +275,13 @@ class Field(object):
         self.vals = []
         pts_count = 0
         
+        self.is_tensor_field = False
+        try:
+            v = values[0][2]
+            self.is_tensor_field = True
+        except:
+            pass
+        
         for z in range(0, self.z_count):
             self.pts.append([])
             self.vals.append([])
@@ -291,7 +298,10 @@ class Field(object):
                                 inside = True
                                 break
                         if inside == False:
-                            self.vals[z][y].append(0.0)
+                            if self.is_tensor_field:
+                                self.vals[z][y].append(rg.Vector3d(0,0,0))
+                            else:
+                                self.vals[z][y].append(0.0)
                     else:
                         self.vals[z][y].append(values[pts_count])
                     pts_count += 1
@@ -316,9 +326,14 @@ class Field(object):
             for y in range(0, self.y_count):
                 for x in range(0, self.x_count):
                     value = self.vals[z][y][x]
-                    if value > max_val:
-                        max_val = value
-                        highest_pt = self.pts[z][y][x]
+                    if self.is_tensor_field:
+                        if value.Length > max_val:
+                            max_val = value
+                            highest_pt = self.pts[z][y][x]
+                    else:
+                        if value > max_val:
+                            max_val = value
+                            highest_pt = self.pts[z][y][x]
         
         return highest_pt
 
@@ -336,8 +351,11 @@ class Attribute(object):
         if self.transformable == True:
             values_trans = []
             for val in self.values:
+                val_trans = None
                 if type(val) == rg.Point3d:
                     val_trans = rg.Point3d(val)
+                elif type(val) == rg.Plane:
+                    val_trans = rg.Plane(val)
                 else:
                     val_trans = val.Duplicate()
                 val_trans.Transform(trans)
@@ -352,14 +370,16 @@ class Attribute(object):
 class Support(object):
     
     def __init__(self, support_directions):
-        
         self.sup_dir = support_directions
     
     def transform(self, trans):
         sup_dir_trans = []
         for dir in self.sup_dir:
-            dir_trans = dir.Duplicate()
-            dir_trans.Transform(trans)
+            start_trans = dir.PointAtStart
+            end_trans = dir.PointAtEnd
+            start_trans.Transform(trans)
+            end_trans.Transform(trans)
+            dir_trans = rg.Line(start_trans, end_trans)
             sup_dir_trans.append(dir_trans)
         sup_trans = Support(sup_dir_trans)
         return sup_trans

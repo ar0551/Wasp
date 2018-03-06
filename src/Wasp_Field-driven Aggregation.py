@@ -50,7 +50,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Field-driven Aggregation"
 ghenv.Component.NickName = 'FieldAggregation'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.1.1\nMAR_06_2018'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -73,12 +73,12 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll, aggr_mode):
     best_conn = None
     best_conn_id = -1
     
-    for i in range(len(sc.sticky[aggr_id])):
+    for i in xrange(len(sc.sticky[aggr_id])):
         part_01 = sc.sticky[aggr_id][i]
-        for i2 in range(len(part_01.active_connections)-1, -1, -1):
+        for i2 in xrange(len(part_01.active_connections)-1, -1, -1):
             conn_01_id = part_01.active_connections[i2]
             conn_01 = part_01.connections[conn_01_id]
-            for i3 in range(len(conn_01.active_rules)-1, -1, -1):
+            for i3 in xrange(len(conn_01.active_rules)-1, -1, -1):
                 rule_id = conn_01.active_rules[i3]
                 rule = conn_01.rules_table[rule_id]
                 
@@ -96,11 +96,6 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll, aggr_mode):
                     current_target_val = aggr_field.return_pt_val(next_center)
                 
                     if current_target_val > max_val or max_val == None:
-                        
-                        if next_center is None:
-                            next_center = rg.Point3d(next_part.center)
-                            orientTransform = rg.Transform.PlaneToPlane(next_part.connections[rule.conn2].flip_pln, conn_01.pln)
-                            next_center.Transform(orientTransform)
                         
                         ## overlap check
                         close_neighbour_check = False
@@ -142,12 +137,10 @@ def findBestRule(aggr_id, aggr_parts, aggr_field, thres, aggr_coll, aggr_mode):
                                             for sup in next_part.supports:
                                                 missing_supports_check = True
                                                 supports_count = 0
-                                                for dir in sup.sup_dir:
-                                                    dir_trans = dir.Duplicate()
-                                                    dir_trans.Transform(orientTransform)
-                                                    
+                                                sup_trans = sup.transform(orientTransform)
+                                                for dir in sup_trans.sup_dir:
                                                     for ex_part in sc.sticky[aggr_id]:
-                                                        if len(rg.Intersect.Intersection.MeshPolyline(ex_part.collider, dir_trans)[0]) > 0:
+                                                        if len(rg.Intersect.Intersection.MeshLine(ex_part.collider, dir)[0]) > 0:
                                                             supports_count += 1
                                                             break
                                                 if supports_count == len(sup.sup_dir):
@@ -286,6 +279,15 @@ def main(parts, previous_parts, num_parts, rules, field, threshold, collision, a
         if check_data:
             if sc.sticky.has_key(aggregation_id) == False:
                 sc.sticky[aggregation_id] = []
+            
+            if sc.sticky.has_key('rules') == False:
+                sc.sticky['rules'] = rules
+            
+            if rules != sc.sticky['rules']:
+                for part in parts:
+                    part.reset_part(rules)
+                sc.sticky['rules'] = rules
+            
             
             if reset:
                 sc.sticky[aggregation_id] = []

@@ -95,4 +95,4 @@ if result != -1:
     TXT = result[4]
 
 
-R = sc.sticky['Rule'](P1, C1, P2, C2, GH_Component = ghenv.Component)
+R = sc.sticky['Rule'](P1, C1, P2, C2)

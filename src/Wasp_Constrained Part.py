@@ -46,7 +46,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Constrained Part"
 ghenv.Component.NickName = 'ConstrPart'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.1.1\nMAR_06_2018'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -100,7 +100,7 @@ def main(part_name, part_geo, connections, collider, attributes, add_collider, s
         
         if add_collider is None and len(supports) == 0:
             msg = "No information provided for Constrained mode. You might want to use the Basic Part component for better performance"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
         
         
         if check_data:
