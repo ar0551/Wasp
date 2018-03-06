@@ -231,6 +231,15 @@ def main(parts, previous_parts, num_parts, rules, collision, aggregation_mode, a
             if sc.sticky.has_key(aggregation_id) == False:
                 sc.sticky[aggregation_id] = []
             
+            if sc.sticky.has_key('rules') == False:
+                sc.sticky['rules'] = rules
+            
+            if rules != sc.sticky['rules']:
+                for part in parts:
+                    part.reset_part(rules)
+                sc.sticky['rules'] = rules
+            
+            
             if reset:
                 sc.sticky[aggregation_id] = []
                 
