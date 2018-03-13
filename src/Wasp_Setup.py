@@ -49,7 +49,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Setup"
 ghenv.Component.NickName = 'WaspSetup'
-ghenv.Component.Message = 'VER 0.1.1\nMAR_06_2018'
+ghenv.Component.Message = 'VER 0.2.0'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "0 | Wasp"
@@ -114,7 +114,7 @@ class Connection(object):
 class Part(object):
     
     ## constructor
-    def __init__(self, name, geometry, connections, collider, attributes):
+    def __init__(self, name, geometry, connections, collider, attributes, dim=None):
         
         self.name = name
         self.geo = geometry
@@ -132,6 +132,19 @@ class Part(object):
         self.transformation = rg.Transform.Identity
         self.center = self.geo.GetBoundingBox(False).Center
         self.collider = collider
+        
+        ##part size
+        if dim is not None:
+            self.dim = dim
+        else:
+            max_collider_dist = None
+            for v in self.collider.Vertices:
+                dist = self.center.DistanceTo(v)
+                if dist > max_collider_dist or max_collider_dist is None:
+                    max_collider_dist = dist
+            
+            self.dim = max_collider_dist
+        
         
         self.children = []
         
@@ -177,7 +190,7 @@ class Part(object):
             for attr in self.attributes:
                 attributes_trans.append(attr.transform(trans))
         
-        part_trans = Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans)
+        part_trans = Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, dim = self.dim)
         part_trans.transformation = trans
         return part_trans
     
@@ -198,9 +211,9 @@ class Part(object):
 class Constrained_Part(Part):
     
     ## constructor
-    def __init__(self, name, geometry, connections, collider, attributes, additional_collider, supports):
+    def __init__(self, name, geometry, connections, collider, attributes, additional_collider, supports, dim = None):
         
-        super(self.__class__, self).__init__(name, geometry, connections, collider, attributes)
+        super(self.__class__, self).__init__(name, geometry, connections, collider, attributes, dim)
         
         self.add_collider = None
         if additional_collider != None:
@@ -238,7 +251,7 @@ class Constrained_Part(Part):
                 sup_trans = sup.transform(trans)
                 supports_trans.append(sup_trans)
         
-        part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans)
+        part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim = self.dim)
         part_trans.transformation = trans
         part_trans.is_constrained = True
         return part_trans
@@ -390,6 +403,363 @@ class Support(object):
 #########################################################################
 
 ## Aggregation class
+class Aggregation(object):
+    
+    def __init__(self, name, parts, rules, mode, prev = None, coll_check = True):
+        
+        ## basic parameters
+        self.name = name
+        
+        self.parts = {}
+        for part in parts:
+            self.parts[part.name] = part
+        
+        self.rules = rules
+        
+        self.reset_parts()
+        
+        self.mode = mode
+        self.coll_check = coll_check
+        
+        ## lists
+        self.aggregated_parts = []
+        self.p_count = 0
+        
+        if prev is not None:
+            for prev_p in prev:
+                prev_p.reset_part(self.rules)
+                self.aggregated_parts.append(prev_p)
+                self.p_count += 1
+        
+        ## WIP
+        self.collision_shapes = []
+        self.graph = None
+    
+    ##
+    def reset(self):
+        self.aggregated_parts = []
+        self.p_count = 0
+        
+        self.reset_parts()
+        
+        if prev is not None:
+            for prev_p in prev:
+                prev_p.reset_part(self.rules)
+                self.aggregated_parts.append(prev_p)
+                self.p_count += 1
+    
+    ##
+    def reset_parts(self):
+        for p_key in self.parts:
+            self.parts[p_key].reset_part(self.rules)
+    
+    ##
+    def reset_rules(self, rules):
+        if rules != self.rules:
+            self.rules = rules
+            self.reset_parts()
+    
+    ##
+    def remove_elements(self, num):
+        self.aggregated_parts = self.aggregated_parts[:num]
+        for part in self.aggregated_parts:
+            part.reset_part(self.rules)
+        self.p_count -= (self.p_count - num)
+    
+    ##
+    def aggregate_rnd(self, num):
+        added = 0
+        loops = 0
+        while added < num:
+            loops += 1
+            if loops > num*100:
+                break
+            ## if no part is present in the aggregation, add first random part
+            if self.p_count == 0:
+                first_part = self.parts[rnd.choice(self.parts.keys())]
+                for conn in first_part.connections:
+                    conn.generate_rules_table(self.rules)
+                self.aggregated_parts.append(first_part)
+                added += 1
+                self.p_count += 1
+            ## otherwise add new random part
+            else:
+                next_rule = None
+                part_01_id = -1
+                conn_01_id = -1
+                next_rule_id = -1
+                new_rule_attempts = 0
+                
+                while new_rule_attempts < 1000:
+                    new_rule_attempts += 1
+                    part_01_id = rnd.randint(0,self.p_count-1)
+                    part_01 = self.aggregated_parts[part_01_id]
+                    if len(part_01.active_connections) > 0:
+                        conn_01_id = part_01.active_connections[rnd.randint(0, len(part_01.active_connections)-1)]
+                        conn_01 = part_01.connections[conn_01_id]
+                        if len(conn_01.active_rules) > 0:
+                            next_rule_id = conn_01.active_rules[rnd.randint(0, len(conn_01.active_rules)-1)]
+                            next_rule = conn_01.rules_table[next_rule_id]
+                            break
+                """
+                if next_rule == None:
+                    msg = "aborted after " + str(count) + " iterations"
+                    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+                    break
+                """
+                if next_rule is not None:
+                    next_part = self.parts[next_rule.part2]
+                    orientTransform = rg.Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn_01.pln)
+                    next_part_center = next_part.transform_center(orientTransform)
+                    
+                    ## overlap check
+                    close_neighbour_check = False
+                    possible_collisions = []
+                    coll_count = 0
+                    for ex_part in self.aggregated_parts:
+                        dist = ex_part.center.DistanceTo(next_part_center)
+                        if dist < sc.sticky['model_tolerance']:
+                            close_neighbour_check = True
+                            break
+                        elif dist < ex_part.dim + next_part.dim:
+                            possible_collisions.append(coll_count)
+                        coll_count += 1
+                    
+                    ## collision check
+                    collision_check = False
+                    if self.coll_check == True and close_neighbour_check == False:
+                        next_part_collider = next_part.transform_collider(orientTransform)
+                        for id in possible_collisions:
+                            if len(rg.Intersect.Intersection.MeshMeshFast(self.aggregated_parts[id].collider, next_part_collider)) > 0:
+                                collision_check = True
+                                break
+                    
+                    ## constraints check
+                    add_collision_check = False
+                    missing_supports_check = False
+                    if self.mode == 1:
+                        if close_neighbour_check == False and collision_check == False:
+                            if next_part.is_constrained:
+                                
+                                ## additional collider check
+                                if next_part.add_collider != None:
+                                    add_collider = next_part.add_collider.Duplicate()
+                                    add_collider.Transform(orientTransform)
+                                    for ex_part in self.aggregated_parts:
+                                        intersections = rg.Intersect.Intersection.MeshMeshFast(ex_part.collider, add_collider)
+                                        if len(intersections) > 0:
+                                            add_collision_check = True
+                                            break
+                                
+                                ## supports check
+                                if add_collision_check == False:
+                                    if len(next_part.supports) > 0:
+                                        for sup in next_part.supports:
+                                            missing_supports_check = True
+                                            supports_count = 0
+                                            sup_trans = sup.transform(orientTransform)
+                                            for dir in sup_trans.sup_dir:
+                                                for id in possible_collisions:
+                                                    if len(rg.Intersect.Intersection.MeshLine(self.aggregated_parts[id].collider, dir)[0]) > 0:
+                                                        supports_count += 1
+                                                        break
+                                            if supports_count == len(sup_trans.sup_dir):
+                                                missing_supports_check = False
+                                                break
+                    
+                    if close_neighbour_check == False and collision_check == False and add_collision_check == False and missing_supports_check == False:
+                        next_part_trans = next_part.transform(orientTransform)
+                        next_part_trans.reset_part(self.rules)
+                        for i in range(len(next_part_trans.active_connections)):
+                            if next_part_trans.active_connections[i] == next_rule.conn2:
+                                next_part_trans.active_connections.pop(i)
+                                break
+                        self.aggregated_parts.append(next_part_trans)
+                        self.aggregated_parts[part_01_id].children.append(next_part_trans)
+                        for i in range(len(self.aggregated_parts[part_01_id].active_connections)):
+                            if self.aggregated_parts[part_01_id].active_connections[i] == conn_01_id:
+                                self.aggregated_parts[part_01_id].active_connections.pop(i)
+                                break
+                        added += 1
+                        self.p_count += 1
+                    else:
+                       ## remove rules if they cause collisions or overlappings
+                       for i in range(len(self.aggregated_parts[part_01_id].connections[conn_01_id].active_rules)):
+                           if self.aggregated_parts[part_01_id].connections[conn_01_id].active_rules[i] == next_rule_id:
+                               self.aggregated_parts[part_01_id].connections[conn_01_id].active_rules.pop(i)
+                               break
+                       ## check if the connection is still active (still active rules available)
+                       if len(self.aggregated_parts[part_01_id].connections[conn_01_id].active_rules) == 0:
+                           for i in range(len(self.aggregated_parts[part_01_id].active_connections)):
+                            if self.aggregated_parts[part_01_id].active_connections[i] == conn_01_id:
+                                self.aggregated_parts[part_01_id].active_connections.pop(i)
+                                break
+    
+    def aggregate_field(self, num, field, thres):
+        def findBestRule():
+            max_val = None
+            best_rule = None
+            best_conn = None
+            best_conn_id = -1
+            
+            for i in xrange(self.p_count):
+                part_01 = self.aggregated_parts[i]
+                for i2 in xrange(len(part_01.active_connections)-1, -1, -1):
+                    conn_01_id = part_01.active_connections[i2]
+                    conn_01 = part_01.connections[conn_01_id]
+                    for i3 in xrange(len(conn_01.active_rules)-1, -1, -1):
+                        rule_id = conn_01.active_rules[i3]
+                        rule = conn_01.rules_table[rule_id]
+                        
+                        next_part = self.parts[rule.part2]
+                        
+                        next_center = rg.Point3d(next_part.center)
+                        orientTransform = rg.Transform.PlaneToPlane(next_part.connections[rule.conn2].flip_pln, conn_01.pln)
+                        next_center.Transform(orientTransform)
+                            
+                        if field.bbox.Contains(next_center) == True:
+                            current_target_val = field.return_pt_val(next_center)
+                            
+                            if current_target_val > max_val or max_val == None:
+                                
+                                ## overlap check
+                                close_neighbour_check = False
+                                possible_colliders = []
+                                count = 0
+                                for ex_part in self.aggregated_parts:
+                                    dist = ex_part.center.DistanceTo(next_center)
+                                    if dist < sc.sticky['model_tolerance']:
+                                        close_neighbour_check = True
+                                        break
+                                    elif dist < ex_part.dim + next_part.dim:
+                                        possible_colliders.append(count)
+                                    count += 1
+                                
+                                ## collision check
+                                collision_check = False
+                                if self.coll_check == True and close_neighbour_check == False:
+                                    next_part_collider = next_part.transform_collider(orientTransform)
+                                    for id in possible_colliders:
+                                        if len(rg.Intersect.Intersection.MeshMeshFast(self.aggregated_parts[id].collider, next_part_collider)) > 0:
+                                            collision_check = True
+                                            break
+                                
+                                ## constraints check
+                                add_collision_check = False
+                                missing_supports_check = False
+                                if self.mode == 1:
+                                    if close_neighbour_check == False and collision_check == False:
+                                        if next_part.is_constrained:
+                                            
+                                            ## additional collider check
+                                            if next_part.add_collider != None:
+                                                add_collider = next_part.add_collider.Duplicate()
+                                                add_collider.Transform(orientTransform)
+                                                for ex_part in self.aggregated_parts:
+                                                    intersections = rg.Intersect.Intersection.MeshMeshFast(ex_part.collider, add_collider)
+                                                    if len(intersections) > 0:
+                                                        add_collision_check = True
+                                                        break
+                                            
+                                            ## supports check
+                                            if add_collision_check == False:
+                                                if len(next_part.supports) > 0:
+                                                    for sup in next_part.supports:
+                                                        missing_supports_check = True
+                                                        supports_count = 0
+                                                        sup_trans = sup.transform(orientTransform)
+                                                        for dir in sup_trans.sup_dir:
+                                                            for id in possible_colliders:
+                                                                if len(rg.Intersect.Intersection.MeshLine(self.aggregated_parts[id].collider, dir)[0]) > 0:
+                                                                    supports_count += 1
+                                                                    break
+                                                        if supports_count == len(sup.sup_dir):
+                                                            missing_supports_check = False
+                                                            break
+                                
+                                
+                                if close_neighbour_check == False and collision_check == False and add_collision_check == False and missing_supports_check == False:
+                                    max_val = current_target_val
+                                    best_rule = rule
+                                    best_conn = conn_01
+                                    best_part_id = i
+                                    best_conn_id = conn_01_id
+                                    
+                                    if thres is not None and max_val > thres:
+                                        break
+                                    
+                                elif missing_supports_check == False:
+                                    ## remove rules if they cause collisions or overlappings
+                                    for i4 in range(len(self.aggregated_parts[i].connections[conn_01_id].active_rules)):
+                                       if self.aggregated_parts[i].connections[conn_01_id].active_rules[i4] == rule_id:
+                                           self.aggregated_parts[i].connections[conn_01_id].active_rules.pop(i4)
+                                           break
+                                    ## check if the connection is still active (still active rules available)
+                                    if len(self.aggregated_parts[i].connections[conn_01_id].active_rules) == 0:
+                                       for i4 in range(len(self.aggregated_parts[i].active_connections)):
+                                        if self.aggregated_parts[i].active_connections[i4] == conn_01_id:
+                                            self.aggregated_parts[i].active_connections.pop(i4)
+                                            break
+                    if thres is not None and max_val > thres:
+                        break
+                if thres is not None and max_val > thres:
+                    break
+            
+            if best_rule is not None:
+                return best_conn, best_part_id, best_conn_id, best_rule.part2, best_rule.conn2, best_rule
+            else:
+                return -1, -1, -1, -1, -1, -1
+        added = 0
+        loops = 0
+        while added < num:
+            ## avoid endless loops
+            loops += 1
+            if loops > num*100:
+                break
+            
+            ## if no part is present in the aggregation, add first random part
+            if self.p_count == 0:
+                
+                first_part = self.parts[rnd.choice(self.parts.keys())]
+                
+                start_point = field.highest_pt
+                mov_vec = rg.Vector3d.Subtract(rg.Vector3d(start_point), rg.Vector3d(first_part.center))
+                move_transform = rg.Transform.Translation(mov_vec.X, mov_vec.Y, mov_vec.Z)
+                first_part_trans = first_part.transform(move_transform)
+                
+                for conn in first_part_trans.connections:
+                    conn.generate_rules_table(self.rules)
+                
+                self.aggregated_parts.append(first_part_trans)
+                added += 1
+                self.p_count += 1
+            
+            else:
+                ## select part-rule couple creating next part in the highest point of field
+                conn_01, part_01_id, conn_01_id, next_part_name, next_conn_id, next_rule = findBestRule()
+                
+                if conn_01_id == -1:
+                    msg = "aborted after " + str(count) + " iterations"
+                    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+                    break
+                
+                next_part = self.parts[next_part_name]
+                
+                orientTransform = rg.Transform.PlaneToPlane(next_part.connections[next_conn_id].flip_pln, conn_01.pln)
+                next_part_center = next_part.transform_center(orientTransform)
+                
+                next_part_trans = next_part.transform(orientTransform)
+                next_part_trans.reset_part(self.rules)
+                for i in range(len(next_part_trans.active_connections)):
+                    if next_part_trans.active_connections[i] == next_rule.conn2:
+                        next_part_trans.active_connections.pop(i)
+                        break
+                self.aggregated_parts.append(next_part_trans)
+                added += 1
+                self.p_count += 1
+    
+
+
 ## Voxel class
 ## Graph class
 
@@ -416,6 +786,8 @@ if RUN:
     log.append("Attribute class created...")
     sc.sticky['Support'] = Support
     log.append("Support class created...")
+    sc.sticky['Aggregation'] = Aggregation
+    log.append("Aggregation class created...")
     
     sc.sticky['model_tolerance'] = Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance*5
     sc.sticky['WaspSetup'] = 1
