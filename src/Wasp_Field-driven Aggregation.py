@@ -122,7 +122,7 @@ def main(parts, previous_parts, num_parts, rules, field, threshold, collision, a
             
             ## create aggregation in sticky dict
             if sc.sticky.has_key(aggregation_id) == False:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, prev = previous_parts)
+                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, prev = previous_parts, field = field)
             
             """
             ## create aggregation list in sticky dict
@@ -138,23 +138,11 @@ def main(parts, previous_parts, num_parts, rules, field, threshold, collision, a
             
             ## reset aggregation
             if reset:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, prev = previous_parts)
-                """
-                sc.sticky[aggregation_id] = []
-                
-                for p_key in parts_dict.keys():
-                    parts_dict[p_key].reset_part(rules)
-                
-                if len(previous_parts) > 0:
-                    for part in previous_parts:
-                        part.reset_part(rules)
-                        sc.sticky[aggregation_id].append(part)
-                """
+                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, prev = previous_parts, field = field)
             
             if num_parts > sc.sticky[aggregation_id].p_count:
-                #aggregate_field(aggregation_id, parts_dict, rules, field, threshold, num_parts - len(sc.sticky[aggregation_id]), collision, aggregation_mode)
-                
-                sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count, field, threshold)
+                #sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count, field, threshold)
+                sc.sticky[aggregation_id].aggregate_field_DEV(num_parts-sc.sticky[aggregation_id].p_count)
                 
                 """
                 if len(sc.sticky[aggregation_id]) < num_parts:
@@ -164,14 +152,7 @@ def main(parts, previous_parts, num_parts, rules, field, threshold, collision, a
             elif num_parts < sc.sticky[aggregation_id].p_count:
                 
                 sc.sticky[aggregation_id].remove_elements(num_parts)
-                """
-                sc.sticky[aggregation_id] = sc.sticky[aggregation_id][:num_parts]
-                for part in sc.sticky[aggregation_id]:
-                    part.reset_part(rules)
-                
-                for p_key in parts_dict.keys():
-                    parts_dict[p_key].reset_part(rules)
-                """
+            
             return sc.sticky[aggregation_id].aggregated_parts
             
         else:

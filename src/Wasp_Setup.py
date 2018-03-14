@@ -63,6 +63,7 @@ except: pass
 #########################################################################
 import random as rnd
 import math
+import bisect as bs
 import scriptcontext as sc
 import Rhino.Geometry as rg
 import Rhino
@@ -144,7 +145,6 @@ class Part(object):
                     max_collider_dist = dist
             
             self.dim = max_collider_dist
-        
         
         self.children = []
         
@@ -405,7 +405,8 @@ class Support(object):
 ## Aggregation class
 class Aggregation(object):
     
-    def __init__(self, name, parts, rules, mode, prev = None, coll_check = True):
+    ## class constructor
+    def __init__(self, name, parts, rules, mode, prev = None, coll_check = True, field = None):
         
         ## basic parameters
         self.name = name
@@ -421,24 +422,41 @@ class Aggregation(object):
         self.mode = mode
         self.coll_check = coll_check
         
+        self.field = field
+        
         ## lists
         self.aggregated_parts = []
         self.p_count = 0
         
+        ## aggregation queue, storing sorted possible next states in the form (part, f_val)
+        self.aggregation_queue = []
+        self.queue_values = []
+        self.queue_count = 0
+        
+        ## previous aggregated parts
+        self.prev_num = 0
         if prev is not None:
+            self.prev_num = len(prev)
             for prev_p in prev:
                 prev_p.reset_part(self.rules)
                 self.aggregated_parts.append(prev_p)
+                
+                if self.field is not None:
+                    self.compute_next_w_field(prev_p, self.p_count)
+                
                 self.p_count += 1
         
         ## WIP
         self.collision_shapes = []
         self.graph = None
     
-    ##
+    ## reset entire aggregation
     def reset(self):
         self.aggregated_parts = []
         self.p_count = 0
+        self.aggregation_queue = []
+        self.queue_values = []
+        self.queue_count = 0
         
         self.reset_parts()
         
@@ -446,27 +464,38 @@ class Aggregation(object):
             for prev_p in prev:
                 prev_p.reset_part(self.rules)
                 self.aggregated_parts.append(prev_p)
+                
+                if self.field is not None:
+                    self.compute_next_w_field(prev_p, self.p_count)
+                
                 self.p_count += 1
     
-    ##
+    ## reset all base parts
     def reset_parts(self):
         for p_key in self.parts:
             self.parts[p_key].reset_part(self.rules)
     
-    ##
+    ## reset rules and regenerate rule tables for each part
     def reset_rules(self, rules):
         if rules != self.rules:
             self.rules = rules
             self.reset_parts()
     
-    ##
+    ## trim aggregated parts list to a specific length
     def remove_elements(self, num):
         self.aggregated_parts = self.aggregated_parts[:num]
+        
+        self.aggregation_queue = []
+        self.queue_values = []
+        self.queue_count = 0
+        
         for part in self.aggregated_parts:
             part.reset_part(self.rules)
+            self.compute_next_w_field(part, self.p_count)
+            
         self.p_count -= (self.p_count - num)
     
-    ##
+    ## stochastic aggregation (BASIC)
     def aggregate_rnd(self, num):
         added = 0
         loops = 0
@@ -595,6 +624,7 @@ class Aggregation(object):
                                 self.aggregated_parts[part_01_id].active_connections.pop(i)
                                 break
     
+    ## Field-driven aggregation (BASIC)
     def aggregate_field(self, num, field, thres):
         def findBestRule():
             max_val = None
@@ -709,6 +739,7 @@ class Aggregation(object):
                 return best_conn, best_part_id, best_conn_id, best_rule.part2, best_rule.conn2, best_rule
             else:
                 return -1, -1, -1, -1, -1, -1
+        
         added = 0
         loops = 0
         while added < num:
@@ -758,6 +789,151 @@ class Aggregation(object):
                 added += 1
                 self.p_count += 1
     
+    ##
+    def compute_next_w_field(self, part, part_id):
+        
+        for i in xrange(len(part.active_connections)-1, -1, -1):
+            conn_id = part.active_connections[i]
+            conn = part.connections[conn_id]
+            for i2 in xrange(len(conn.active_rules)-1, -1, -1):
+                rule_id = conn.active_rules[i2]
+                rule = conn.rules_table[rule_id]
+                
+                next_part = self.parts[rule.part2]
+                
+                next_center = rg.Point3d(next_part.center)
+                orientTransform = rg.Transform.PlaneToPlane(next_part.connections[rule.conn2].flip_pln, conn.pln)
+                next_center.Transform(orientTransform)
+                    
+                if self.field.bbox.Contains(next_center) == True:
+                    field_val = self.field.return_pt_val(next_center)
+                    
+                    queue_index = bs.bisect_left(self.queue_values, field_val)
+                    queue_entry = (next_part.name, part_id, orientTransform)
+                    
+                    self.queue_values.insert(queue_index, field_val)
+                    self.aggregation_queue.insert(queue_index, queue_entry)
+                    self.queue_count += 1
+    
+    
+    ## Field-driven aggregation with aggregation queue
+    def aggregate_field_DEV(self, num):
+        
+        added = 0
+        loops = 0
+        while added < num:
+            ## avoid endless loops
+            loops += 1
+            if loops > num*100:
+                break
+            
+            ## if no part is present in the aggregation, add first random part
+            if self.p_count == 0 and self.prev_num == 0:
+                
+                first_part = self.parts[rnd.choice(self.parts.keys())]
+                
+                start_point = field.highest_pt
+                mov_vec = rg.Vector3d.Subtract(rg.Vector3d(start_point), rg.Vector3d(first_part.center))
+                move_transform = rg.Transform.Translation(mov_vec.X, mov_vec.Y, mov_vec.Z)
+                first_part_trans = first_part.transform(move_transform)
+                
+                for conn in first_part_trans.connections:
+                    conn.generate_rules_table(self.rules)
+                
+                self.aggregated_parts.append(first_part_trans)
+                
+                ## compute all possible next parts and append to list
+                self.compute_next_w_field(first_part_trans, self.p_count)
+                added += 1
+                self.p_count += 1
+            
+            else:
+                if self.queue_count == 0:
+                    break
+                next_data = self.aggregation_queue[self.queue_count-1]
+                
+                next_part = self.parts[next_data[0]]
+                
+                next_center = rg.Point3d(next_part.center)
+                orientTransform = next_data[2]
+                next_center.Transform(orientTransform)
+                
+                
+                ## overlap check
+                close_neighbour_check = False
+                possible_colliders = []
+                count = 0
+                for ex_part in self.aggregated_parts:
+                    dist = ex_part.center.DistanceTo(next_center)
+                    if dist < sc.sticky['model_tolerance']:
+                        close_neighbour_check = True
+                        break
+                    elif dist < ex_part.dim + next_part.dim:
+                        possible_colliders.append(count)
+                    count += 1
+                
+                ## collision check
+                collision_check = False
+                if self.coll_check == True and close_neighbour_check == False:
+                    next_part_collider = next_part.transform_collider(orientTransform)
+                    for id in possible_colliders:
+                        if len(rg.Intersect.Intersection.MeshMeshFast(self.aggregated_parts[id].collider, next_part_collider)) > 0:
+                            collision_check = True
+                            break
+                        
+                ## constraints check
+                add_collision_check = False
+                missing_supports_check = False
+                if self.mode == 1:
+                    if close_neighbour_check == False and collision_check == False:
+                        if next_part.is_constrained:
+                            
+                            ## additional collider check
+                            if next_part.add_collider != None:
+                                add_collider = next_part.add_collider.Duplicate()
+                                add_collider.Transform(orientTransform)
+                                for ex_part in self.aggregated_parts:
+                                    intersections = rg.Intersect.Intersection.MeshMeshFast(ex_part.collider, add_collider)
+                                    if len(intersections) > 0:
+                                        add_collision_check = True
+                                        break
+                            
+                            ## supports check
+                            if add_collision_check == False:
+                                if len(next_part.supports) > 0:
+                                    for sup in next_part.supports:
+                                        missing_supports_check = True
+                                        supports_count = 0
+                                        sup_trans = sup.transform(orientTransform)
+                                        for dir in sup_trans.sup_dir:
+                                            for id in possible_colliders:
+                                                if len(rg.Intersect.Intersection.MeshLine(self.aggregated_parts[id].collider, dir)[0]) > 0:
+                                                    supports_count += 1
+                                                    break
+                                        if supports_count == len(sup.sup_dir):
+                                            missing_supports_check = False
+                                            break
+                            
+                            
+                if close_neighbour_check == False and collision_check == False and add_collision_check == False and missing_supports_check == False:
+                    
+                    next_part_trans = next_part.transform(orientTransform)
+                    next_part_trans.reset_part(self.rules)
+                    
+                    for conn in next_part_trans.connections:
+                        conn.generate_rules_table(self.rules)
+                    self.aggregated_parts.append(next_part_trans)
+                    
+                    
+                    ## compute all possible next parts and append to list
+                    self.compute_next_w_field(next_part_trans, self.p_count)
+                    added += 1
+                    self.p_count += 1
+                
+                self.aggregation_queue.pop()
+                self.queue_values.pop()
+                self.queue_count -=1
+                
 
 
 ## Voxel class
