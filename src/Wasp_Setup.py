@@ -491,7 +491,8 @@ class Aggregation(object):
         
         for part in self.aggregated_parts:
             part.reset_part(self.rules)
-            self.compute_next_w_field(part, self.p_count)
+            if self.field is not None:
+                self.compute_next_w_field(part, self.p_count)
             
         self.p_count -= (self.p_count - num)
     

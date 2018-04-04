@@ -101,8 +101,8 @@ def main(parts, previous_parts, num_parts, rules, field, threshold, collision, a
             collision = True
         
         if aggregation_id is None:
-            aggregation_id = 'Aggregation'
-            msg = "Default name 'Aggregation' assigned"
+            aggregation_id = 'myFieldAggregation'
+            msg = "Default name 'myFieldAggregation' assigned"
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
         
         if reset is None:
