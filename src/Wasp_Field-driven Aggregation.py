@@ -32,7 +32,7 @@
 Aggregate the given parts according to a given scalar field. New parts are added following higher values in the field.
 The component works additively, hence increasing the number of parts in an aggregation just adds new parts on the existing ones, without triggering recomputing of the previous element
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.0
     Args:
         PART: Parts to be aggregated (can be more than one)
         PREV: Previous aggregated parts. It is possible to input the results of a previous aggregation, or parts transformed with the TransformPart component
@@ -50,7 +50,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Field-driven Aggregation"
 ghenv.Component.NickName = 'FieldAggregation'
-ghenv.Component.Message = 'VER 0.2.0'
+ghenv.Component.Message = "VER 0.2.0"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -67,7 +67,7 @@ import copy
 
 
 ## Main code execution
-def main(parts, previous_parts, num_parts, rules, field, threshold, collision, aggregation_mode, aggregation_id, reset):
+def main(parts, previous_parts, num_parts, rules, field, aggregation_mode, aggregation_id, reset):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -97,9 +97,6 @@ def main(parts, previous_parts, num_parts, rules, field, threshold, collision, a
             msg = "Provide a valid scalar field"
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         
-        if collision is None:
-            collision = True
-        
         if aggregation_id is None:
             aggregation_id = 'myFieldAggregation'
             msg = "Default name 'myFieldAggregation' assigned"
@@ -116,25 +113,15 @@ def main(parts, previous_parts, num_parts, rules, field, threshold, collision, a
             
             ## if rules changed, reset parts and recompute rule tables
             if rules != sc.sticky['rules']:
-                for p_key in parts_dict.keys():
-                    parts_dict[p_key].reset_part(rules)
-                sc.sticky['rules'] = rule
+                for part in parts:
+                    part.reset_part(rules)
+                sc.sticky['rules'] = rules
+                if sc.sticky.has_key(aggregation_id):
+                    sc.sticky[aggregation_id].reset_rules(rules)
             
             ## create aggregation in sticky dict
             if sc.sticky.has_key(aggregation_id) == False:
                 sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, prev = previous_parts, field = field)
-            
-            """
-            ## create aggregation list in sticky dict
-            if sc.sticky.has_key(aggregation_id) == False:
-                sc.sticky[aggregation_id] = []
-            
-            ## create dict to store parts for fast access
-            parts_dict = {}
-            for part in parts:
-                parts_dict[part.name] = part
-            """
-            
             
             ## reset aggregation
             if reset:
@@ -142,7 +129,7 @@ def main(parts, previous_parts, num_parts, rules, field, threshold, collision, a
             
             if num_parts > sc.sticky[aggregation_id].p_count:
                 #sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count, field, threshold)
-                sc.sticky[aggregation_id].aggregate_field_DEV(num_parts-sc.sticky[aggregation_id].p_count)
+                sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count)
                 
                 """
                 if len(sc.sticky[aggregation_id]) < num_parts:
@@ -165,7 +152,7 @@ def main(parts, previous_parts, num_parts, rules, field, threshold, collision, a
         return -1
 
 
-result = main(PART, PREV, N, RULES, FIELD, THRES, COLL, MODE, ID, RESET)
+result = main(PART, PREV, N, RULES, FIELD, MODE, ID, RESET)
 
 if result != -1:
     PART_OUT = result

@@ -43,7 +43,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Rule"
 ghenv.Component.NickName = 'Rule'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.0'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"
@@ -83,6 +83,3 @@ result = main(P1, C1, P2, C2)
 
 if result != -1:
     R = result
-
-
-R = sc.sticky['Rule'](P1, C1, P2, C2, GH_Component = ghenv.Component)
