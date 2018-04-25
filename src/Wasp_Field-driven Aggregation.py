@@ -121,11 +121,11 @@ def main(parts, previous_parts, num_parts, rules, field, aggregation_mode, aggre
             
             ## create aggregation in sticky dict
             if sc.sticky.has_key(aggregation_id) == False:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, prev = previous_parts, field = field)
+                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _field = field)
             
             ## reset aggregation
             if reset:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, prev = previous_parts, field = field)
+                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _field = field)
             
             if num_parts > sc.sticky[aggregation_id].p_count:
                 #sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count, field, threshold)

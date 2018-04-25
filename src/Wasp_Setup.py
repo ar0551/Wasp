@@ -405,27 +405,29 @@ class Support(object):
 class Aggregation(object):
     
     ## class constructor
-    def __init__(self, name, parts, rules, mode, prev = [], coll_check = True, field = None):
+    def __init__(self, _name, _parts, _rules, _mode, _prev = [], _coll_check = True, _field = None, _global_constraints = []):
         
         ## basic parameters
-        self.name = name
+        self.name = _name
         
         self.parts = {}
-        for part in parts:
+        for part in _parts:
             self.parts[part.name] = part
         
-        self.rules = rules
-        
+        self.rules = _rules
         self.reset_parts()
         
-        self.mode = mode
-        self.coll_check = coll_check
+        self.mode = _mode
+        self.coll_check = _coll_check
         
-        self.field = field
+        self.field = _field
         
         ## lists
         self.aggregated_parts = []
         self.p_count = 0
+        
+        ## temp list to store possible colliders to newly added parts
+        self.possible_collisions = []
         
         ## aggregation queue, storing sorted possible next states in the form (part, f_val)
         self.aggregation_queue = []
@@ -434,20 +436,21 @@ class Aggregation(object):
         
         ## previous aggregated parts
         self.prev_num = 0
-        if len(prev) > 0:
-            self.prev_num = len(prev)
-            for prev_p in prev:
+        if len(_prev) > 0:
+            self.prev_num = len(_prev)
+            for prev_p in _prev:
                 prev_p.reset_part(self.rules)
                 self.aggregated_parts.append(prev_p)
-                
                 if self.field is not None:
                     self.compute_next_w_field(prev_p, self.p_count)
-                
                 self.p_count += 1
         
         ## WIP
         self.collision_shapes = []
         self.graph = None
+        
+        self.global_constraints = _global_constraints
+    
     
     ## reset entire aggregation (NOT WORKING)
     def reset(self):
@@ -494,6 +497,78 @@ class Aggregation(object):
                 self.compute_next_w_field(part, self.p_count)
             
         self.p_count -= (self.p_count - num)
+    
+    #### constraints check
+    
+    ## overlap // part-part collision check
+    def collision_check(self, part, trans):
+        part_center = part.transform_center(trans)
+        
+        ## overlap check
+        coll_count = 0
+        for ex_part in self.aggregated_parts:
+            dist = ex_part.center.DistanceTo(part_center)
+            if dist < sc.sticky['model_tolerance']:
+                return True
+            elif dist < ex_part.dim + part.dim:
+                self.possible_collisions.append(coll_count)
+            coll_count += 1
+        
+        ## collision check
+        if self.coll_check == True:
+            part_collider = part.transform_collider(trans)
+            for id in self.possible_collisions:
+                if len(rg.Intersect.Intersection.MeshMeshFast(self.aggregated_parts[id].collider, part_collider)) > 0:
+                    return True
+        return False
+    
+    ## additional collider check
+    def additional_collider_check(self, part, trans):
+        if part.add_collider != None:
+            add_collider = part.add_collider.Duplicate()
+            add_collider.Transform(trans)
+            for ex_part in self.aggregated_parts:
+                intersections = rg.Intersect.Intersection.MeshMeshFast(ex_part.collider, add_collider)
+                if len(intersections) > 0:
+                    return True
+        return False
+    
+    ## support check
+    def missing_supports_check(self, part, trans):
+        if len(part.supports) > 0:
+            for sup in part.supports:
+                supports_count = 0
+                sup_trans = sup.transform(trans)
+                for dir in sup_trans.sup_dir:
+                    for id in self.possible_collisions:
+                        if len(rg.Intersect.Intersection.MeshLine(self.aggregated_parts[id].collider, dir)[0]) > 0:
+                            supports_count += 1
+                            break
+                if supports_count == len(sup_trans.sup_dir):
+                    return False
+            return True
+        else:
+            return False
+    
+    ## global constraints check
+    def global_constraints_check(self, part, trans):
+        for constraint in self.global_constraints:
+            if constraint.type == 'plane':
+                part_center = part.transform_center(trans)
+                if constraint.check(part_center) == False:
+                    return True
+                
+            elif constraint.type == 'mesh_collider':
+                part_collider = part.transform_collider(trans)
+                if constraint.inside == False:
+                    if constraint.check(part_collider) == False:
+                        return True
+                else:
+                    part_center = part.transform_center(trans)
+                    if constraint.check_inside(part_collider, part_center) == False:
+                        return True
+        return False
+    
     
     ## sequential aggregation with Graph Grammar
     def aggregate_sequence(self, graph_rules):
@@ -554,7 +629,7 @@ class Aggregation(object):
                 else:
                     pass ## implement error handling
     
-        
+    
     
     
     ## stochastic aggregation (BASIC)
@@ -603,64 +678,39 @@ class Aggregation(object):
                 if next_rule is not None:
                     next_part = self.parts[next_rule.part2]
                     orientTransform = rg.Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn_01.pln)
-                    next_part_center = next_part.transform_center(orientTransform)
                     
-                    ## overlap check
-                    close_neighbour_check = False
-                    possible_collisions = []
-                    coll_count = 0
-                    for ex_part in self.aggregated_parts:
-                        dist = ex_part.center.DistanceTo(next_part_center)
-                        if dist < sc.sticky['model_tolerance']:
-                            close_neighbour_check = True
-                            break
-                        elif dist < ex_part.dim + next_part.dim:
-                            possible_collisions.append(coll_count)
-                        coll_count += 1
+                    ## boolean checks for all constraints
+                    coll_check = False
+                    add_coll_check = False
+                    missing_sup_check = False
+                    global_const_check = False
                     
                     ## collision check
-                    collision_check = False
-                    if self.coll_check == True and close_neighbour_check == False:
-                        next_part_collider = next_part.transform_collider(orientTransform)
-                        for id in possible_collisions:
-                            if len(rg.Intersect.Intersection.MeshMeshFast(self.aggregated_parts[id].collider, next_part_collider)) > 0:
-                                collision_check = True
-                                break
+                    self.possible_collisions = []
+                    coll_check = self.collision_check(next_part, orientTransform)
                     
                     ## constraints check
-                    add_collision_check = False
-                    missing_supports_check = False
-                    if self.mode == 1:
-                        if close_neighbour_check == False and collision_check == False:
-                            if next_part.is_constrained:
-                                
-                                ## additional collider check
-                                if next_part.add_collider != None:
-                                    add_collider = next_part.add_collider.Duplicate()
-                                    add_collider.Transform(orientTransform)
-                                    for ex_part in self.aggregated_parts:
-                                        intersections = rg.Intersect.Intersection.MeshMeshFast(ex_part.collider, add_collider)
-                                        if len(intersections) > 0:
-                                            add_collision_check = True
-                                            break
-                                
-                                ## supports check
-                                if add_collision_check == False:
-                                    if len(next_part.supports) > 0:
-                                        for sup in next_part.supports:
-                                            missing_supports_check = True
-                                            supports_count = 0
-                                            sup_trans = sup.transform(orientTransform)
-                                            for dir in sup_trans.sup_dir:
-                                                for id in possible_collisions:
-                                                    if len(rg.Intersect.Intersection.MeshLine(self.aggregated_parts[id].collider, dir)[0]) > 0:
-                                                        supports_count += 1
-                                                        break
-                                            if supports_count == len(sup_trans.sup_dir):
-                                                missing_supports_check = False
-                                                break
+                    if self.mode == 1: ## local constraints mode
+                        if coll_check == False and next_part.is_constrained:
+                            add_coll_check = self.additional_collider_check(next_part, orientTransform)
+                            if add_coll_check == False:
+                               missing_sup_check = self.missing_supports_check(next_part, orientTransform)
                     
-                    if close_neighbour_check == False and collision_check == False and add_collision_check == False and missing_supports_check == False:
+                    elif self.mode == 2: ## global constraints mode
+                        if coll_check == False and len(self.global_constraints) > 0:
+                            global_const_check = self.global_constraints_check(next_part, orientTransform)
+                    
+                    elif self.mode == 3: ## local+global constraints mode
+                        if coll_check == False:
+                            if len(self.global_constraints) > 0:
+                                global_const_check = self.global_constraints_check(next_part, orientTransform)
+                            if global_const_check == False and next_part.is_constrained:
+                                add_coll_check = self.additional_collider_check(next_part, orientTransform)
+                                if add_coll_check == False:
+                                   missing_sup_check = self.missing_supports_check(next_part, orientTransform)
+                    
+                    
+                    if coll_check == False and add_coll_check == False and missing_sup_check == False and global_const_check == False:
                         next_part_trans = next_part.transform(orientTransform)
                         next_part_trans.reset_part(self.rules)
                         for i in range(len(next_part_trans.active_connections)):
@@ -676,6 +726,7 @@ class Aggregation(object):
                                 break
                         added += 1
                         self.p_count += 1
+                    ## TO FIX --> do not remove rules when only caused by missing supports
                     else:
                        ## remove rules if they cause collisions or overlappings
                        for i in range(len(self.aggregated_parts[part_01_id].connections[conn_01_id].active_rules)):
@@ -784,7 +835,7 @@ class Aggregation(object):
                 ## constraints check
                 add_collision_check = False
                 missing_supports_check = False
-                if self.mode == 1:
+                if self.mode == 1 or self.mode == 3:
                     if close_neighbour_check == False and collision_check == False:
                         if next_part.is_constrained:
                             
@@ -837,6 +888,50 @@ class Aggregation(object):
                 self.queue_count -=1
 
 
+## Global Constraint classes
+class Plane_Constraint(object):
+    
+    def __init__(self, _plane, _positive = True):
+        self.type = 'plane'
+        self.plane = _plane
+        self.positive = _positive
+        
+    def check(self, pt):
+        mapped_pt = self.plane.RemapToPlaneSpace(pt)[1]
+        
+        if self.positive:
+            if mapped_pt.Z > 0:
+                return True
+        else:
+            if mapped_pt.Z < 0:
+                return True
+        
+        return False
+
+class Mesh_Constraint(object):
+    
+    def __init__(self, _geo, _inside):
+        self.type = 'mesh_collider'
+        self.geo = _geo
+        self.inside = _inside
+    
+    def check(self, mesh):
+        if len(rg.Intersect.Intersection.MeshMeshFast(self.geo, mesh)) > 0:
+            return False
+        return True
+    
+    def check_inside(self, mesh, pt):
+        if len(rg.Intersect.Intersection.MeshMeshFast(self.geo, mesh)) > 0:
+            return False
+        
+        if self.geo.IsPointInside(pt, 0.001, False):
+            return False
+        
+        return True
+
+
+
+
 ## Voxel class
 ## Graph class
 
@@ -865,6 +960,13 @@ if RUN:
     log.append("Support class created...")
     sc.sticky['Aggregation'] = Aggregation
     log.append("Aggregation class created...")
+    
+    ## global constraints
+    sc.sticky['Plane_Constraint'] = Plane_Constraint
+    sc.sticky['Mesh_Constraint'] = Mesh_Constraint
+    ##
+    log.append("All global constraints classes created...")
+    
     
     sc.sticky['model_tolerance'] = Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance*5
     sc.sticky['WaspSetup'] = 1

@@ -40,6 +40,7 @@ Provided by Wasp 0.1.0
         RULES: Rules for the aggregation
         COLL: OPTIONAL // Collision detection. By default is active and checks for collisions between the aggregated parts
         MODE: OPTIONAL // Switches between aggregation modes: 0 = Basic (Default: only parts collision check), 1 = Constrained (checks all constraints set on the part)
+        GC: Global constraints to apply to aggregation
         ID: OPTIONAL // Aggregation ID (to avoid overwriting when having different aggregation components in the same file)
         RESET: Recompute the whole aggregation
     Returns:
@@ -62,7 +63,7 @@ import Grasshopper.Kernel as gh
 import random as rnd
 
 
-def main(parts, previous_parts, num_parts, rules, aggregation_mode, aggregation_id, reset):
+def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_constraints, aggregation_id, reset):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -111,10 +112,10 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, aggregation_
                     sc.sticky[aggregation_id].reset_rules(rules)
             
             if sc.sticky.has_key(aggregation_id) == False:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, prev = previous_parts)
+                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints)
             
             if reset:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, prev = previous_parts)
+                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints)
             
             if num_parts > sc.sticky[aggregation_id].p_count:
                 sc.sticky[aggregation_id].aggregate_rnd(num_parts-sc.sticky[aggregation_id].p_count)
@@ -134,7 +135,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, aggregation_
         return -1
 
 
-result = main(PART, PREV, N, RULES, MODE, ID, RESET)
+result = main(PART, PREV, N, RULES, MODE, GC, ID, RESET)
 
 if result != -1:
     PART_OUT = result
