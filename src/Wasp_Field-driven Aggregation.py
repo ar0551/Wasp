@@ -67,7 +67,7 @@ import copy
 
 
 ## Main code execution
-def main(parts, previous_parts, num_parts, rules, field, aggregation_mode, aggregation_id, reset):
+def main(parts, previous_parts, num_parts, rules, fields, aggregation_mode, aggregation_id, reset):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -92,10 +92,17 @@ def main(parts, previous_parts, num_parts, rules, field, aggregation_mode, aggre
             msg = "No rules provided"
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         
-        if field is None:
+        if len(fields) == 0:
             check_data = False
             msg = "Provide a valid scalar field"
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+        elif len(fields) > 1:
+            field_names = [f.name for f in fields]
+            for part in parts:
+                if part.field is None or part.field not in field_names:
+                    check_data = False
+                    msg = "Part " + part.name + " does not have a vaild field name assigned. This is necessary for multi-fields aggregations."
+                    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         
         if aggregation_id is None:
             aggregation_id = 'myFieldAggregation'
@@ -121,11 +128,11 @@ def main(parts, previous_parts, num_parts, rules, field, aggregation_mode, aggre
             
             ## create aggregation in sticky dict
             if sc.sticky.has_key(aggregation_id) == False:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _field = field)
+                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _field = fields)
             
             ## reset aggregation
             if reset:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _field = field)
+                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _field = fields)
             
             if num_parts > sc.sticky[aggregation_id].p_count:
                 #sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count, field, threshold)

@@ -115,12 +115,13 @@ class Connection(object):
 class Part(object):
     
     ## constructor
-    def __init__(self, name, geometry, connections, collider, attributes, dim=None, id=None):
+    def __init__(self, name, geometry, connections, collider, attributes, dim=None, id=None, field=None):
         
         self.name = name
         self.id = id
         self.geo = geometry
         
+        self.field = field
         
         self.connections = []
         self.active_connections = []
@@ -192,7 +193,7 @@ class Part(object):
             for attr in self.attributes:
                 attributes_trans.append(attr.transform(trans))
         
-        part_trans = Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, dim = self.dim)
+        part_trans = Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, dim=self.dim, id=self.id, field=self.field)
         part_trans.transformation = trans
         return part_trans
     
@@ -213,9 +214,9 @@ class Part(object):
 class Constrained_Part(Part):
     
     ## constructor
-    def __init__(self, name, geometry, connections, collider, attributes, additional_collider, supports, dim = None):
+    def __init__(self, name, geometry, connections, collider, attributes, additional_collider, supports, dim = None, id=None, field=None):
         
-        super(self.__class__, self).__init__(name, geometry, connections, collider, attributes, dim)
+        super(self.__class__, self).__init__(name, geometry, connections, collider, attributes, dim=dim, id=id, field=field)
         
         self.add_collider = None
         if additional_collider != None:
@@ -253,7 +254,7 @@ class Constrained_Part(Part):
                 sup_trans = sup.transform(trans)
                 supports_trans.append(sup_trans)
         
-        part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim = self.dim)
+        part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field)
         part_trans.transformation = trans
         part_trans.is_constrained = True
         return part_trans
@@ -273,8 +274,9 @@ class Rule(object):
 #################################################################### Field
 class Field(object):
     
-    def __init__(self, boundaries, pts, count_vec, resolution, values):
+    def __init__(self, name, boundaries, pts, count_vec, resolution, values):
         
+        self.name = name
         self.resolution = resolution
         
         self.bbox = rg.BoundingBox(pts)
@@ -283,7 +285,7 @@ class Field(object):
         self.y_count = int(count_vec.Y)
         self.z_count = int(count_vec.Z)
         
-        self.pts = []
+        #self.pts = []
         self.vals = []
         pts_count = 0
         
@@ -295,13 +297,13 @@ class Field(object):
             pass
         
         for z in range(0, self.z_count):
-            self.pts.append([])
+            #self.pts.append([])
             self.vals.append([])
             for y in range(0, self.y_count):
-                self.pts[z].append([])
+                #self.pts[z].append([])
                 self.vals[z].append([])
                 for x in range(0, self.x_count):
-                    self.pts[z][y].append(pts[pts_count])
+                    #self.pts[z][y].append(pts[pts_count])
                     if len(boundaries) > 0:
                         inside = False
                         for bou in boundaries:
@@ -332,7 +334,7 @@ class Field(object):
     
     def return_highest_pt(self):
         max_val = -1
-        highest_pt = None
+        max_coords = None
         
         for z in range(0, self.z_count):
             for y in range(0, self.y_count):
@@ -341,11 +343,14 @@ class Field(object):
                     if self.is_tensor_field:
                         if value.Length > max_val:
                             max_val = value
-                            highest_pt = self.pts[z][y][x]
+                            max_coords = (x,y,z)
                     else:
                         if value > max_val:
                             max_val = value
-                            highest_pt = self.pts[z][y][x]
+                            max_coords = (x,y,z)
+        
+        highest_pt = rg.Point3d(max_coords[0]*self.resolution, max_coords[1]*self.resolution, max_coords[2]*self.resolution)
+        highest_pt = highest_pt + self.bbox.Min
         
         return highest_pt
 
@@ -420,7 +425,17 @@ class Aggregation(object):
         self.mode = _mode
         self.coll_check = _coll_check
         
-        self.field = _field
+        ## fields
+        self.multiple_fields = False
+        if len(_field) == 0 or _field is None:
+            self.field = None
+        elif len(_field) == 1:
+            self.field = _field[0]
+        else:
+            self.field = {}
+            for f in _field:
+                self.field[f.name] = f
+            self.multiple_fields = True
         
         ## lists
         self.aggregated_parts = []
@@ -630,8 +645,6 @@ class Aggregation(object):
                     pass ## implement error handling
     
     
-    
-    
     ## stochastic aggregation (BASIC)
     def aggregate_rnd(self, num):
         added = 0
@@ -690,13 +703,13 @@ class Aggregation(object):
                     coll_check = self.collision_check(next_part, orientTransform)
                     
                     ## constraints check
-                    if self.mode == 1: ## local constraints mode
+                    if self.mode == 1: ## only local constraints mode
                         if coll_check == False and next_part.is_constrained:
                             add_coll_check = self.additional_collider_check(next_part, orientTransform)
                             if add_coll_check == False:
                                missing_sup_check = self.missing_supports_check(next_part, orientTransform)
                     
-                    elif self.mode == 2: ## global constraints mode
+                    elif self.mode == 2: ## onyl global constraints mode
                         if coll_check == False and len(self.global_constraints) > 0:
                             global_const_check = self.global_constraints_check(next_part, orientTransform)
                     
@@ -755,16 +768,29 @@ class Aggregation(object):
                 next_center = rg.Point3d(next_part.center)
                 orientTransform = rg.Transform.PlaneToPlane(next_part.connections[rule.conn2].flip_pln, conn.pln)
                 next_center.Transform(orientTransform)
+                
+                if self.multiple_fields:
+                    f_name = next_part.field
+                    if self.field[f_name].bbox.Contains(next_center) == True:
+                        field_val = self.field[f_name].return_pt_val(next_center)
+                        
+                        queue_index = bs.bisect_left(self.queue_values, field_val)
+                        queue_entry = (next_part.name, part_id, orientTransform)
+                        
+                        self.queue_values.insert(queue_index, field_val)
+                        self.aggregation_queue.insert(queue_index, queue_entry)
+                        self.queue_count += 1
                     
-                if self.field.bbox.Contains(next_center) == True:
-                    field_val = self.field.return_pt_val(next_center)
-                    
-                    queue_index = bs.bisect_left(self.queue_values, field_val)
-                    queue_entry = (next_part.name, part_id, orientTransform)
-                    
-                    self.queue_values.insert(queue_index, field_val)
-                    self.aggregation_queue.insert(queue_index, queue_entry)
-                    self.queue_count += 1
+                else:
+                    if self.field.bbox.Contains(next_center) == True:
+                        field_val = self.field.return_pt_val(next_center)
+                        
+                        queue_index = bs.bisect_left(self.queue_values, field_val)
+                        queue_entry = (next_part.name, part_id, orientTransform)
+                        
+                        self.queue_values.insert(queue_index, field_val)
+                        self.aggregation_queue.insert(queue_index, queue_entry)
+                        self.queue_count += 1
     
     
     ## Field-driven aggregation with aggregation queue
@@ -783,7 +809,13 @@ class Aggregation(object):
                 
                 first_part = self.parts[rnd.choice(self.parts.keys())]
                 
-                start_point = field.highest_pt
+                start_point = None
+                if self.multiple_fields:
+                    f_name = first_part.field
+                    start_point = self.field[f_name].highest_pt
+                else:
+                    start_point = self.field.highest_pt
+                
                 mov_vec = rg.Vector3d.Subtract(rg.Vector3d(start_point), rg.Vector3d(first_part.center))
                 move_transform = rg.Transform.Translation(mov_vec.X, mov_vec.Y, mov_vec.Z)
                 first_part_trans = first_part.transform(move_transform)
