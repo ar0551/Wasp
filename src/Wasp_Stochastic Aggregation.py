@@ -101,9 +101,11 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
             reset = False
         
         if check_data:
+            ## store rules in sticky dict
             if sc.sticky.has_key('rules') == False:
                 sc.sticky['rules'] = rules
             
+            ## if rules changed, reset parts and recompute rule tables
             if rules != sc.sticky['rules']:
                 for part in parts:
                     part.reset_part(rules)
@@ -111,6 +113,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
                 if sc.sticky.has_key(aggregation_id):
                     sc.sticky[aggregation_id].reset_rules(rules)
             
+            ## create aggregation in sticky dict
             if sc.sticky.has_key(aggregation_id) == False:
                 sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints)
             

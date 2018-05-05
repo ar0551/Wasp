@@ -44,7 +44,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Field"
 ghenv.Component.NickName = 'Field'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.0'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -56,7 +56,7 @@ import Rhino.Geometry as rg
 import Grasshopper.Kernel as gh
 
 
-def main(boundaries, pts, count, resolution, values):
+def main(name, boundaries, pts, count, resolution, values):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -64,6 +64,11 @@ def main(boundaries, pts, count, resolution, values):
         check_data = True
         
         ##check inputs
+        if name is None:
+            name = "myField"
+            msg = "Default field name set to 'myField'"
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
+        
         if len(boundaries) == 0:
             boundaries.append(rg.BoundingBox(pts).ToBrep())
             msg = "No boundary provided. Boundary set to point grid bounding box"
@@ -95,7 +100,7 @@ def main(boundaries, pts, count, resolution, values):
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
         
         if check_data:
-            field = sc.sticky['Field'](boundaries, pts, count, resolution, values)
+            field = sc.sticky['Field'](name, boundaries, pts, count, resolution, values)
             return field
         else:
             return -1
@@ -107,7 +112,7 @@ def main(boundaries, pts, count, resolution, values):
         return -1
 
 
-result = main(BOU, PTS, COUNT, RES, VAL)
+result = main(NAME, BOU, PTS, COUNT, RES, VAL)
 
 if result != -1:
     FIELD = result

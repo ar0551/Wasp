@@ -332,7 +332,7 @@ class Field(object):
         value = self.vals[z][y][x]
         return value
     
-    def return_highest_pt(self):
+    def return_highest_pt(self, constraints = None):
         max_val = -1
         max_coords = None
         
@@ -342,12 +342,50 @@ class Field(object):
                     value = self.vals[z][y][x]
                     if self.is_tensor_field:
                         if value.Length > max_val:
-                            max_val = value
-                            max_coords = (x,y,z)
+                            if constraints is not None:
+                                constraint_check = False
+                                pt = rg.Point3d(x*self.resolution, y*self.resolution, z*self.resolution)
+                                pt += self.bbox.Min
+                                for constraint in constraints:
+                                    if constraint.type == 'plane':
+                                        if constraint.check(pt) == False:
+                                            constraint_check = True
+                                            break
+                                        
+                                    elif constraint.type == 'mesh_collider':
+                                        if constraint.inside:
+                                            if constraint.check_inside(part_collider, part_center) == False:
+                                                constraint_check = True
+                                                break
+                                if constraint_check == False:
+                                    max_val = value.Length
+                                    max_coords = (x,y,z)
+                            else:
+                                max_val = value.Length
+                                max_coords = (x,y,z)
                     else:
                         if value > max_val:
-                            max_val = value
-                            max_coords = (x,y,z)
+                            if constraints is not None:
+                                constraint_check = False
+                                pt = rg.Point3d(x*self.resolution, y*self.resolution, z*self.resolution)
+                                pt += self.bbox.Min
+                                for constraint in constraints:
+                                    if constraint.type == 'plane':
+                                        if constraint.check(pt) == False:
+                                            constraint_check = True
+                                            break
+                                        
+                                    elif constraint.type == 'mesh_collider':
+                                        if constraint.inside:
+                                            if constraint.check_inside_only(pt) == False:
+                                                constraint_check = True
+                                                break
+                                if constraint_check == False:
+                                    max_val = value
+                                    max_coords = (x,y,z)
+                            else:
+                                max_val = value
+                                max_coords = (x,y,z)
         
         highest_pt = rg.Point3d(max_coords[0]*self.resolution, max_coords[1]*self.resolution, max_coords[2]*self.resolution)
         highest_pt = highest_pt + self.bbox.Min
@@ -410,7 +448,7 @@ class Support(object):
 class Aggregation(object):
     
     ## class constructor
-    def __init__(self, _name, _parts, _rules, _mode, _prev = [], _coll_check = True, _field = None, _global_constraints = []):
+    def __init__(self, _name, _parts, _rules, _mode, _prev = [], _coll_check = True, _field = [], _global_constraints = []):
         
         ## basic parameters
         self.name = _name
@@ -682,6 +720,7 @@ class Aggregation(object):
                             next_rule_id = conn_01.active_rules[rnd.randint(0, len(conn_01.active_rules)-1)]
                             next_rule = conn_01.rules_table[next_rule_id]
                             break
+                ### TO FIX >>> Give feedback when desired number of parts is not reached
                 """
                 if next_rule == None:
                     msg = "aborted after " + str(count) + " iterations"
@@ -812,9 +851,15 @@ class Aggregation(object):
                 start_point = None
                 if self.multiple_fields:
                     f_name = first_part.field
-                    start_point = self.field[f_name].highest_pt
+                    if (self.mode == 2 or self.mode == 3) and len(self.global_constraints) > 0:
+                        start_point = self.field[f_name].return_highest_pt(constraints=self.global_constraints)
+                    else:
+                       start_point = self.field[f_name].highest_pt
                 else:
-                    start_point = self.field.highest_pt
+                    if (self.mode == 2 or self.mode == 3) and len(self.global_constraints) > 0:
+                        start_point = self.field.return_highest_pt(constraints=self.global_constraints)
+                    else:
+                       start_point = self.field.highest_pt
                 
                 mov_vec = rg.Vector3d.Subtract(rg.Vector3d(start_point), rg.Vector3d(first_part.center))
                 move_transform = rg.Transform.Translation(mov_vec.X, mov_vec.Y, mov_vec.Z)
@@ -834,72 +879,44 @@ class Aggregation(object):
             else:
                 if self.queue_count == 0:
                     break
+                
                 next_data = self.aggregation_queue[self.queue_count-1]
-                
                 next_part = self.parts[next_data[0]]
-                
                 next_center = rg.Point3d(next_part.center)
                 orientTransform = next_data[2]
-                next_center.Transform(orientTransform)
                 
-                ## overlap check
-                close_neighbour_check = False
-                possible_colliders = []
-                count = 0
-                for ex_part in self.aggregated_parts:
-                    dist = ex_part.center.DistanceTo(next_center)
-                    if dist < sc.sticky['model_tolerance']:
-                        close_neighbour_check = True
-                        break
-                    elif dist < ex_part.dim + next_part.dim:
-                        possible_colliders.append(count)
-                    count += 1
+                ## boolean checks for all constraints
+                coll_check = False
+                add_coll_check = False
+                missing_sup_check = False
+                global_const_check = False
                 
                 ## collision check
-                collision_check = False
-                if self.coll_check == True and close_neighbour_check == False:
-                    next_part_collider = next_part.transform_collider(orientTransform)
-                    for id in possible_colliders:
-                        if len(rg.Intersect.Intersection.MeshMeshFast(self.aggregated_parts[id].collider, next_part_collider)) > 0:
-                            collision_check = True
-                            break
-                        
+                self.possible_collisions = []
+                coll_check = self.collision_check(next_part, orientTransform)
+                
                 ## constraints check
-                add_collision_check = False
-                missing_supports_check = False
-                if self.mode == 1 or self.mode == 3:
-                    if close_neighbour_check == False and collision_check == False:
-                        if next_part.is_constrained:
-                            
-                            ## additional collider check
-                            if next_part.add_collider != None:
-                                add_collider = next_part.add_collider.Duplicate()
-                                add_collider.Transform(orientTransform)
-                                for ex_part in self.aggregated_parts:
-                                    intersections = rg.Intersect.Intersection.MeshMeshFast(ex_part.collider, add_collider)
-                                    if len(intersections) > 0:
-                                        add_collision_check = True
-                                        break
-                            
-                            ## supports check
-                            if add_collision_check == False:
-                                if len(next_part.supports) > 0:
-                                    for sup in next_part.supports:
-                                        missing_supports_check = True
-                                        supports_count = 0
-                                        sup_trans = sup.transform(orientTransform)
-                                        for dir in sup_trans.sup_dir:
-                                            for id in possible_colliders:
-                                                if len(rg.Intersect.Intersection.MeshLine(self.aggregated_parts[id].collider, dir)[0]) > 0:
-                                                    supports_count += 1
-                                                    break
-                                        if supports_count == len(sup.sup_dir):
-                                            missing_supports_check = False
-                                            break
-                            
-                            
-                if close_neighbour_check == False and collision_check == False and add_collision_check == False and missing_supports_check == False:
-                    
+                if self.mode == 1: ## only local constraints mode
+                    if coll_check == False and next_part.is_constrained:
+                        add_coll_check = self.additional_collider_check(next_part, orientTransform)
+                        if add_coll_check == False:
+                           missing_sup_check = self.missing_supports_check(next_part, orientTransform)
+                
+                elif self.mode == 2: ## onyl global constraints mode
+                    if coll_check == False and len(self.global_constraints) > 0:
+                        global_const_check = self.global_constraints_check(next_part, orientTransform)
+                
+                elif self.mode == 3: ## local+global constraints mode
+                    if coll_check == False:
+                        if len(self.global_constraints) > 0:
+                            global_const_check = self.global_constraints_check(next_part, orientTransform)
+                        if global_const_check == False and next_part.is_constrained:
+                            add_coll_check = self.additional_collider_check(next_part, orientTransform)
+                            if add_coll_check == False:
+                               missing_sup_check = self.missing_supports_check(next_part, orientTransform)
+                
+                
+                if coll_check == False and add_coll_check == False and missing_sup_check == False and global_const_check == False:
                     next_part_trans = next_part.transform(orientTransform)
                     next_part_trans.reset_part(self.rules)
                     
@@ -959,6 +976,11 @@ class Mesh_Constraint(object):
         if self.geo.IsPointInside(pt, 0.001, False):
             return False
         
+        return True
+    
+    def check_inside_only(self, pt):
+        if self.geo.IsPointInside(pt, 0.001, False):
+            return False
         return True
 
 

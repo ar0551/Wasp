@@ -67,7 +67,7 @@ import copy
 
 
 ## Main code execution
-def main(parts, previous_parts, num_parts, rules, fields, aggregation_mode, aggregation_id, reset):
+def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_constraints, aggregation_id, reset, fields):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -92,6 +92,17 @@ def main(parts, previous_parts, num_parts, rules, fields, aggregation_mode, aggr
             msg = "No rules provided"
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         
+        if aggregation_mode is None:
+            aggregation_mode = 0
+        
+        if aggregation_id is None:
+            aggregation_id = 'myFieldAggregation'
+            msg = "Default name 'myFieldAggregation' assigned"
+            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
+        
+        if reset is None:
+            reset = False
+        
         if len(fields) == 0:
             check_data = False
             msg = "Provide a valid scalar field"
@@ -104,16 +115,7 @@ def main(parts, previous_parts, num_parts, rules, fields, aggregation_mode, aggr
                     msg = "Part " + part.name + " does not have a vaild field name assigned. This is necessary for multi-fields aggregations."
                     ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         
-        if aggregation_id is None:
-            aggregation_id = 'myFieldAggregation'
-            msg = "Default name 'myFieldAggregation' assigned"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
-        
-        if reset is None:
-            reset = False
-        
         if check_data:
-            
             ## store rules in sticky dict
             if sc.sticky.has_key('rules') == False:
                 sc.sticky['rules'] = rules
@@ -128,11 +130,11 @@ def main(parts, previous_parts, num_parts, rules, fields, aggregation_mode, aggr
             
             ## create aggregation in sticky dict
             if sc.sticky.has_key(aggregation_id) == False:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _field = fields)
+                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
             
             ## reset aggregation
             if reset:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _field = fields)
+                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
             
             if num_parts > sc.sticky[aggregation_id].p_count:
                 #sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count, field, threshold)
@@ -159,7 +161,7 @@ def main(parts, previous_parts, num_parts, rules, fields, aggregation_mode, aggr
         return -1
 
 
-result = main(PART, PREV, N, RULES, FIELD, MODE, ID, RESET)
+result = main(PART, PREV, N, RULES, MODE, GC, ID, RESET, FIELD)
 
 if result != -1:
     PART_OUT = result
