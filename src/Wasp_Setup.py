@@ -214,7 +214,7 @@ class Part(object):
 class Constrained_Part(Part):
     
     ## constructor
-    def __init__(self, name, geometry, connections, collider, attributes, additional_collider, supports, dim = None, id=None, field=None):
+    def __init__(self, name, geometry, connections, collider, attributes, additional_collider, supports, dim = None, id=None, field=None, sub_parts=[]):
         
         super(self.__class__, self).__init__(name, geometry, connections, collider, attributes, dim=dim, id=id, field=field)
         
@@ -225,6 +225,8 @@ class Constrained_Part(Part):
         self.supports = []
         if len(supports) > 0:
             self.supports = supports
+        
+        self.sub_parts = sub_parts
     
     ## function to transform component
     def transform(self, trans):
@@ -254,7 +256,7 @@ class Constrained_Part(Part):
                 sup_trans = sup.transform(trans)
                 supports_trans.append(sup_trans)
         
-        part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field)
+        part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts)
         part_trans.transformation = trans
         part_trans.is_constrained = True
         return part_trans

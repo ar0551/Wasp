@@ -46,7 +46,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Constrained Part"
 ghenv.Component.NickName = 'ConstrPart'
-ghenv.Component.Message = 'VER 0.1.1\nMAR_06_2018'
+ghenv.Component.Message = 'VER 0.2.0'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -58,7 +58,7 @@ import Rhino.Geometry as rg
 import Grasshopper.Kernel as gh
 
 
-def main(part_name, part_geo, connections, collider, attributes, add_collider, supports):
+def main(part_name, part_geo, connections, collider, field_name, sub_parts, attributes, add_collider, supports):
     
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
@@ -104,7 +104,7 @@ def main(part_name, part_geo, connections, collider, attributes, add_collider, s
         
         
         if check_data:
-            new_part = sc.sticky['Constrained_Part'](part_name, part_geo, connections, collider, attributes, add_collider, supports)
+            new_part = sc.sticky['Constrained_Part'](part_name, part_geo, connections, collider, attributes, add_collider, supports, field=field_name, sub_parts=sub_parts)
             new_part.is_constrained = True
             return [new_part]
         else:
@@ -117,7 +117,7 @@ def main(part_name, part_geo, connections, collider, attributes, add_collider, s
         return -1
 
 
-result = main(NAME, GEO, CONN, COLL, ATTR, E_COLL, SUP)
+result = main(NAME, GEO, CONN, COLL, FIELD, HI, ATTR, E_COLL, SUP)
 
 if result != -1:
     PART = result[0]
