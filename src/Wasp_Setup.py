@@ -432,6 +432,7 @@ class Support(object):
     def transform(self, trans):
         sup_dir_trans = []
         for dir in self.sup_dir:
+            dir = dir.ToNurbsCurve()
             start_trans = dir.PointAtStart
             end_trans = dir.PointAtEnd
             start_trans.Transform(trans)
