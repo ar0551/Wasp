@@ -229,7 +229,7 @@ class Constrained_Part(Part):
         self.sub_parts = sub_parts
     
     ## function to transform component
-    def transform(self, trans):
+    def transform(self, trans, transform_sub_parts=False):
         geo_trans = self.geo.Duplicate()
         geo_trans.Transform(trans)
         
@@ -256,10 +256,22 @@ class Constrained_Part(Part):
                 sup_trans = sup.transform(trans)
                 supports_trans.append(sup_trans)
         
-        part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts)
-        part_trans.transformation = trans
-        part_trans.is_constrained = True
-        return part_trans
+        
+        if transform_sub_parts:
+            sub_parts_trans = []
+            for sp in self.sub_parts:
+                sp_trans = sp.transform(trans, transform_sub_parts=True)
+                sub_parts_trans.append(sp_trans)
+            part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_trans)
+            part_trans.transformation = trans
+            part_trans.is_constrained = True
+            return part_trans
+        
+        else:
+            part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts)
+            part_trans.transformation = trans
+            part_trans.is_constrained = True
+            return part_trans
 
 
 #################################################################### Rule

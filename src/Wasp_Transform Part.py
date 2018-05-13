@@ -43,7 +43,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Transform Part"
 ghenv.Component.NickName = 'PartTr'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.0'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -73,7 +73,7 @@ def main(part, transform):
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         
         if check_data:
-            part_trans = part.transform(transform)
+            part_trans = part.transform(transform, transform_sub_parts=True)
             part_trans.transformation = transform
             return part_trans
         else:

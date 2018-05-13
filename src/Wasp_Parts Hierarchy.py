@@ -87,13 +87,18 @@ def main(parts, hierarchy_level):
                             for sp in part.sub_parts:
                                 sp_trans = sp.transform(part.transformation)
                                 sub_parts.append(sp_trans)
-                            current_parts = sub_parts
                         else:
                             msg = "The selected hierarchy level does not exist in the provided parts"
-                            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
+                            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
                             return -1
                     
-                return sub_parts
+                    current_parts = []
+                    for sp in sub_parts:
+                        current_parts.append(sp)
+                    sub_parts = []
+                    
+                
+                return current_parts
         else:
             return -1
     
