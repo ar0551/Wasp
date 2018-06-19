@@ -22,89 +22,99 @@
 # as part of research on digital materials and discrete design at:
 # DDU Digital Design Unit - Prof. Oliver Tessmann
 # Technische Universitt Darmstadt
-        
-        
+
+
 #########################################################################
 ##                            COMPONENT INFO                           ##
 #########################################################################
-        
+
 """
-Aggregate the given parts in a stochastic process, selecting parts and rules randomly at every step.
-The component works additively, hence increasing the number of parts in an aggregation just adds new parts on the existing ones, without triggering recomputing of the previous element.
+Access sub-parts stored at different aggregation hierarchy levels
 -
 Provided by Wasp 0.1.0
     Args:
-        PART: Parts to be aggregated (can be more than one)
-        PREV: Previous aggregated parts. It is possible to input the results of a previous aggregation, or parts transformed with the TransformPart component
-        RULES: Rules for the aggregation
-        ID: OPTIONAL // Aggregation ID (to avoid overwriting when having different aggregation components in the same file)
+        PART: Parts
+        ID: ...
+        CHILD: ...
+        REM: ...
+        RESET: ...
     Returns:
-        PART_OUT: Aggregated parts (includes both PREV input and newly aggregated parts)
+        AGGR_OUT: edited aggregation object
+        PART_OUT: edited parts
 """
-        
-ghenv.Component.Name = "Wasp_Graph-Grammar Aggregation"
-ghenv.Component.NickName = 'GraphAggr'
+
+ghenv.Component.Name = "Wasp_Parts Hierarchy"
+ghenv.Component.NickName = 'PartHie'
 ghenv.Component.Message = 'VER 0.2.0'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "4 | Aggregation"
+ghenv.Component.SubCategory = "X | Experimental"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
-        
-        
+
+
 import scriptcontext as sc
 import Rhino.Geometry as rg
 import Grasshopper.Kernel as gh
 import random as rnd
-        
-        
-def main(parts, rules_sequence, aggregation_id, reset):
-            
+
+def main(aggregation, id, child, remove, reset):
+    
     ## check if Wasp is setup
     if sc.sticky.has_key('WaspSetup'):
-                
+        
         check_data = True
+        
         ##check inputs
-        if len(parts) == 0:
+        if aggregation is None:
             check_data = False
-            msg = "No parts provided"
+            msg = "No aggregation provided"
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-                
-        if len(rules_sequence) == 0:
+        
+        ##check inputs
+        if aggregation is None:
             check_data = False
-            msg = "No rules sequence provided"
+            msg = "No aggregation provided"
             ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-                
-        if aggregation_id is None:
-            aggregation_id = 'Aggregation'
-            msg = "Default name 'Aggregation' assigned"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
-                
+        
+        if child is None:
+            child = False
+        
+        if remove is None:
+            remove = False
+        
+        if reset is None:
+            reset = False
+        
         if check_data:
-                    
-            if sc.sticky.has_key(aggregation_id) == False:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, [], 0)
-                    
+            
+            new_name = aggregation.name + "_edit"
+            
             if reset:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, [], 0)
-                    
-            else:
-                sc.sticky[aggregation_id].aggregate_sequence(rules_sequence)
-                    
-            return sc.sticky[aggregation_id].aggregated_parts
+                new_name = aggregation.name + "_edit"
+                sc.sticky[new_name] = aggregation
+            
+            if remove:
                 
+                if child:
+                    current_part = None
+                
+                sc.sticky[new_name].aggregated_parts.pop(id)
+            
+            
+            return sc.sticky[new_name]
         else:
             return -1
-            
+    
     else:
         ## throw warining
         msg = "You must run the SetupWasp component before starting to build!"
         ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         return -1
-        
-        
-result = main(PART, RULE_S, ID, RESET)
-        
+
+result = main(AGGR, ID, CHILD, REM, RESET)
+
 if result != -1:
-    PART_OUT = result
-        
+    AGGR_OUT = result
+    PART_OUT = result.aggregated_parts
+

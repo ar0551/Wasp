@@ -45,6 +45,7 @@ Provided by Wasp 0.2.0
         ID: OPTIONAL // Aggregation ID (to avoid overwriting when having different aggregation components in the same file)
         RESET: Recompute the whole aggregation
     Returns:
+        AGGR: Aggregation object
         PART_OUT: Aggregated parts (includes both PREV input and newly aggregated parts)
 """
 
@@ -149,7 +150,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
                 
                 sc.sticky[aggregation_id].remove_elements(num_parts)
             
-            return sc.sticky[aggregation_id].aggregated_parts
+            return sc.sticky[aggregation_id], sc.sticky[aggregation_id].aggregated_parts
             
         else:
             return -1
@@ -164,4 +165,5 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
 result = main(PART, PREV, N, RULES, MODE, GC, ID, RESET, FIELD)
 
 if result != -1:
-    PART_OUT = result
+    AGGR = result[0]
+    PART_OUT = result[1]

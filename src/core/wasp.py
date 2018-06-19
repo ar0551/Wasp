@@ -21,41 +21,7 @@
 # Significant parts of Wasp have been developed by Andrea Rossi
 # as part of research on digital materials and discrete design at:
 # DDU Digital Design Unit - Prof. Oliver Tessmann
-# Technische Universitt Darmstadt
-
-
-#########################################################################
-##                            COMPONENT INFO                           ##
-#########################################################################
-"""
-This components initialized all classes and variables required by Wasp to run.
-You must run this component before starting to work with Wasp, or other components will not work properly.
-
--
-Wasp: Discrete Design with Grasshopper plug-in (GPL) initiated by Andrea Rossi
-You should have received a copy of the GNU General Public License
-along with Wasp; If not, see <http://www.gnu.org/licenses/>.
-
-@license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
-
-Source code is available at: https://github.com/ar0551/Wasp
--
-Provided by Wasp 0.1.0
-    Args:
-        RUN: Setup all classes and variables required to run Wasp. Set it to True to start building.
-    Returns:
-        log: log
-"""
-
-ghenv.Component.Name = "Wasp_Setup"
-ghenv.Component.NickName = 'WaspSetup'
-ghenv.Component.Message = 'VER 0.2.0'
-ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
-ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "0 | Wasp"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
-except: pass
-
+# Technische Universitat Darmstadt
 
 
 #########################################################################
@@ -64,10 +30,7 @@ except: pass
 import random as rnd
 import math
 import bisect as bs
-import scriptcontext as sc
 import Rhino.Geometry as rg
-import Rhino
-import Grasshopper.Kernel as gh
 
 #########################################################################
 ##                               CLASSES                               ##
@@ -177,7 +140,7 @@ class Part(object):
         return data_dict
     
     ## function to transform part
-    def transform(self, trans):
+    def transform(self, trans, transform_sub_parts=False):
         geo_trans = self.geo.Duplicate()
         geo_trans.Transform(trans)
         
@@ -1004,6 +967,7 @@ class Mesh_Constraint(object):
 ## Voxel class
 ## Graph class
 
+"""
 #########################################################################
 ##                                 RUN                                 ##
 #########################################################################
@@ -1044,3 +1008,4 @@ if RUN:
 
 else:
     log.append("Set RUN to True to initialize Wasp...")
+"""
