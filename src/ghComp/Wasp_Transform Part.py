@@ -43,46 +43,50 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Transform Part"
 ghenv.Component.NickName = 'PartTr'
-ghenv.Component.Message = 'VER 0.2.0'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 
-
+import sys
 import scriptcontext as sc
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
 
 def main(part, transform):
     
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
-        
-        check_data = True
-        
-        ##check inputs
-        if part is None:
-            check_data = False
-            msg = "Please provide a valid part to be transformed"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        if transform is None:
-            check_data = False
-            msg = "Please provide a valid transformation"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        if check_data:
-            part_trans = part.transform(transform, transform_sub_parts=True)
-            part_trans.transformation = transform
-            return part_trans
-        else:
-            return -1
+    check_data = True
     
+    ##check inputs
+    if part is None:
+        check_data = False
+        msg = "Please provide a valid part to be transformed"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if transform is None:
+        check_data = False
+        msg = "Please provide a valid transformation"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if check_data:
+        ## transform part
+        part_trans = part.transform(transform, transform_sub_parts=True)
+        part_trans.transformation = transform
+        return part_trans
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         return -1
 
 

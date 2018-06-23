@@ -40,51 +40,56 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Rule From Text"
 ghenv.Component.NickName = 'RuleTxt'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
+import sys
 import scriptcontext as sc
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
+
 
 def main(text):
     
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
-        
-        check_data = True
-        
-        ##check inputs
-        if text is None:
-            check_data = False
-            msg = "No text provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        if check_data:
-            
-            try:
-                rule_parts = text.split("_")
-                part1 = str(rule_parts[0].split("|")[0])
-                conn1 = int(rule_parts[0].split("|")[1])
-                part2 = str(rule_parts[1].split("|")[0])
-                conn2 = int(rule_parts[1].split("|")[1])
-                
-                rule = sc.sticky['Rule'](part1, conn1, part2, conn2)
-                return rule
-            except:
-                msg = "Text string %s is not formatted correctly"%(text)
-                ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
-                return -1
-        else:
-            return -1
+    check_data = True
     
+    ##check inputs
+    if text is None:
+        check_data = False
+        msg = "No text provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if check_data:
+        
+        try:
+            rule_parts = text.split("_")
+            part1 = str(rule_parts[0].split("|")[0])
+            conn1 = int(rule_parts[0].split("|")[1])
+            part2 = str(rule_parts[1].split("|")[0])
+            conn2 = int(rule_parts[1].split("|")[1])
+            
+            rule = wasp.Rule(part1, conn1, part2, conn2)
+            return rule
+        except:
+            msg = "Text string %s is not formatted correctly"%(text)
+            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+            return -1
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         return -1
 
 

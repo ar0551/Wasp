@@ -44,59 +44,63 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Attribute"
 ghenv.Component.NickName = 'Attribute'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
+import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
 
 def main(id, values, transformable = False):
     
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
-        
-        check_data = True
-        
-        ##check inputs
-        if id is None:
-            id = 'ATTR_01'
-            msg = "Default name 'ATTR_01' assigned to attribute"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
-        
-        if len(values) == 0:
-            check_data = False
-            msg = "Please provide values for the attribute"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        if transformable is None:
-            msg = "Transformable set to False by default"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
-        
-        if transformable == True:
-            val_count = 0
-            for i in range(len(values)):
-                try:
-                    values[i].Transform(rg.Transform.Identity)
-                except:
-                    check_data = False
-                    msg = "Value %d is not transformable"%(i)
-                    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
-        
-        if check_data:
-            attribute = sc.sticky['Attribute'](id, values, transformable)
-            return attribute
-        else:
-            return -1
+    check_data = True
     
+    ##check inputs
+    if id is None:
+        id = 'ATTR_01'
+        msg = "Default name 'ATTR_01' assigned to attribute"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+    
+    if len(values) == 0:
+        check_data = False
+        msg = "Please provide values for the attribute"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if transformable is None:
+        msg = "Transformable set to False by default"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+    
+    if transformable == True:
+        val_count = 0
+        for i in range(len(values)):
+            try:
+                values[i].Transform(rg.Transform.Identity)
+            except:
+                check_data = False
+                msg = "Value %d is not transformable"%(i)
+                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+    
+    if check_data:
+        attribute = wasp.Attribute(id, values, transformable)
+        return attribute
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         return -1
 
 

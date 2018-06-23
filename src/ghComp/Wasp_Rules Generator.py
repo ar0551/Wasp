@@ -45,94 +45,96 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Rules Generator"
 ghenv.Component.NickName = 'RuleGen'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
+import sys
 import scriptcontext as sc
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
 
 def main(parts, self_part, self_connection, grammar):
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
+    
+    check_data = True
+    
+    ##check inputs
+    if len(parts) == 0 or parts is None:
+        check_data = False
+        msg = "No part provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if self_part == None:
+        self_part = True
+    
+    if self_connection == None:
+        self_connection = True
+    
+    if check_data:
+        rules = []
         
-        check_data = True
-        
-        ##check inputs
-        if len(parts) == 0 or parts is None:
-            check_data = False
-            msg = "No part provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        if self_part == None:
-            self_part = True
-        
-        if self_connection == None:
-            self_connection = True
-        
-        if check_data:
-            rules = []
-            
-            if len(grammar) == 0:
+        if len(grammar) == 0:
+            for part in parts:
+                for conn in part.connections:
+                    for other_part in parts:
+                        skip_part = False
+                        if self_part == False:
+                            if part.name == other_part.name:
+                                skip_part = True
+                            
+                        if skip_part == False:
+                            for other_conn in other_part.connections:
+                                skip_conn = False
+                                if self_connection == False:
+                                    if conn.id == other_conn.id:
+                                        skip_conn = True
+                                
+                                if skip_conn == False:
+                                    if conn.type == other_conn.type:
+                                        r = wasp.Rule(part.name, conn.id, other_part.name, other_conn.id)
+                                        rules.append(r)
+        else:
+            for gr_rule in grammar:
+                start_type = gr_rule.split(">")[0]
+                end_type = gr_rule.split(">")[1]
+                
                 for part in parts:
                     for conn in part.connections:
-                        for other_part in parts:
-                            skip_part = False
-                            if self_part == False:
-                                if part.name == other_part.name:
-                                    skip_part = True
-                                
-                            if skip_part == False:
-                                for other_conn in other_part.connections:
-                                    skip_conn = False
-                                    if self_connection == False:
-                                        if conn.id == other_conn.id:
-                                            skip_conn = True
+                        if conn.type == start_type:
+                            for other_part in parts:
+                                skip_part = False
+                                if self_part == False:
+                                    if part.name == other_part.name:
+                                        skip_part = True
                                     
-                                    if skip_conn == False:
-                                        if conn.type == other_conn.type:
-                                            r = sc.sticky['Rule'](part.name, conn.id, other_part.name, other_conn.id)
-                                            rules.append(r)
-            else:
-                for gr_rule in grammar:
-                    start_type = gr_rule.split(">")[0]
-                    end_type = gr_rule.split(">")[1]
-                    
-                    for part in parts:
-                        for conn in part.connections:
-                            if conn.type == start_type:
-                                for other_part in parts:
-                                    skip_part = False
-                                    if self_part == False:
-                                        if part.name == other_part.name:
-                                            skip_part = True
-                                        
-                                    if skip_part == False:
-                                        for other_conn in other_part.connections:
-                                            if other_conn.type == end_type:
-                                                skip_conn = False
-                                                if self_connection == False:
-                                                    if conn.id == other_conn.id:
-                                                        skip_conn = True
-                                                
-                                                if skip_conn == False:
-                                                    r = sc.sticky['Rule'](part.name, conn.id, other_part.name, other_conn.id)
-                                                    rules.append(r)
-                    
-                    
-            return [rules]
-        else:
-            return -1
-    
+                                if skip_part == False:
+                                    for other_conn in other_part.connections:
+                                        if other_conn.type == end_type:
+                                            skip_conn = False
+                                            if self_connection == False:
+                                                if conn.id == other_conn.id:
+                                                    skip_conn = True
+                                            
+                                            if skip_conn == False:
+                                                r = wasp.Rule(part.name, conn.id, other_part.name, other_conn.id)
+                                                rules.append(r)
+        return [rules]
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         return -1
-
 
 
 result = main(PART, SELF_P, SELF_C, GR)

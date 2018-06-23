@@ -43,66 +43,70 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Connection From Plane"
 ghenv.Component.NickName = 'ConnPln'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
-
+import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
 
 def main(conn_planes, conn_type):
+        
+    check_data = True
     
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
+    ##check inputs
+    types = []
+    if len(conn_type) == 0:
+        for i in range(len(conn_planes)):
+            types.append("")
+    elif len(conn_type) == 1:
+        for i in range(len(conn_planes)):
+            types.append(conn_type[0])
+    elif len(conn_planes) != len(conn_type):
+        check_data = False
+        msg = "Different amount of planes and types provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+    else:
+        for i in range(len(conn_planes)):
+            types.append(conn_type[i])
+    
+    
+    if check_data:
+        connections = []
+        out_planes = []
+        for i in range(len(conn_planes)):
+            plane = conn_planes[i]
+            if plane is None:
+                msg = "No valid plane provided for connection %d"%(i)
+                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+            else:
+                conn = wasp.Connection(plane, types[i], "", -1)
+                connections.append(conn)
+                out_planes.append(plane)
         
-        check_data = True
-        
-        ##check inputs
-        types = []
-        if len(conn_type) == 0:
-            for i in range(len(conn_planes)):
-                types.append("00")
-        elif len(conn_type) == 1:
-            for i in range(len(conn_planes)):
-                types.append(conn_type[0])
-        elif len(conn_planes) != len(conn_type):
-            check_data = False
-            msg = "Different amount of planes and types provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
-        else:
-            for i in range(len(conn_planes)):
-                types.append(conn_type[i])
-        
-        
-        if check_data:
-            connections = []
-            out_planes = []
-            for i in range(len(conn_planes)):
-                plane = conn_planes[i]
-                if plane is None:
-                    msg = "No valid plane provided for connection %d"%(i)
-                    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
-                else:
-                    conn = sc.sticky['Connection'](plane, types[i], "", -1)
-                    connections.append(conn)
-                    out_planes.append(plane)
-            
-            return connections, out_planes
-        
-        else:
-            return -1
+        return connections, out_planes
     
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         return -1
-
 
 result = main(PLN, T)
 

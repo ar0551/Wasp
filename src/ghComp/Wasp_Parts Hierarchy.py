@@ -34,18 +34,14 @@ Access sub-parts stored at different aggregation hierarchy levels
 Provided by Wasp 0.1.0
     Args:
         PART: Parts
-        ID: ...
-        CHILD: ...
-        REM: ...
-        RESET: ...
+        LEVEL: ...
     Returns:
-        AGGR_OUT: edited aggregation object
-        PART_OUT: edited parts
+        SUB_P: Parts at the selected hierarchy level
 """
 
 ghenv.Component.Name = "Wasp_Parts Hierarchy"
 ghenv.Component.NickName = 'PartHie'
-ghenv.Component.Message = 'VER 0.2.0'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -53,68 +49,67 @@ try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
 
+import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
-import random as rnd
+import Grasshopper as gh
 
-def main(aggregation, id, child, remove, reset):
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
+
+def main(parts, hierarchy_level):
     
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
+    check_data = True
+    
+    ##check inputs
+    if len(parts) == 0:
+        check_data = False
+        msg = "No parts provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if check_data:
+        current_parts = parts
+        sub_parts = []
+        current_level = 0
         
-        check_data = True
-        
-        ##check inputs
-        if aggregation is None:
-            check_data = False
-            msg = "No aggregation provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        ##check inputs
-        if aggregation is None:
-            check_data = False
-            msg = "No aggregation provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        if child is None:
-            child = False
-        
-        if remove is None:
-            remove = False
-        
-        if reset is None:
-            reset = False
-        
-        if check_data:
-            
-            new_name = aggregation.name + "_edit"
-            
-            if reset:
-                new_name = aggregation.name + "_edit"
-                sc.sticky[new_name] = aggregation
-            
-            if remove:
-                
-                if child:
-                    current_part = None
-                
-                sc.sticky[new_name].aggregated_parts.pop(id)
-            
-            
-            return sc.sticky[new_name]
+        if hierarchy_level == 0:
+            return parts
         else:
-            return -1
-    
+            while current_level < hierarchy_level:
+                current_level += 1
+                
+                for part in current_parts:
+                    if len(part.sub_parts) > 0:
+                        for sp in part.sub_parts:
+                            sp_trans = sp.transform(part.transformation)
+                            sub_parts.append(sp_trans)
+                    else:
+                        msg = "The selected hierarchy level does not exist in the provided parts"
+                        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+                        return parts
+                
+                current_parts = []
+                for sp in sub_parts:
+                    current_parts.append(sp)
+                sub_parts = []
+                
+            
+            return current_parts
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         return -1
 
-result = main(AGGR, ID, CHILD, REM, RESET)
+
+result = main(PART, LEVEL)
 
 if result != -1:
-    AGGR_OUT = result
-    PART_OUT = result.aggregated_parts
+    SUB_P = result
 

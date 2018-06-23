@@ -44,55 +44,102 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Save to File"
 ghenv.Component.NickName = 'WaspSave'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
+
+import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-TXT = ""
+def main(aggregation, path, filename, save):
+        
+    check_data = True
+    
+    ## check inputs
+    if len(aggregation) == 0:
+        check_data = False
+        msg = "No parts provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if path is None:
+        check_data = False
+        msg = "No path provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if filename is None:
+        filename = "myAggregation"
+        msg = "No filename provided. Default name 'myAggregation' assigned to output file."
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+    
+    if save is None:
+        save = False
+    
+    ## execute main code if all needed inputs are available
+    if check_data:
+        
+        output = ""
+        
+        for part in aggregation:
+            
+            str_data = ""
+            str_data += part.name + "\n"
+            
+            str_a_conn = ""
+            for a_conn in part.active_connections:
+                str_a_conn += str(a_conn) + ";"
+            str_data += str_a_conn + "\n" 
+            
+            str_transform = ""
+            str_transform += str(part.transformation.M00) + ";"
+            str_transform += str(part.transformation.M01) + ";"
+            str_transform += str(part.transformation.M02) + ";"
+            str_transform += str(part.transformation.M03) + ";"
+            str_transform += str(part.transformation.M10) + ";"
+            str_transform += str(part.transformation.M11) + ";"
+            str_transform += str(part.transformation.M12) + ";"
+            str_transform += str(part.transformation.M13) + ";"
+            str_transform += str(part.transformation.M20) + ";"
+            str_transform += str(part.transformation.M21) + ";"
+            str_transform += str(part.transformation.M22) + ";"
+            str_transform += str(part.transformation.M23) + ";"
+            str_transform += str(part.transformation.M30) + ";"
+            str_transform += str(part.transformation.M31) + ";"
+            str_transform += str(part.transformation.M32) + ";"
+            str_transform += str(part.transformation.M33) + ";"
+            str_data += str_transform + "\n"
+            
+            str_data += str(part.is_constrained) + "\n"
+            
+            output += str_data + "---\n"
+        
+        if save:
+            full_path = path + "\\" + filename + ".txt"
+            with open(full_path, "w") as outF:
+                outF.write(output)
+        
+        return output
+    else:
+        return -1
 
-for part in AGGR:
-    
-    str_data = ""
-    
-    str_data += part.name + "\n"
-    
-    str_a_conn = ""
-    for a_conn in part.active_connections:
-        str_a_conn += str(a_conn) + ";"
-    str_data += str_a_conn + "\n" 
-    
-    str_transform = ""
-    str_transform += str(part.transformation.M00) + ";"
-    str_transform += str(part.transformation.M01) + ";"
-    str_transform += str(part.transformation.M02) + ";"
-    str_transform += str(part.transformation.M03) + ";"
-    str_transform += str(part.transformation.M10) + ";"
-    str_transform += str(part.transformation.M11) + ";"
-    str_transform += str(part.transformation.M12) + ";"
-    str_transform += str(part.transformation.M13) + ";"
-    str_transform += str(part.transformation.M20) + ";"
-    str_transform += str(part.transformation.M21) + ";"
-    str_transform += str(part.transformation.M22) + ";"
-    str_transform += str(part.transformation.M23) + ";"
-    str_transform += str(part.transformation.M30) + ";"
-    str_transform += str(part.transformation.M31) + ";"
-    str_transform += str(part.transformation.M32) + ";"
-    str_transform += str(part.transformation.M33) + ";"
-    str_data += str_transform + "\n"
-    
-    str_data += str(part.is_constrained) + "\n"
-    
-    TXT += str_data + "---\n"
+result = main(AGGR, PATH, NAME, SAVE)
 
-if SAVE:
-    file_name = PATH + "\\" + NAME + ".txt"
-    with open(file_name, "w") as outF:
-        outF.write(TXT)
+if result != -1:
+    TXT = result

@@ -44,69 +44,72 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Basic Part"
 ghenv.Component.NickName = 'Part'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 
+import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
 def main(part_name, part_geo, connections, collider, attributes):
     
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
-        
-        check_data = True
-        
-        ## check inputs
-        if part_name is None:
-            part_name = 'P1'
-            msg = "Default name 'P1' assigned to part"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
-        
-        if part_geo is None:
-            check_data = False
-            msg = "No part geometry provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-            check_data = False
-        
-        if collider is None and part_geo is not None:
-            collider = part_geo.Duplicate().Offset(sc.sticky['model_tolerance'])
+    check_data = True
+    
+    ## check inputs
+    if part_name is None:
+        part_name = 'P1'
+        msg = "Default name 'P1' assigned to part"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+    
+    if part_geo is None:
+        check_data = False
+        msg = "No part geometry provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+        check_data = False
+    
+    if collider is None and part_geo is not None:
+        collider = part_geo.Duplicate().Offset(wasp.global_tolerance)
+        collider_intersection = rg.Intersect.Intersection.MeshMeshFast(collider, part_geo)
+        if len(collider_intersection) > 0:
+            collider = None
+            collider = part_geo.Duplicate()
+            center = part_geo.GetBoundingBox(True).Center
+            scale_plane = rg.Plane(center, rg.Vector3d(1,0,0), rg.Vector3d(0,1,0))
+            scale_transform = rg.Transform.Scale(scale_plane, 1-wasp.global_tolerance, 1-wasp.global_tolerance, 1-wasp.global_tolerance)
+            collider.Transform(scale_transform)
             collider_intersection = rg.Intersect.Intersection.MeshMeshFast(collider, part_geo)
             if len(collider_intersection) > 0:
                 collider = None
-                collider = part_geo.Duplicate()
-                center = part_geo.GetBoundingBox(True).Center
-                scale_plane = rg.Plane(center, rg.Vector3d(1,0,0), rg.Vector3d(0,1,0))
-                scale_transform = rg.Transform.Scale(scale_plane, 1-sc.sticky['model_tolerance'], 1-sc.sticky['model_tolerance'], 1-sc.sticky['model_tolerance'])
-                collider.Transform(scale_transform)
-                collider_intersection = rg.Intersect.Intersection.MeshMeshFast(collider, part_geo)
-                if len(collider_intersection) > 0:
-                    collider = None
-                    msg = "Could not compute a valid collider geometry. Please provide a valid collider in the COLL input."
-                    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
-                    check_data = False
-        
-        if collider is not None and collider.Faces.Count > 1000:
-            msg = "The computed collider has a high faces count. Consider providing a low poly collider to improve performance"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        
-        if check_data:
-            new_part = sc.sticky['Part'](part_name, part_geo, connections, collider, attributes)
-            return new_part
-        else:
-            return -1
+                msg = "Could not compute a valid collider geometry. Please provide a valid collider in the COLL input."
+                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+                check_data = False
     
+    if collider is not None and collider.Faces.Count > 1000:
+        msg = "The computed collider has a high faces count. Consider providing a low poly collider to improve performance"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    
+    if check_data:
+        new_part = wasp.Part(part_name, part_geo, connections, collider, attributes)
+        return new_part
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         return -1
 
 

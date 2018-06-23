@@ -42,81 +42,116 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Load from File"
 ghenv.Component.NickName = 'WaspLoad'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
+
+import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
 
 
-PART_OUT = []
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
-txt_data = []
 
-
-if FILE is not None:
-    with open(FILE, "r") as inF:
-        txt_data = inF.read().split("---\n")
-else:
-    msg = "No file provided"
-    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-
-if len(txt_data) > 0:
-    for txt in txt_data:
-        try:
-            data = txt.split("\n")
-            
-            ## part name
-            name = data[0]
-            
-            ## part active connections
-            active_conn = []
-            aconn_data = data[1].split(";")
-            for ac in aconn_data:
+def main(parts, file_path):
+        
+    check_data = True
+    
+    ## check inputs
+    if len(parts) == 0:
+        check_data = False
+        msg = "No parts provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if file_path is None:
+        check_data = False
+        msg = "No path provided for the file to load"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    ## execute main code if all needed inputs are available
+    if check_data:
+        
+        loaded_parts = []
+        txt_data = []
+        
+        with open(FILE, "r") as inF:
+            txt_data = inF.read().split("---\n")
+        
+        if len(txt_data) > 0:
+            for txt in txt_data:
                 try:
-                    aconn_id = int(ac)
-                    active_conn.append(aconn_id)
+                    data = txt.split("\n")
+                    
+                    ## part name
+                    name = data[0]
+                    
+                    ## part active connections
+                    active_conn = []
+                    aconn_data = data[1].split(";")
+                    for ac in aconn_data:
+                        try:
+                            aconn_id = int(ac)
+                            active_conn.append(aconn_id)
+                        except:
+                            pass
+                    
+                    ## part transform
+                    trans = rg.Transform(0)
+                    tranform_data = data[2].split(";")
+                    
+                    trans.M00 = float(tranform_data[0])
+                    trans.M01 = float(tranform_data[1])
+                    trans.M02 = float(tranform_data[2])
+                    trans.M03 = float(tranform_data[3])
+                    trans.M10 = float(tranform_data[4])
+                    trans.M11 = float(tranform_data[5])
+                    trans.M12 = float(tranform_data[6])
+                    trans.M13 = float(tranform_data[7])
+                    trans.M20 = float(tranform_data[8])
+                    trans.M21 = float(tranform_data[9])
+                    trans.M22 = float(tranform_data[10])
+                    trans.M23 = float(tranform_data[11])
+                    trans.M30 = float(tranform_data[12])
+                    trans.M31 = float(tranform_data[13])
+                    trans.M32 = float(tranform_data[14])
+                    trans.M33 = float(tranform_data[15])
+                    
+                    constrained = bool(data[3])
+                    
+                    new_part = None
+                    for part in PART:
+                        if part.name == name:
+                            new_part = part.transform(trans)
+                            break
+                    
+                    if new_part is not None:
+                        new_part.active_connections = active_conn
+                        new_part.is_constrained = constrained
+                        
+                        loaded_parts.append(new_part)
                 except:
                     pass
             
-            ## part transform
-            trans = rg.Transform(0)
-            tranform_data = data[2].split(";")
-            
-            trans.M00 = float(tranform_data[0])
-            trans.M01 = float(tranform_data[1])
-            trans.M02 = float(tranform_data[2])
-            trans.M03 = float(tranform_data[3])
-            trans.M10 = float(tranform_data[4])
-            trans.M11 = float(tranform_data[5])
-            trans.M12 = float(tranform_data[6])
-            trans.M13 = float(tranform_data[7])
-            trans.M20 = float(tranform_data[8])
-            trans.M21 = float(tranform_data[9])
-            trans.M22 = float(tranform_data[10])
-            trans.M23 = float(tranform_data[11])
-            trans.M30 = float(tranform_data[12])
-            trans.M31 = float(tranform_data[13])
-            trans.M32 = float(tranform_data[14])
-            trans.M33 = float(tranform_data[15])
-            
-            constrained = bool(data[3])
-            
-            new_part = None
-            for part in PART:
-                if part.name == name:
-                    new_part = part.transform(trans)
-                    break
-            
-            if new_part is not None:
-                new_part.active_connections = active_conn
-                new_part.is_constrained = constrained
-                
-                PART_OUT.append(new_part)
-        except:
-            pass
+            return loaded_parts
+    else:
+        return -1
+
+result = main(PART, FILE)
+
+if result != -1:
+    PART_OUT = result

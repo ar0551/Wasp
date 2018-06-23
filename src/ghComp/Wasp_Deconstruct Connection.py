@@ -43,41 +43,43 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Deconstruct Connection"
 ghenv.Component.NickName = 'DeConn'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
-
+import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
 
 def main(connection):
     
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
-        
-        check_data = True
-        
-        ##check inputs
-        if connection is None:
-            check_data = False
-            msg = "No connection provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        if check_data:
-            return connection.pln, connection.id, connection.part, connection.type
-        
-        else:
-            return -1
+    check_data = True
     
+    ##check inputs
+    if connection is None:
+        check_data = False
+        msg = "No connection provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if check_data:
+        return connection.pln, connection.id, connection.part, connection.type
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         return -1
 
 

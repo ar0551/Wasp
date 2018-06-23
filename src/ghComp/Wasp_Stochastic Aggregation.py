@@ -49,94 +49,96 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Stochastic Aggregation"
 ghenv.Component.NickName = 'RndAggr'
-ghenv.Component.Message = 'VER 0.2.0'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
-
+import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
 import random as rnd
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
 def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_constraints, aggregation_id, reset):
     
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
-        
-        check_data = True
-        
-        ##check inputs
-        if len(parts) == 0:
-            check_data = False
-            msg = "No parts provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        if num_parts is None:
-            check_data = False
-            msg = "Provide number of aggregation iterations"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        else:
-            if len(previous_parts) != 0:
-                num_parts += len(previous_parts)
-        
-        if len(rules) == 0:
-            check_data = False
-            msg = "No rules provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        if aggregation_mode is None:
-            aggregation_mode = 0
-        
-        if aggregation_id is None:
-            aggregation_id = 'myAggregation'
-            msg = "Default name 'myAggregation' assigned"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
-        
-        if reset is None:
-            reset = False
-        
-        if check_data:
-            ## store rules in sticky dict
-            if sc.sticky.has_key('rules') == False:
-                sc.sticky['rules'] = rules
-            
-            ## if rules changed, reset parts and recompute rule tables
-            if rules != sc.sticky['rules']:
-                for part in parts:
-                    part.reset_part(rules)
-                sc.sticky['rules'] = rules
-                if sc.sticky.has_key(aggregation_id):
-                    sc.sticky[aggregation_id].reset_rules(rules)
-            
-            ## create aggregation in sticky dict
-            if sc.sticky.has_key(aggregation_id) == False:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints)
-            
-            if reset:
-                sc.sticky[aggregation_id] = sc.sticky['Aggregation'](aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints)
-            
-            if num_parts > sc.sticky[aggregation_id].p_count:
-                sc.sticky[aggregation_id].aggregate_rnd(num_parts-sc.sticky[aggregation_id].p_count)
-            
-            elif num_parts < sc.sticky[aggregation_id].p_count:
-                sc.sticky[aggregation_id].remove_elements(num_parts)
-                
-            return sc.sticky[aggregation_id].aggregated_parts
-            
-        else:
-            return -1
+    check_data = True
     
+    ##check inputs
+    if len(parts) == 0:
+        check_data = False
+        msg = "No parts provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if num_parts is None:
+        check_data = False
+        msg = "Provide number of aggregation iterations"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+        if len(previous_parts) != 0:
+            num_parts += len(previous_parts)
+    
+    if len(rules) == 0:
+        check_data = False
+        msg = "No rules provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if aggregation_mode is None:
+        aggregation_mode = 0
+    
+    if aggregation_id is None:
+        aggregation_id = 'myAggregation'
+        msg = "Default name 'myAggregation' assigned"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+    
+    if reset is None:
+        reset = False
+    
+    if check_data:
+        ############################################## FIX: check rules directly from aggregation
+        ## store rules in sticky dict
+        if sc.sticky.has_key('rules') == False:
+            sc.sticky['rules'] = rules
+        
+        ## if rules changed, reset parts and recompute rule tables
+        if rules != sc.sticky['rules']:
+            for part in parts:
+                part.reset_part(rules)
+            sc.sticky['rules'] = rules
+            if sc.sticky.has_key(aggregation_id):
+                sc.sticky[aggregation_id].reset_rules(rules)
+        
+        ## create aggregation in sticky dict
+        if sc.sticky.has_key(aggregation_id) == False:
+            sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints)
+        
+        if reset:
+            sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints)
+        
+        if num_parts > sc.sticky[aggregation_id].p_count:
+            sc.sticky[aggregation_id].aggregate_rnd(num_parts-sc.sticky[aggregation_id].p_count)
+        
+        elif num_parts < sc.sticky[aggregation_id].p_count:
+            sc.sticky[aggregation_id].remove_elements(num_parts)
+            
+        return sc.sticky[aggregation_id].aggregated_parts
+        
+    else:
         return -1
-
 
 result = main(PART, PREV, N, RULES, MODE, GC, ID, RESET)
 

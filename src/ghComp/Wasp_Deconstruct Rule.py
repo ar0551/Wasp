@@ -44,44 +44,48 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Deconstruct Rule"
 ghenv.Component.NickName = 'DeRule'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
+import sys
 import scriptcontext as sc
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
 
 def main(rule):
     
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
-        
-        check_data = True
-        
-        ##check inputs
-        if rule is None:
-            check_data = False
-            msg = "No rule provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        if check_data:
-            p1 = rule.part1
-            c1 = rule.conn1
-            p2 = rule.part2
-            c2 = rule.conn2
-            rule_txt = "%s|%s_%s|%s"%(p1,c1,p2,c2)
-            
-            return p1, c1, p2, c2, rule_txt
-        else:
-            return -1
+    check_data = True
     
+    ##check inputs
+    if rule is None:
+        check_data = False
+        msg = "No rule provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if check_data:
+        p1 = rule.part1
+        c1 = rule.conn1
+        p2 = rule.part2
+        c2 = rule.conn2
+        rule_txt = "%s|%s_%s|%s"%(p1,c1,p2,c2)
+        
+        return p1, c1, p2, c2, rule_txt
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         return -1
 
 
@@ -95,4 +99,4 @@ if result != -1:
     TXT = result[4]
 
 
-R = sc.sticky['Rule'](P1, C1, P2, C2)
+R = wasp.Rule(P1, C1, P2, C2)

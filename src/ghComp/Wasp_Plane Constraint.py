@@ -41,51 +41,50 @@ Provided by Wasp 0.2.0
 
 ghenv.Component.Name = "Wasp_Plane Constraint"
 ghenv.Component.NickName = 'PlaneConst'
-ghenv.Component.Message = "VER 0.2.0"
+ghenv.Component.Message = "VER 0.2.1"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
-
+import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
-import random as rnd
-import math
-import copy
+import Grasshopper as gh
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
 ## Main code execution
 def main(plane, positive):
     
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
-        
-        check_data = True
-        ##check inputs
-        if plane is None:
-            check_data = False
-            msg = "Provide a valid plane"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        if positive is None:
-            positive = True
-            msg = "Default plane direction set to +Z"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
-        
-        if check_data:
-            plane_constraint = sc.sticky['Plane_Constraint'](plane, positive)
-            return plane_constraint
-            
-        else:
-            return -1
+    check_data = True
+    ##check inputs
+    if plane is None:
+        check_data = False
+        msg = "Provide a valid plane"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
+    if positive is None:
+        positive = True
+        msg = "Default plane direction set to +Z"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+    
+    if check_data:
+        plane_constraint = wasp.Plane_Constraint(plane, positive)
+        return plane_constraint
+        
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         return -1
 
 

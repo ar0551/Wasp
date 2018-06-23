@@ -42,84 +42,88 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Field Points"
 ghenv.Component.NickName = 'FieldPts'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
+
+import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
 import math
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
 def main(boundaries, resolution):
     
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
-        
-        check_data = True
-        
-        ##check inputs
-        if len(boundaries) == 0:
-            check_data = False
-            msg = "No boundary geometry provided"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        
-        if resolution is None and len(boundaries) != 0:
-            global_bbox = None
-            for geo in boundaries:
-                bbox = geo.GetBoundingBox(True)
-                
-                if global_bbox is None:
-                    global_bbox = bbox
-                else:
-                    global_bbox.Union(bbox)
-            
-            x_size = global_bbox.Max.X - global_bbox.Min.X
-            resolution = int(x_size / 10)
-            
-            msg = "No resolution provided. Default resolution set to %d units"%(resolution)
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-            
-        if check_data:
-            global_bbox = None
-            for geo in boundaries:
-                bbox = geo.GetBoundingBox(True)
-                
-                if global_bbox is None:
-                    global_bbox = bbox
-                else:
-                    global_bbox.Union(bbox)
-            
-            x_size = global_bbox.Max.X - global_bbox.Min.X
-            x_count = int(math.ceil(x_size / resolution)) + 1
-            y_size = global_bbox.Max.Y - global_bbox.Min.Y
-            y_count = int(math.ceil(y_size / resolution)) + 1
-            z_size = global_bbox.Max.Z - global_bbox.Min.Z
-            z_count = int(math.ceil(z_size / resolution)) + 1
-            
-            count_vec = rg.Vector3d(x_count, y_count, z_count)
-            
-            pts = []
-            s_pt = global_bbox.Min
-            
-            for z in range(z_count):
-                for y in range(y_count):
-                    for x in range(x_count):
-                        pt = rg.Point3d(s_pt.X + x*resolution, s_pt.Y + y*resolution, s_pt.Z + z*resolution)
-                        pts.append(pt)
-            return pts, count_vec
-            
-        else:
-            return -1
+    check_data = True
     
+    ##check inputs
+    if len(boundaries) == 0:
+        check_data = False
+        msg = "No boundary geometry provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if resolution is None and len(boundaries) != 0:
+        global_bbox = None
+        for geo in boundaries:
+            bbox = geo.GetBoundingBox(True)
+            
+            if global_bbox is None:
+                global_bbox = bbox
+            else:
+                global_bbox.Union(bbox)
+        
+        x_size = global_bbox.Max.X - global_bbox.Min.X
+        resolution = int(x_size / 10)
+        
+        msg = "No resolution provided. Default resolution set to %d units"%(resolution)
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+        
+    if check_data:
+        global_bbox = None
+        for geo in boundaries:
+            bbox = geo.GetBoundingBox(True)
+            
+            if global_bbox is None:
+                global_bbox = bbox
+            else:
+                global_bbox.Union(bbox)
+        
+        x_size = global_bbox.Max.X - global_bbox.Min.X
+        x_count = int(math.ceil(x_size / resolution)) + 1
+        y_size = global_bbox.Max.Y - global_bbox.Min.Y
+        y_count = int(math.ceil(y_size / resolution)) + 1
+        z_size = global_bbox.Max.Z - global_bbox.Min.Z
+        z_count = int(math.ceil(z_size / resolution)) + 1
+        
+        count_vec = rg.Vector3d(x_count, y_count, z_count)
+        
+        pts = []
+        s_pt = global_bbox.Min
+        
+        for z in range(z_count):
+            for y in range(y_count):
+                for x in range(x_count):
+                    pt = rg.Point3d(s_pt.X + x*resolution, s_pt.Y + y*resolution, s_pt.Z + z*resolution)
+                    pts.append(pt)
+        return pts, count_vec
+        
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
         return -1
 
 

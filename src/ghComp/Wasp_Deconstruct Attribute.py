@@ -41,7 +41,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Deconstruct Attribute"
 ghenv.Component.NickName = 'DeAttr'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
@@ -49,11 +49,39 @@ try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
 
-import Grasshopper.Kernel as gh
+import sys
+import Grasshopper as gh
 
-if ATTR is None:
-    msg = "No attribute provided"
-    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-else:
-    ID = ATTR.name
-    VAL = ATTR.values
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
+
+def main(attribute):
+        
+    check_data = True
+    
+    ## check inputs
+    if attribute is None:
+        check_data = False
+        msg = "No attribute provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    ## execute main code if all needed inputs are available
+    if check_data:
+        return attribute.name, attribute.values
+    else:
+        return -1
+
+result = main(ATTR)
+
+if result != -1:
+    ID = result[0]
+    VAL = result[1]

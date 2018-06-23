@@ -22,33 +22,33 @@
 # as part of research on digital materials and discrete design at:
 # DDU Digital Design Unit - Prof. Oliver Tessmann
 # Technische Universitt Darmstadt
-
-
+        
+        
 #########################################################################
 ##                            COMPONENT INFO                           ##
 #########################################################################
-
+        
 """
-Generates a scalar field given a grid of points and their relative scalar values
+Aggregate the given parts in a stochastic process, selecting parts and rules randomly at every step.
+The component works additively, hence increasing the number of parts in an aggregation just adds new parts on the existing ones, without triggering recomputing of the previous element.
 -
 Provided by Wasp 0.1.0
     Args:
-        BOU: List of geometries defining the boundaries of the field. Geometries must be closed breps or meshes. All points of the field outside the geometries will be assigned a 0 value
-        PTS: 3d point grid (from FieldPts component)
-        COUNT: Vector storing cell counts for each axis (from FieldPts component)
-        RES: Resolution of cell grid
-        VAL: Values to assign to each cell
+        PART: Parts to be aggregated (can be more than one)
+        PREV: Previous aggregated parts. It is possible to input the results of a previous aggregation, or parts transformed with the TransformPart component
+        RULES: Rules for the aggregation
+        ID: OPTIONAL // Aggregation ID (to avoid overwriting when having different aggregation components in the same file)
     Returns:
-        FIELD: Field object (to be used to drive the FieldAggr component)
+        PART_OUT: Aggregated parts (includes both PREV input and newly aggregated parts)
 """
-
-ghenv.Component.Name = "Wasp_Field"
-ghenv.Component.NickName = 'Field'
+        
+ghenv.Component.Name = "Wasp_Graph-Grammar Aggregation"
+ghenv.Component.NickName = 'GraphAggr'
 ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
 
@@ -69,54 +69,43 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(name, boundaries, pts, count, resolution, values):
+def main(parts, rules_sequence, aggregation_id, reset):
     
     check_data = True
-    
     ##check inputs
-    if name is None:
-        name = "myField"
-        msg = "Default field name set to 'myField'"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
-    
-    if len(boundaries) == 0:
-        boundaries.append(rg.BoundingBox(pts).ToBrep())
-        msg = "No boundary provided. Boundary set to point grid bounding box"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
-    
-    if len(pts) == 0:
+    if len(parts) == 0:
         check_data = False
-        msg = "No point grid provided"
+        msg = "No parts provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-        
-    elif len(values) == 0:
+            
+    if len(rules_sequence) == 0:
         check_data = False
-        msg = "No field values provided"
+        msg = "No rules sequence provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-        
-    elif len(pts) != len(values):
-        check_data = False
-        msg = "Points and Values lists are not matching. Please provide two lists with same number of elements"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
-    
-    if count is None:
-        check_data = False
-        msg = "No axis count provided"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-    
-    if resolution is None and check_data == True:
-        resolution = pts[0].DistanceTo(pts[1])
-        msg = "No resolution provided. Calculated resolution is %0.2f"%(resolution)
+            
+    if aggregation_id is None:
+        aggregation_id = 'Aggregation'
+        msg = "Default name 'Aggregation' assigned"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
-    
+            
     if check_data:
-        field = wasp.Field(name, boundaries, pts, count, resolution, values)
-        return field
+                
+        if sc.sticky.has_key(aggregation_id) == False:
+            sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, [], 0)
+                
+        if reset:
+            sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, [], 0)
+                
+        else:
+            sc.sticky[aggregation_id].aggregate_sequence(rules_sequence)
+                
+        return sc.sticky[aggregation_id].aggregated_parts
+            
     else:
         return -1
 
 
-result = main(NAME, BOU, PTS, COUNT, RES, VAL)
+result = main(PART, RULE_S, ID, RESET)
 
 if result != -1:
-    FIELD = result
+    PART_OUT = result

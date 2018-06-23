@@ -31,6 +31,12 @@ import random
 import math
 import bisect
 import Rhino.Geometry as rg
+import wasp_geometry
+
+#########################################################################
+##							GLOBAL VARIABLES						   ##
+#########################################################################
+global_tolerance = wasp_geometry.model_tolerance
 
 #########################################################################
 ##								 CLASSES							   ##
@@ -220,7 +226,7 @@ class Constrained_Part(Part):
 				supports_trans.append(sup_trans)
 		
 		
-		if transform_sub_parts:
+		if transform_sub_parts and len(self.sub_parts) > 0:
 			sub_parts_trans = []
 			for sp in self.sub_parts:
 				sp_trans = sp.transform(trans, transform_sub_parts=True)
@@ -284,7 +290,7 @@ class Field(object):
 					if len(boundaries) > 0:
 						inside = False
 						for bou in boundaries:
-							if bou.IsPointInside(pts[pts_count], sc.sticky['model_tolerance'], True) == True:
+							if bou.IsPointInside(pts[pts_count], global_tolerance, True) == True:
 								self.vals[z][y].append(values[pts_count])
 								inside = True
 								break
@@ -426,11 +432,10 @@ class Support(object):
 class Aggregation(object):
 	
 	## class constructor
-	def __init__(self, _name, _parts, _rules, _mode, _tolerance = 0.001, _prev = [], _coll_check = True, _field = [], _global_constraints = []):
+	def __init__(self, _name, _parts, _rules, _mode, _prev = [], _coll_check = True, _field = [], _global_constraints = []):
 		
 		## basic parameters
 		self.name = _name
-		self.tolerance = _tolerance
 		
 		self.parts = {}
 		for part in _parts:
@@ -540,7 +545,7 @@ class Aggregation(object):
 		coll_count = 0
 		for ex_part in self.aggregated_parts:
 			dist = ex_part.center.DistanceTo(part_center)
-			if dist < self.tolerance:
+			if dist < global_tolerance:
 				return True
 			elif dist < ex_part.dim + part.dim:
 				self.possible_collisions.append(coll_count)

@@ -42,7 +42,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Support"
 ghenv.Component.NickName = 'Support'
-ghenv.Component.Message = 'VER 0.1.1\nMAR_06_2018'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
@@ -50,51 +50,54 @@ try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 
 
+import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
 def main(sup_dir, part_geo):
     
-    ## check if Wasp is setup
-    if sc.sticky.has_key('WaspSetup'):
-        
-        check_data = True
-        
-        ##check inputs
-        support_lines = []
-        if len(sup_dir) == 0:
-            check_data = False
-            msg = "Please provide a valid list of lines as support directions"
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        else:
-            for sup in sup_dir:
-                start = sup.PointAtStart
-                end = sup.PointAtEnd
-                sup_ln = rg.Line(start, end)
-                support_lines.append(sup_ln)
-        
-        if part_geo is not None:
-            for i in range(len(support_lines)):
-                intersection = rg.Intersect.Intersection.MeshLine(part_geo, support_lines[i])
-                if len(intersection[0]) == 0:
-                    msg = "Support direction " + str(i) + " does not intersect with the part geometry. Please verify this is intended."
-                    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-        else:
-            msg = "No part geometry provided. Correct position of supports cannot be verified."
-            ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Remark, msg)
-        
-        if check_data:
-            support = sc.sticky['Support'](DIR)
-            return support
-        else:
-            return -1
+    check_data = True
     
+    ##check inputs
+    support_lines = []
+    if len(sup_dir) == 0:
+        check_data = False
+        msg = "Please provide a valid list of lines as support directions"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     else:
-        ## throw warining
-        msg = "You must run the SetupWasp component before starting to build!"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+        for sup in sup_dir:
+            start = sup.PointAtStart
+            end = sup.PointAtEnd
+            sup_ln = rg.Line(start, end)
+            support_lines.append(sup_ln)
+    
+    if part_geo is not None:
+        for i in range(len(support_lines)):
+            intersection = rg.Intersect.Intersection.MeshLine(part_geo, support_lines[i])
+            if len(intersection[0]) == 0:
+                msg = "Support direction " + str(i) + " does not intersect with the part geometry. Please verify this is intended."
+                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    else:
+        msg = "No part geometry provided. Correct position of supports cannot be verified."
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+    
+    if check_data:
+        support = wasp.Support(DIR)
+        return support
+    else:
         return -1
 
 

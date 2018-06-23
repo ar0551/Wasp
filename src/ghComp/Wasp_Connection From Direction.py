@@ -45,7 +45,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Connection From Direction"
 ghenv.Component.NickName = 'ConnDir'
-ghenv.Component.Message = 'VER 0.1.0\nDEC_22_2017'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
@@ -53,19 +53,21 @@ try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 
-
-
 import sys
-full_path = sys.path[1] + "\\wasp"
-if not full_path in sys.path:
-    sys.path.append(full_path)
-
-import wasp
 import scriptcontext as sc
 import Rhino.Geometry as rg
-import Grasshopper.Kernel as gh
+import Grasshopper as gh
 
-
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
 def main(part_geo, conn_centers, conn_ups, conn_type):
@@ -76,12 +78,12 @@ def main(part_geo, conn_centers, conn_ups, conn_type):
     if part_geo is None:
         check_data = False
         msg = "No part geometry provided"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if len(conn_centers) != len(conn_ups):
         check_data = False
         msg = "Different amount of centers and up vectors provided"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
     
     types = []
     if len(conn_type) == 0:
@@ -93,7 +95,7 @@ def main(part_geo, conn_centers, conn_ups, conn_type):
     elif len(conn_centers) != len(conn_type):
         check_data = False
         msg = "Different amount of centers and types provided"
-        ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
     else:
         for i in range(len(conn_centers)):
             types.append(conn_type[i])
@@ -116,7 +118,7 @@ def main(part_geo, conn_centers, conn_ups, conn_type):
                 pt_uv = face.ClosestPoint(center)
                 pt = face.PointAt(pt_uv[1], pt_uv[2])
                 dist = rg.Point3d.DistanceTo(center, pt)
-                if(dist < 0.001):
+                if(dist < wasp.global_tolerance):
                     normal = face.NormalAt(pt_uv[1], pt_uv[2])
                     plane = rg.Plane(center, normal)
                     x_axis = plane.XAxis
@@ -126,7 +128,7 @@ def main(part_geo, conn_centers, conn_ups, conn_type):
                     
             if plane is None:
                 msg = "No valid plane provided for connection %d"%(i)
-                ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Error, msg)
+                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
             else:
                 conn = wasp.Connection(plane, types[i], "", -1)
                 connections.append(conn)
