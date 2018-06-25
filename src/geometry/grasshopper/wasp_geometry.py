@@ -64,14 +64,13 @@ class WVector3:
 	def reverse(self):
 		return self.toVector3d().Reverse()
 	
-	def transform(self, trans):
-		self.pt.Transform(trans)
+	def transform(self, wTr):
+		self.pt.Transform(wTr.trans)
 	
-	def transform_copy(self, trans):
+	def transform_copy(self, wTr):
 		pt_trans = Rhino.Geometry.Point3d(self.pt.x, self.pt.y, self.pt.z)
-		pt_trans.Transform(trans)
-		wVec_trans = WVector3(pt_trans.x, pt_trans.y, pt_trans.z)
-		return wVec_trans
+		pt_trans.Transform(wTr.trans)
+		return WVector3(pt_trans.x, pt_trans.y, pt_trans.z)
 	
 	def distanceTo(self, wVec2):
 		return self.pt.DistanceTo(wVec2.pt)
@@ -80,11 +79,27 @@ class WVector3:
 ## Plane class
 class WPlane:
 	def __init__(self, _origin, _xAxis, _yAxis):
-		self.pln = Rhino.Geometry.Plane(_origin.pt, _xAxis.toVector3d(), _yAxis.toVector3d())
+		self.origin = _origin
+		self.xAxis = _xAxis
+		self.yAxis = _yAxis
+		self.pln = Rhino.Geometry.Plane(self.origin.pt, self.xAxis.toVector3d(), self.yAxis.toVector3d())
 	
-	def transform(self, trans):
+	def flipY_copy(self):
+		flip_yVec = self.yAxis.reverse
+		flip_yAxis = WVector3(flip_yVec.x, flip_yVec.y, flip_yVec.z)
+		return WPlane(self.origin, self.xAxis, flip_yAxis)
+	
+	def transform(self, wTr):
+		self.pln.Transform(wTr.trans)
+	
+	def transform_copy(self, wTr):
+		origin_trans = self.origin.transform_copy(wTr.trans)
+		xAxis_trans = self.xAxis.transform_copy(wTr.trans)
+		yAxis_trans = self.yAxis.transform_copy(wTr.trans)
+		return WPlane(origin_trans, xAxis_trans, yAxis_trans)
 		
 
+## line class (for supports and connection orientation)
 class WLine:
 	def __init__(self):
 		pass
@@ -92,31 +107,54 @@ class WLine:
 	def transform(self):
 		pass
 
-class WTransform(self):
-	def __init__(self):
-		pass
 
+## Transformation class
+class WTransform():
+	def __init__(self, _trans):
+		self.trans = _trans
+	
+	@classmethod
+	def createOrientTransform(cls, wPln_01, wPln_02):
+		orient_trans = Rhino.Geometry.Transform.PlaneToPlane(wPln_01.pln, wPln_02.pln)
+		return cls(orient_trans)
+	
+	@classmethod
+	def createTranslationTransform(cls, wVec):
+		translation_trans = Rhino.Geometry.Transform.Translation(wVec.pt.x, wVec.pt.y, wVec.pt.z)
+		return cls(translation_trans)
 		
+	
 ## Box class
 class WBox:
 	def __init__(self):
 		pass
-		
+
+
 ## Mesh class
 class WMesh:
-	def __init__(self):
+	def __init__(self, _geo):
+		self.geo = _geo
+	
+	@classmethod
+	def createFromMesh(cls, _mesh):
+		return cls(_mesh)
+	
+	def transform(self, wTr):
+		self.geo.Transform(wTr.trans)
+	
+	def transform_copy(self, wTr):
+		geo_trans = self.geo.Duplicate()
+		return geo_trans.Transform(wTr.trans)
+	
+	def intersectLine(self, wLine):
 		pass
 	
-	def transform(self):
-		pass
+	def intersectMesh(self, wMesh):
+		if len(Rhino.Geometry.Intersect.Intersection.MeshMeshFast(self.geo, wMesh)) > 0:
+			return True
+		return False
 	
-	def intersectLine(self, line):
-		pass
-	
-	def intersectMesh(self, mesh):
-		pass
-	
-	def pointInside(self, point):
+	def pointInside(self, wVec):
 		pass
 	
 
