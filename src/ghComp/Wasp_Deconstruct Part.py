@@ -40,6 +40,7 @@ Provided by Wasp 0.1.0
         CONN: Part connections
         CONN_PLN: planes for each part connection
         TR: Transformation applied to the part. Can be used to transform other geometries in a similar way (eg. replace a low poly component with a more detailed one)
+        PARENT: Parent of the part
         CHILD: Children parts attached to the part
         ATTR: Part attributes
 """
@@ -98,6 +99,7 @@ def main(parts):
         geometries = []
         transforms = []
         add_colliders = []
+        parents = []
         
         conn_list = []
         conn_pln_list = []
@@ -120,6 +122,9 @@ def main(parts):
             if "add_collider" in data_dict.keys():
                 add_colliders.append(data_dict['add_collider'])
             
+            if "parent" in data_dict.keys():
+                parents.append(data_dict['parent'])
+            
             if "children" in data_dict.keys():
                 children_list.append(data_dict['children'])
             
@@ -131,7 +136,7 @@ def main(parts):
         children = listToDataTree(children_list)
         attributes = listToDataTree(attributes_list)
         
-        return names, geometries, transforms, add_colliders, connections, connection_planes, children, attributes
+        return names, geometries, transforms, add_colliders, connections, connection_planes, parents, children, attributes
     else:
         return -1
 
@@ -145,5 +150,6 @@ if result != -1:
     ADD_COLL = result[3]
     CONN = result[4]
     CONN_PLN = result[5]
-    CHILD = result[6]
-    ATTR = result[7]
+    PARENT = result[6]
+    CHILD = result[7]
+    ATTR = result[8]

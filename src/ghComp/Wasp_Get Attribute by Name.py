@@ -93,15 +93,3 @@ result = main(ATTR, ID)
 
 if result != -1:
     VAL = result
-
-
-
-
-elif ID is None:
-    msg = "No id provided"
-    ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-else:
-    VAL = []
-    for attr in ATTR:
-        if attr.name == ID:
-            VAL = attr.values
