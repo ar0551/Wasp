@@ -29,21 +29,19 @@
 #########################################################################
 
 """
-Attribute to be attached to a part.
-Could be geometry or any other kind of data (eg. text, numeric variables, color).
-If Geometry, Transformable must be set to True to mantain the geometry attached to the part during aggregation.
+Deconstruct a collider object.
 -
 Provided by Wasp 0.1.0
     Args:
-        ID: Name of the attribute
-        VAL: Value of the attribute (any type of Gh-compatible data possible)
-        TR: Transformable. Set it to True for Geometry, False for other types of data
+        COLL: Collider object
     Returns:
-        ATTR: Attribute instance to attach to a component
+        GEO: ...
+        CONN: ...
+        VC: ...
 """
 
-ghenv.Component.Name = "Wasp_Attribute"
-ghenv.Component.NickName = 'Attribute'
+ghenv.Component.Name = "Wasp_Deconstruct Collider"
+ghenv.Component.NickName = 'DeColl'
 ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
@@ -51,9 +49,8 @@ ghenv.Component.SubCategory = "1 | Elements"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
+
 import sys
-import scriptcontext as sc
-import Rhino.Geometry as rg
 import Grasshopper as gh
 
 ## add Wasp install directory to system path
@@ -68,43 +65,28 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(id, values, transformable):
-    
+def main(collider):
+        
     check_data = True
     
-    ##check inputs
-    if id is None:
-        id = 'ATTR_01'
-        msg = "Default name 'ATTR_01' assigned to attribute"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
-    
-    if len(values) == 0:
+    ## check inputs
+    if collider is None:
         check_data = False
-        msg = "Please provide values for the attribute"
+        msg = "No collider provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
-    if transformable is None:
-        msg = "Transformable set to False by default"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
-    
-    if transformable == True:
-        val_count = 0
-        for i in range(len(values)):
-            try:
-                values[i].Transform(rg.Transform.Identity)
-            except:
-                check_data = False
-                msg = "Value %d is not transformable"%(i)
-                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
-    
+    ## execute main code if all needed inputs are available
     if check_data:
-        attribute = wasp.Attribute(id, values, transformable)
-        return attribute
+        return collider.geometry, collider.connections, collider.valid_connections
     else:
         return -1
 
-
-result = main(ID, VAL, TR)
+result = main(COLL)
 
 if result != -1:
-    ATTR = result
+    GEO = result[0]
+    CONN = result[1]
+    V_CONN = result[2]
+
+
+

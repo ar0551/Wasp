@@ -135,7 +135,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
         elif num_parts < sc.sticky[aggregation_id].p_count:
             sc.sticky[aggregation_id].remove_elements(num_parts)
             
-        return sc.sticky[aggregation_id].aggregated_parts
+        return sc.sticky[aggregation_id]
         
     else:
         return -1
@@ -143,4 +143,5 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
 result = main(PART, PREV, N, RULES, MODE, GC, ID, RESET)
 
 if result != -1:
-    PART_OUT = result
+    AGGR = result
+    PART_OUT = result.aggregated_parts

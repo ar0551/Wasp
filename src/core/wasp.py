@@ -30,12 +30,13 @@
 import random
 import math
 import bisect
-import wasp_geometry as wg
+import Rhino.Geometry as rg
+import wasp_geometry
 
 #########################################################################
 ##							GLOBAL VARIABLES						   ##
 #########################################################################
-global_tolerance = wg.model_tolerance
+global_tolerance = wasp_geometry.model_tolerance
 
 #########################################################################
 ##								 CLASSES							   ##
@@ -48,7 +49,10 @@ class Connection(object):
 	def __init__(self, plane, type, part, id):
 		
 		self.pln = plane
-		self.flip_pln = self.pln.flipY_copy()
+		
+		flip_pln_Y = rg.Vector3d(plane.YAxis)
+		flip_pln_Y.Reverse()
+		self.flip_pln = rg.Plane(plane.Origin, plane.XAxis, flip_pln_Y)
 		
 		self.type = type
 		self.part = part
@@ -59,8 +63,10 @@ class Connection(object):
 	
 	## return a transformed copy of the connection
 	def transform(self, trans):
-		pln_trans = self.pln.transform_copy(trans)
+		pln_trans = rg.Plane(self.pln.Origin, self.pln.XAxis, self.pln.YAxis)
 		conn_trans = Connection(pln_trans, self.type, self.part, self.id)
+		conn_trans.pln.Transform(trans)
+		conn_trans.flip_pln.Transform(trans)
 		return conn_trans
 	
 	## generate the rules-table for the connection
@@ -96,8 +102,8 @@ class Part(object):
 			self.active_connections.append(count)
 			count += 1
 		
-		self.transformation = wg.WTransform.createIdentity()
-		self.center = wg.WBox.compute_WBox(self.geo).center
+		self.transformation = rg.Transform.Identity
+		self.center = self.geo.GetBoundingBox(False).Center
 		self.collider = collider
 		
 		##part size
@@ -105,14 +111,15 @@ class Part(object):
 			self.dim = dim
 		else:
 			max_collider_dist = None
-			for v in self.collider.geo.Vertices:
-				wv = wg.WVector3(v.X, v.Y, v.Z)
-				dist = self.center.distanceTo(wv)
-				if dist > max_collider_dist or max_collider_dist is None:
-					max_collider_dist = dist
+			for coll_geo in self.collider.geometry:
+				for v in coll_geo.Vertices:
+					dist = self.center.DistanceTo(v)
+					if dist > max_collider_dist or max_collider_dist is None:
+						max_collider_dist = dist
 			
 			self.dim = max_collider_dist
 		
+		self.parent = None
 		self.children = []
 		
 		self.attributes = []
@@ -136,40 +143,43 @@ class Part(object):
 		data_dict['connections'] = self.connections
 		data_dict['transform'] = self.transformation
 		data_dict['center'] = self.center
+		data_dict['parent'] = self.parent
 		data_dict['children'] = self.children
 		data_dict['attributes'] = self.attributes
 		return data_dict
 	
 	## function to transform part
 	def transform(self, trans, transform_sub_parts=False):
-		geo_trans = self.geo.transform_copy(trans)
-		collider_trans = self.collider.transform_copy(trans)
+		geo_trans = self.geo.Duplicate()
+		geo_trans.Transform(trans)
+		
+		collider_trans = self.collider.transform(trans)
 		
 		connections_trans = []
 		for conn in self.connections:
 			connections_trans.append(conn.transform(trans))
 		
 		attributes_trans = []
-		"""
 		if len(self.attributes) > 0:
 			for attr in self.attributes:
 				attributes_trans.append(attr.transform(trans))
-		"""
+		
 		part_trans = Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, dim=self.dim, id=self.id, field=self.field)
 		part_trans.transformation = trans
 		return part_trans
 	
 	## return transformed center point
 	def transform_center(self, trans):
-		return self.center.transform_copy(trans)
+		center_trans = rg.Point3d(self.center)
+		center_trans.Transform(trans)
+		return center_trans
 	
 	## return transformed collider mesh
 	def transform_collider(self, trans):
-		return self.collider.transform_copy(trans)
+		return self.collider.transform(trans)
 
 
 #################################################################### Constrained Part
-"""
 class Constrained_Part(Part):
 	
 	## constructor
@@ -187,13 +197,25 @@ class Constrained_Part(Part):
 		
 		self.sub_parts = sub_parts
 	
+	def return_part_data(self):
+		data_dict = {}
+		data_dict['name'] = self.name
+		data_dict['geo'] = self.geo
+		data_dict['connections'] = self.connections
+		data_dict['transform'] = self.transformation
+		data_dict['center'] = self.center
+		data_dict['parent'] = self.parent
+		data_dict['children'] = self.children
+		data_dict['attributes'] = self.attributes
+		data_dict['add_collider'] = self.add_collider
+		return data_dict
+	
 	## function to transform component
 	def transform(self, trans, transform_sub_parts=False):
 		geo_trans = self.geo.Duplicate()
 		geo_trans.Transform(trans)
 		
-		collider_trans = self.collider.Duplicate()
-		collider_trans.Transform(trans)
+		collider_trans = self.collider.transform(trans)
 		
 		connections_trans = []
 		for conn in self.connections:
@@ -206,8 +228,7 @@ class Constrained_Part(Part):
 		
 		add_collider_trans = None
 		if(self.add_collider != None):
-			add_collider_trans = self.add_collider.Duplicate()
-			add_collider_trans.Transform(trans)
+			add_collider_trans = self.add_collider.transform(trans, transform_connections=True, maintain_valid=True)
 			
 		supports_trans = []
 		if len(self.supports) > 0:
@@ -232,7 +253,7 @@ class Constrained_Part(Part):
 			part_trans.is_constrained = True
 			return part_trans
 
-"""
+
 #################################################################### Rule
 class Rule(object):
 	
@@ -243,7 +264,7 @@ class Rule(object):
 		self.conn2 = _conn2
 		self.active = _active
 
-"""
+
 #################################################################### Field
 class Field(object):
 	
@@ -413,12 +434,8 @@ class Support(object):
 		sup_trans = Support(sup_dir_trans)
 		return sup_trans
 
-"""
-#########################################################################
-##								   WIP								   ##
-#########################################################################
 
-## Aggregation class
+#################################################################### Aggregation
 class Aggregation(object):
 	
 	## class constructor
@@ -534,7 +551,7 @@ class Aggregation(object):
 		## overlap check
 		coll_count = 0
 		for ex_part in self.aggregated_parts:
-			dist = ex_part.center.distanceTo(part_center)
+			dist = ex_part.center.DistanceTo(part_center)
 			if dist < global_tolerance:
 				return True
 			elif dist < ex_part.dim + part.dim:
@@ -544,21 +561,20 @@ class Aggregation(object):
 		## collision check
 		if self.coll_check == True:
 			part_collider = part.transform_collider(trans)
-			for id in self.possible_collisions:
-				if part_collider.intersectMesh(self.aggregated_parts[id].collider) == True:
-					return True
+			if part_collider.check_collisions_by_id(self.aggregated_parts, self.possible_collisions):
+				return True
 		return False
 	
 	## additional collider check
 	def additional_collider_check(self, part, trans):
 		if part.add_collider != None:
-			add_collider = part.add_collider.transform_copy(trans)
-			for ex_part in self.aggregated_parts:
-				if add_collider.intersectMesh(ex_part.collider):
-					return True
+			add_collider = part.add_collider.transform(trans, transform_connections=True, maintain_valid = False)
+			if add_collider.check_collisions_w_parts(self.aggregated_parts):
+				return True
+		## assign computed valid connections according to collider location
+		part.add_collider.valid_connections = list(add_collider.valid_connections)
 		return False
 	
-	"""
 	## support check
 	def missing_supports_check(self, part, trans):
 		if len(part.supports) > 0:
@@ -567,7 +583,7 @@ class Aggregation(object):
 				sup_trans = sup.transform(trans)
 				for dir in sup_trans.sup_dir:
 					for id in self.possible_collisions:
-						if len(rg.Intersect.Intersection.MeshLine(self.aggregated_parts[id].collider, dir)[0]) > 0:
+						if self.aggregated_parts[id].collider.check_intersection_w_line(dir):
 							supports_count += 1
 							break
 				if supports_count == len(sup_trans.sup_dir):
@@ -595,8 +611,7 @@ class Aggregation(object):
 						return True
 		return False
 	
-	"""
-	"""
+	
 	## sequential aggregation with Graph Grammar
 	def aggregate_sequence(self, graph_rules):
 		
@@ -623,6 +638,10 @@ class Aggregation(object):
 				
 				next_part_trans = next_part.transform(orientTransform)
 				next_part_trans.id = rule_ids[1]
+				
+				## parent-child tracking
+				first_part_trans.children.append(next_part_trans)
+				next_part_trans.parent = first_part_trans
 				
 				self.aggregated_parts.append(first_part_trans)
 				self.aggregated_parts.append(next_part_trans)
@@ -651,12 +670,14 @@ class Aggregation(object):
 					orientTransform = rg.Transform.PlaneToPlane(next_part.connections[conn2].flip_pln, first_part.connections[conn1].pln)
 					next_part_trans = next_part.transform(orientTransform)
 					next_part_trans.id = rule_ids[1]
-					self.aggregated_parts.append(next_part_trans)
+					## parent-child tracking
 					first_part.children.append(next_part_trans)
+					next_part_trans.parent = first_part
+					self.aggregated_parts.append(next_part_trans)
 				else:
 					pass ## implement error handling
 	
-	"""
+	
 	## stochastic aggregation (BASIC)
 	def aggregate_rnd(self, num):
 		added = 0
@@ -668,7 +689,7 @@ class Aggregation(object):
 			## if no part is present in the aggregation, add first random part
 			if self.p_count == 0:
 				first_part = self.parts[random.choice(self.parts.keys())]
-				first_part_trans = first_part.transform(wg.WTransform.createIdentity())
+				first_part_trans = first_part.transform(rg.Transform.Identity)
 				for conn in first_part_trans.connections:
 					conn.generate_rules_table(self.rules)
 				first_part_trans.id = 0
@@ -703,11 +724,12 @@ class Aggregation(object):
 				"""
 				if next_rule is not None:
 					next_part = self.parts[next_rule.part2]
-					orientTransform = wg.WTransform.createOrientTransform(next_part.connections[next_rule.conn2].flip_pln, conn_01.pln)
+					orientTransform = rg.Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn_01.pln)
 					
 					## boolean checks for all constraints
 					coll_check = False
 					add_coll_check = False
+					valid_connections = []
 					missing_sup_check = False
 					global_const_check = False
 					
@@ -719,9 +741,10 @@ class Aggregation(object):
 					if self.mode == 1: ## only local constraints mode
 						if coll_check == False and next_part.is_constrained:
 							add_coll_check = self.additional_collider_check(next_part, orientTransform)
+							
 							if add_coll_check == False:
 							   missing_sup_check = self.missing_supports_check(next_part, orientTransform)
-					"""
+					
 					elif self.mode == 2: ## onyl global constraints mode
 						if coll_check == False and len(self.global_constraints) > 0:
 							global_const_check = self.global_constraints_check(next_part, orientTransform)
@@ -735,7 +758,7 @@ class Aggregation(object):
 								if add_coll_check == False:
 								   missing_sup_check = self.missing_supports_check(next_part, orientTransform)
 					
-					"""
+					
 					if coll_check == False and add_coll_check == False and missing_sup_check == False and global_const_check == False:
 						next_part_trans = next_part.transform(orientTransform)
 						next_part_trans.reset_part(self.rules)
@@ -744,8 +767,11 @@ class Aggregation(object):
 								next_part_trans.active_connections.pop(i)
 								break
 						next_part_trans.id = self.p_count
-						self.aggregated_parts.append(next_part_trans)
+						
 						self.aggregated_parts[part_01_id].children.append(next_part_trans)
+						next_part_trans.parent = self.aggregated_parts[part_01_id]
+						self.aggregated_parts.append(next_part_trans)
+						
 						for i in range(len(self.aggregated_parts[part_01_id].active_connections)):
 							if self.aggregated_parts[part_01_id].active_connections[i] == conn_01_id:
 								self.aggregated_parts[part_01_id].active_connections.pop(i)
@@ -766,7 +792,7 @@ class Aggregation(object):
 								self.aggregated_parts[part_01_id].active_connections.pop(i)
 								break
 	
-	"""
+	##
 	def compute_next_w_field(self, part, part_id):
 		
 		for i in xrange(len(part.active_connections)-1, -1, -1):
@@ -898,8 +924,9 @@ class Aggregation(object):
 						conn.generate_rules_table(self.rules)
 					
 					next_part_trans.id = self.p_count
+					self.aggregated_parts[next_data[1]].children.append(next_part_trans)
+					next_part_trans.parent = self.aggregated_parts[next_data[1]]
 					self.aggregated_parts.append(next_part_trans)
-					
 					
 					## compute all possible next parts and append to list
 					self.compute_next_w_field(next_part_trans, self.p_count)
@@ -909,6 +936,7 @@ class Aggregation(object):
 				self.aggregation_queue.pop()
 				self.queue_values.pop()
 				self.queue_count -=1
+
 
 ## Global Constraint classes
 class Plane_Constraint(object):
@@ -955,4 +983,126 @@ class Mesh_Constraint(object):
 		if self.geo.IsPointInside(pt, 0.001, False):
 			return False
 		return True
-"""
+
+
+#########################################################################
+##								   WIP								   ##
+#########################################################################
+
+
+## collider class
+class Collider(object):
+	
+	def __init__(self, _geo, _multiple=False, _check_all = False, _connections=[], _valid_connections = []):
+		self.geometry = _geo
+		self.multiple = _multiple
+		self.check_all = _check_all
+		self.connections = _connections
+		
+		self.valid_connections = _valid_connections
+		
+		self.set_connections = False
+		if len(self.connections) == len(self.geometry) and self.multiple == True:
+			self.set_connections = True
+	
+	########################################################################### check if valid connections need to be transformed or re-generated!!!
+	def transform(self, trans, transform_connections = False, maintain_valid = False):
+		geometry_trans = []
+		for geo in self.geometry:
+			geo_trans = geo.Duplicate()
+			geo_trans.Transform(trans)
+			geometry_trans.append(geo_trans)
+		
+		connections_trans = []
+		if transform_connections:
+			for conn in self.connections:
+				connections_trans.append(conn.transform(trans))
+		
+		if maintain_valid:
+			print self.valid_connections
+			valid_connection_trans = list(self.valid_connections)
+			coll_trans = Collider(geometry_trans, _multiple=self.multiple, _check_all=self.check_all, _connections=connections_trans, _valid_connections=valid_connection_trans)
+		else:
+			coll_trans = Collider(geometry_trans, _multiple=self.multiple, _check_all=self.check_all, _connections=connections_trans)
+		
+		return coll_trans
+	
+	
+	def check_collisions_w_parts(self, parts):
+		## multiple collider with associated connections
+		if self.multiple:
+			valid_colliders = []
+			self.valid_connections = []
+			count = 0
+			for geo in self.geometry:
+				valid_coll = True
+				for part in parts:
+					for other_geo in part.collider.geometry:
+						if len(rg.Intersect.Intersection.MeshMeshFast(geo, other_geo)) > 0:
+							valid_coll = False
+							break
+					if valid_coll == False:
+						break
+				valid_colliders.append(valid_coll)
+				if self.set_connections and valid_coll:
+					self.valid_connections.append(count)
+				if valid_coll and self.check_all == False:
+					break
+				count+=1
+			
+			if True in valid_colliders:
+				return False
+			return True
+		
+		## simple collider
+		else:
+			for geo in self.geometry:
+				for part in parts:
+					for other_geo in part.collider.geometry:
+						if len(rg.Intersect.Intersection.MeshMeshFast(geo, other_geo)) > 0:
+							return True
+			return False
+	
+	def check_collisions_by_id(self, parts, ids):
+		## multiple collider with associated connections
+		if self.multiple:
+			valid_colliders = []
+			count = 0
+			
+			for geo in self.geometry:
+				valid_coll = True
+				for id in ids:
+					for other_geo in parts[id].collider.geometry:
+						if len(rg.Intersect.Intersection.MeshMeshFast(geo, other_geo)) > 0:
+							valid_coll = False
+							break
+				valid_colliders.append(valid_coll)
+				if valid_coll and self.check_all == False:
+					break
+				count+=1
+			if True in valid_colliders:
+				return False
+			return True
+		
+		## simple collider
+		else:
+			for geo in self.geometry:
+				for id in ids:
+					for other_geo in parts[id].collider.geometry:
+						if len(rg.Intersect.Intersection.MeshMeshFast(geo, other_geo)) > 0:
+							return True
+			return False
+
+	
+	def check_intersection_w_line(self, ln):
+		for geo in self.geometry:
+			if len(rg.Intersect.Intersection.MeshLine(geo, ln)[0]) > 0:
+				return True
+		return False
+
+	
+	def check_global_constraints(self, constraint):
+		return False
+	
+	
+	

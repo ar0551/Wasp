@@ -118,9 +118,14 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
     elif len(fields) > 1:
         field_names = [f.name for f in fields]
         for part in parts:
-            if part.field is None or part.field not in field_names:
+            if part.field is None:
+                part.field = fields[0].name
+                msg = "Part " + part.name + " does not have a vaild field name assigned. Field " + part.field + " assigned by default."
+                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+                
+            elif part.field not in field_names:
                 check_data = False
-                msg = "Part " + part.name + " does not have a vaild field name assigned. This is necessary for multi-fields aggregations."
+                msg = "Part " + part.name + " does not have a vaild field name assigned."
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if check_data:

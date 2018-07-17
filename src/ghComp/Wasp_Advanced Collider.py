@@ -29,21 +29,20 @@
 #########################################################################
 
 """
-Attribute to be attached to a part.
-Could be geometry or any other kind of data (eg. text, numeric variables, color).
-If Geometry, Transformable must be set to True to mantain the geometry attached to the part during aggregation.
+Description here
 -
 Provided by Wasp 0.1.0
     Args:
-        ID: Name of the attribute
-        VAL: Value of the attribute (any type of Gh-compatible data possible)
-        TR: Transformable. Set it to True for Geometry, False for other types of data
+        GEO: Geometry of the collider(s)
+        MUL: True if collider has multiple parts (one part not colliding sufficient to satisfy the constraint)
+        ALL: ...
+        CONN: OPTIONAL // If Multiple Colliders, associate a connection to each collider (e.g. a picking position for the tool collider)
     Returns:
-        ATTR: Attribute instance to attach to a component
+        COLL: Collider instance
 """
 
-ghenv.Component.Name = "Wasp_Attribute"
-ghenv.Component.NickName = 'Attribute'
+ghenv.Component.Name = "Wasp_Advanced Collider"
+ghenv.Component.NickName = 'AdvColl'
 ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
@@ -68,43 +67,47 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(id, values, transformable):
+def main(geometry, multiple, check_all, connections):
     
     check_data = True
     
     ##check inputs
-    if id is None:
-        id = 'ATTR_01'
-        msg = "Default name 'ATTR_01' assigned to attribute"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
-    
-    if len(values) == 0:
+    if len(geometry) == 0:
         check_data = False
-        msg = "Please provide values for the attribute"
+        msg = "No geometry provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
-    if transformable is None:
-        msg = "Transformable set to False by default"
+    if multiple is None:
+        multiple = False
+        msg = "Multiple set to False by default"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
     
-    if transformable == True:
-        val_count = 0
-        for i in range(len(values)):
-            try:
-                values[i].Transform(rg.Transform.Identity)
-            except:
-                check_data = False
-                msg = "Value %d is not transformable"%(i)
-                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+    if check_all is None:
+        check_all = False
+        msg = "Check_all set to False by default"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+    
+    if len(connections) > 0 and len(connections) != len(geometry):
+        check_data = False
+        msg = "Please provide the same amount of collider geometries and connections."
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if len(geometry) > 0:
+        faces_count = 0
+        for geo in geometry:
+            faces_count += geo.Faces.Count
+        if faces_count > 1000:
+            msg = "The given collider has a high faces count. Consider providing a low poly collider to improve performance"
+            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if check_data:
-        attribute = wasp.Attribute(id, values, transformable)
-        return attribute
+        collider = wasp.Collider(geometry, multiple, check_all, connections)
+        return collider
     else:
         return -1
 
 
-result = main(ID, VAL, TR)
+result = main(GEO, MUL, ALL, CONN)
 
 if result != -1:
-    ATTR = result
+    COLL = result

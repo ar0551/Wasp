@@ -70,7 +70,7 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(part_name, part_geo, connections, collider, field_name, sub_parts, attributes, add_collider, supports):
+def main(part_name, part_geo, connections, collider_geo, field_name, sub_parts, attributes, add_collider, supports):
     
     check_data = True
     
@@ -87,24 +87,24 @@ def main(part_name, part_geo, connections, collider, field_name, sub_parts, attr
         check_data = False
     
     ## compute collider, if no custom collider is provided
-    if collider is None and part_geo is not None:
-        collider = part_geo.Duplicate().Offset(wasp.global_tolerance)
-        collider_intersection = rg.Intersect.Intersection.MeshMeshFast(collider, part_geo)
+    if collider_geo is None and part_geo is not None:
+        collider_geo = part_geo.Duplicate().Offset(wasp.global_tolerance)
+        collider_intersection = rg.Intersect.Intersection.MeshMeshFast(collider_geo, part_geo)
         if len(collider_intersection) > 0:
-            collider = None
-            collider = part_geo.Duplicate()
+            collider_geo = None
+            collider_geo = part_geo.Duplicate()
             center = part_geo.GetBoundingBox(True).Center
             scale_plane = rg.Plane(center, rg.Vector3d(1,0,0), rg.Vector3d(0,1,0))
             scale_transform = rg.Transform.Scale(scale_plane, 1-wasp.global_tolerance, 1-wasp.global_tolerance, 1-wasp.global_tolerance)
-            collider.Transform(scale_transform)
-            collider_intersection = rg.Intersect.Intersection.MeshMeshFast(collider, part_geo)
+            collider_geo.Transform(scale_transform)
+            collider_intersection = rg.Intersect.Intersection.MeshMeshFast(collider_geo, part_geo)
             if len(collider_intersection) > 0:
-                collider = None
+                collider_geo = None
                 msg = "Could not compute a valid collider geometry. Please provide a valid collider in the COLL input."
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
                 check_data = False
     
-    if collider is not None and collider.Faces.Count > 1000:
+    if collider_geo is not None and collider_geo.Faces.Count > 1000:
         msg = "The computed collider has a high faces count. Consider providing a low poly collider to improve performance"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
@@ -114,6 +114,12 @@ def main(part_name, part_geo, connections, collider, field_name, sub_parts, attr
     
     
     if check_data:
+        ## create collider
+        collider = wasp.Collider([collider_geo])
+        
+        if add_collider is not None and type(add_collider) != wasp.Collider:
+            add_collider = wasp.Collider([add_collider])
+        
         ## create part instance
         new_part = wasp.Constrained_Part(part_name, part_geo, connections, collider, attributes, add_collider, supports, field=field_name, sub_parts=sub_parts)
         new_part.is_constrained = True
