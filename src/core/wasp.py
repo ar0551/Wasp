@@ -139,6 +139,7 @@ class Part(object):
 	def return_part_data(self):
 		data_dict = {}
 		data_dict['name'] = self.name
+		data_dict['id'] = self.id
 		data_dict['geo'] = self.geo
 		data_dict['connections'] = self.connections
 		data_dict['transform'] = self.transformation
@@ -200,6 +201,7 @@ class Constrained_Part(Part):
 	def return_part_data(self):
 		data_dict = {}
 		data_dict['name'] = self.name
+		data_dict['id'] = self.id
 		data_dict['geo'] = self.geo
 		data_dict['connections'] = self.connections
 		data_dict['transform'] = self.transformation
@@ -638,6 +640,9 @@ class Aggregation(object):
 				
 				next_part_trans = next_part.transform(orientTransform)
 				next_part_trans.id = rule_ids[1]
+				
+				## check additional collider (for fabrication constraints)
+				self.additional_collider_check(next_part, orientTransform)
 				
 				## parent-child tracking
 				first_part_trans.children.append(next_part_trans)

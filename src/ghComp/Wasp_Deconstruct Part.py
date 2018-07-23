@@ -96,6 +96,7 @@ def main(parts):
     if check_data:
         
         names = []
+        ids = []
         geometries = []
         transforms = []
         add_colliders = []
@@ -109,6 +110,7 @@ def main(parts):
         for part in parts:
             data_dict = part.return_part_data()
             names.append(data_dict['name'])
+            ids.append(data_dict['id'])
             geometries.append(data_dict['geo'])
             conn_list.append(data_dict['connections'])
             
@@ -136,7 +138,7 @@ def main(parts):
         children = listToDataTree(children_list)
         attributes = listToDataTree(attributes_list)
         
-        return names, geometries, transforms, add_colliders, connections, connection_planes, parents, children, attributes
+        return names, ids, geometries, transforms, add_colliders, connections, connection_planes, parents, children, attributes
     else:
         return -1
 
@@ -145,11 +147,12 @@ result = main(PART)
 
 if result != -1:
     NAME = result[0]
-    GEO = result[1]
-    TR = result[2]
-    ADD_COLL = result[3]
-    CONN = result[4]
-    CONN_PLN = result[5]
-    PARENT = result[6]
-    CHILD = result[7]
-    ATTR = result[8]
+    ID = result[1]
+    GEO = result[2]
+    TR = result[3]
+    ADD_COLL = result[4]
+    CONN = result[5]
+    CONN_PLN = result[6]
+    PARENT = result[7]
+    CHILD = result[8]
+    ATTR = result[9]

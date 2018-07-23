@@ -112,8 +112,7 @@ def main(aggregation, id, remove_children, remove, reset):
         current_part = None
         current_children = []
         
-        if reset:
-            new_name = aggregation.name + "_edit"
+        if reset or sc.sticky.has_key(new_name) == False:
             parts_list = [aggregation.parts[key] for key in aggregation.parts]
             sc.sticky[new_name] = copy.deepcopy(aggregation)
             sc.sticky[new_name].name = new_name
