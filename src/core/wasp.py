@@ -975,9 +975,10 @@ class Mesh_Constraint(object):
 			return False
 		return True
 	
-	def check_inside(self, mesh, pt):
-		if len(rg.Intersect.Intersection.MeshMeshFast(self.geo, mesh)) > 0:
-			return False
+	def check_inside(self, collider, pt):
+		for geo in collider.geometry:
+			if len(rg.Intersect.Intersection.MeshMeshFast(self.geo, geo)) > 0:
+				return False
 		
 		if self.geo.IsPointInside(pt, 0.001, False):
 			return False
