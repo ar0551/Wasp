@@ -33,3 +33,5 @@ Klavins, E, Ghrist, R and Lipsky, D. 2004. Graph grammars for self-assembling ro
 
 Rossi, A and Tessmann, O. 2017. Designing with DigitalMaterials. In Proceedings of CAADRIA 2017, Suzhou.
 
+Rossi A., Tessmann O. 2019. From Voxels to Parts: Hierarchical Discrete Modeling for Design and Assembly. In: Cocchiarella L. (eds) ICGG 2018 - Proceedings of the 18th International Conference on Geometry and Graphics. ICGG 2018. Advances in Intelligent Systems and Computing, vol 809. Springer, Cham
+
