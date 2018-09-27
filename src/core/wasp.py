@@ -617,8 +617,8 @@ class Aggregation(object):
 	## sequential aggregation with Graph Grammar
 	def aggregate_sequence(self, graph_rules):
 		
-		for rule in graph_rules:
-				
+		for rule in graph_rules:	
+			## first part
 			if len(self.aggregated_parts) == 0:
 				aggr_rule = rule.split(">")[0]
 				rule_parts = aggr_rule.split("_")
@@ -632,7 +632,6 @@ class Aggregation(object):
 				first_part = self.parts[part1]
 				first_part_trans = first_part.transform(rg.Transform.Identity)
 				first_part_trans.id = rule_ids[0]
-				
 				
 				next_part = self.parts[part2]
 				
@@ -1106,7 +1105,7 @@ class Collider(object):
 				return True
 		return False
 
-	
+		
 	def check_global_constraints(self, constraint):
 		return False
 	
