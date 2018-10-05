@@ -30,13 +30,13 @@
 import random
 import math
 import bisect
+from Rhino.RhinoDoc import ActiveDoc
 import Rhino.Geometry as rg
-import wasp_geometry
 
 #########################################################################
 ##							GLOBAL VARIABLES						   ##
 #########################################################################
-global_tolerance = wasp_geometry.model_tolerance
+global_tolerance = ActiveDoc.ModelAbsoluteTolerance*5
 
 #########################################################################
 ##								 CLASSES							   ##
@@ -795,7 +795,10 @@ class Aggregation(object):
 							if self.aggregated_parts[part_01_id].active_connections[i] == conn_01_id:
 								self.aggregated_parts[part_01_id].active_connections.pop(i)
 								break
-	
+				else:
+					## if no part is available, exit the aggregation routine and return an error message
+					msg = "Could not place " + str(num-added) + " parts"
+					return msg
 	##
 	def compute_next_w_field(self, part, part_id):
 		
@@ -881,8 +884,10 @@ class Aggregation(object):
 				self.p_count += 1
 			
 			else:
+				## if no part is available, exit the aggregation routine and return an error message
 				if self.queue_count == 0:
-					break
+					msg = "Could not place " + str(num-added) + " parts"
+					return msg
 				
 				next_data = self.aggregation_queue[self.queue_count-1]
 				next_part = self.parts[next_data[0]]
@@ -1024,7 +1029,6 @@ class Collider(object):
 				connections_trans.append(conn.transform(trans))
 		
 		if maintain_valid:
-			print self.valid_connections
 			valid_connection_trans = list(self.valid_connections)
 			coll_trans = Collider(geometry_trans, _multiple=self.multiple, _check_all=self.check_all, _connections=connections_trans, _valid_connections=valid_connection_trans)
 		else:

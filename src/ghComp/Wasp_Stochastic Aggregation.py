@@ -48,7 +48,7 @@ Provided by Wasp 0.1.0
 """
 
 ghenv.Component.Name = "Wasp_Stochastic Aggregation"
-ghenv.Component.NickName = 'RndAggr'
+ghenv.Component.NickName = 'StochasticAggregation'
 ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"

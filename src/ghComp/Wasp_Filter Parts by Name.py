@@ -29,17 +29,18 @@
 #########################################################################
 
 """
-Extract the geometry of one part (for visualization or further processing).
+Filter a list of parts according to part names
 -
 Provided by Wasp 0.2.1
     Args:
-        PART: Part from where to extract the geometry
+        PART: Parts to filter
+        NAME: Name of the parts to extract
     Returns:
-        GEO: Part geometry
+        PART_OUT: Filtered parts
 """
 
-ghenv.Component.Name = "Wasp_Get Part Geometry"
-ghenv.Component.NickName = 'PartGeo'
+ghenv.Component.Name = "Wasp_Filter Parts by Name"
+ghenv.Component.NickName = 'NameFilter'
 ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
@@ -65,7 +66,20 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(parts):
+## from http://www.chenjingcheng.com/grasshopper-python-datatree-list-conversion/
+def listToDataTree(list):
+    rl = list
+    result = gh.DataTree[object]()
+    for i in range(len(rl)):
+        temp = []
+        for j in range(len(rl[i])):
+            temp.append(rl[i][j])
+        path = gh.Kernel.Data.GH_Path(i)
+        result.AddRange(temp, path)
+    return result
+
+
+def main(parts, names):
         
     check_data = True
     
@@ -75,13 +89,26 @@ def main(parts):
         msg = "No part provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
+    if len(names) == 0:
+        check_data = False
+        msg = "No part name provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
     ## execute main code if all needed inputs are available
     if check_data:
-        return [part.geo for part in parts]
+        
+        filtered_parts = []
+        for i in xrange(len(names)):
+            filtered_parts.append([])
+            for part in parts:
+                if part.name == names[i]:
+                    filtered_parts[i].append(part)
+        return listToDataTree(filtered_parts)
+        
     else:
         return -1
 
-result = main(PART)
+result = main(PART, NAME)
 
 if result != -1:
-    GEO = result
+    PART_OUT = result
