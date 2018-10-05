@@ -102,8 +102,6 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
     
     if aggregation_id is None:
         aggregation_id = 'myAggregation'
-        msg = "Default name 'myAggregation' assigned"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
     
     if reset is None:
         reset = False
@@ -130,7 +128,9 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
             sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints)
         
         if num_parts > sc.sticky[aggregation_id].p_count:
-            sc.sticky[aggregation_id].aggregate_rnd(num_parts-sc.sticky[aggregation_id].p_count)
+            error_msg = sc.sticky[aggregation_id].aggregate_rnd(num_parts-sc.sticky[aggregation_id].p_count)
+            if error_msg is not None:
+                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, error_msg)
         
         elif num_parts < sc.sticky[aggregation_id].p_count:
             sc.sticky[aggregation_id].remove_elements(num_parts)

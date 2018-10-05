@@ -36,7 +36,7 @@ Provided by Wasp 0.1.0
     Args:
         FIELD: Field object to extract isolines from
         PLN: Plane for isolines extraction (0: XY Plane, 1: YZ Plane, 2: XZ Plane)
-        t: Z parameter where to extract isolines
+        T: Z parameter where to extract isolines
         ISO: Isolevel of the curves
     Returns:
         CRV: Isocurves
@@ -44,7 +44,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Field Isolines"
 ghenv.Component.NickName = 'FieldIso'
-ghenv.Component.Message = 'VER 0.1.1\nMAR_06_2018'
+ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory =  "4 | Aggregation"
@@ -96,8 +96,9 @@ def main(field, plane, t, iso):
                 contour_cases[y].append(c_case)
         
         ## CONTOURS GENERATION
-        base_pt = field.pts[z][0][0]
         res = field.resolution
+        base_pt = rg.Point3d(field.bbox.Min.X, field.bbox.Min.Y, field.bbox.Min.Z + z*res)
+        
         
         for y in range(0, field.y_count-1):
             for x in range(0, field.x_count-1):
@@ -137,8 +138,8 @@ def main(field, plane, t, iso):
                 contour_cases[z].append(c_case)
         
         ## CONTOURS GENERATION
-        base_pt = field.pts[0][0][x]
         res = field.resolution
+        base_pt = rg.Point3d(field.bbox.Min.X + x*res, field.bbox.Min.Y, field.bbox.Min.Z)
         
         for z in range(0, field.z_count-1):
             for y in range(0, field.y_count-1):
@@ -178,8 +179,8 @@ def main(field, plane, t, iso):
                 contour_cases[z].append(c_case)
         
         ## CONTOURS GENERATION
-        base_pt = field.pts[0][y][0]
         res = field.resolution
+        base_pt = rg.Point3d(field.bbox.Min.X, field.bbox.Min.Y + y*res, field.bbox.Min.Z)
         
         for z in range(0, field.z_count-1):
             for x in range(0, field.x_count-1):

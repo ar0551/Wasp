@@ -105,8 +105,6 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
     
     if aggregation_id is None:
         aggregation_id = 'myFieldAggregation'
-        msg = "Default name 'myFieldAggregation' assigned"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
     
     if reset is None:
         reset = False
@@ -144,15 +142,17 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
         ## create aggregation in sticky dict
         if sc.sticky.has_key(aggregation_id) == False:
             sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
-        
+            
         ## reset aggregation
         if reset:
             sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
         
         if num_parts > sc.sticky[aggregation_id].p_count:
             #sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count, field, threshold)
-            sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count)
-            
+            error_msg = sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count)
+            print error_msg
+            if error_msg is not None:
+                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, error_msg)
             """
             if len(sc.sticky[aggregation_id]) < num_parts:
                 msg = "Could not place " + str(num_parts - len(sc.sticky[aggregation_id])) + " parts"

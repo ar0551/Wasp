@@ -76,9 +76,9 @@ def main(part_name, part_geo, connections, collider_geo, field_name, sub_parts, 
     
     ## check inputs
     if part_name is None:
-        part_name = 'P1'
-        msg = "Default name 'P1' assigned to part"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+        check_data = False
+        msg = "No part name provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if part_geo is None:
         check_data = False

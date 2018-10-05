@@ -29,25 +29,21 @@
 #########################################################################
 
 """
-Generates a scalar field given a grid of points and their relative scalar values
+Extract the geometry of one part (for visualization or further processing).
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.1
     Args:
-        BOU: List of geometries defining the boundaries of the field. Geometries must be closed breps or meshes. All points of the field outside the geometries will be assigned a 0 value
-        PTS: 3d point grid (from FieldPts component)
-        COUNT: Vector storing cell counts for each axis (from FieldPts component)
-        RES: Resolution of cell grid
-        VAL: Values to assign to each cell
+        PART: Part from where to extract the geometry
     Returns:
-        FIELD: Field object (to be used to drive the FieldAggr component)
+        GEO: Part geometry
 """
 
-ghenv.Component.Name = "Wasp_Field"
-ghenv.Component.NickName = 'Field'
+ghenv.Component.Name = "Wasp_Get Part Geometry"
+ghenv.Component.NickName = 'PartGeo'
 ghenv.Component.Message = 'VER 0.2.1'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "4 | Aggregation"
+ghenv.Component.SubCategory = "2 | Parts"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
@@ -69,50 +65,23 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(name, boundaries, pts, count, resolution, values):
-    
+def main(parts):
+        
     check_data = True
     
-    ##check inputs
-    if name is None:
-        name = "field"
-    
-    if len(boundaries) == 0:
-        boundaries.append(rg.BoundingBox(pts).ToBrep())
-    
-    if len(pts) == 0:
+    ## check inputs
+    if len(parts) == 0:
         check_data = False
-        msg = "No point grid provided"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-        
-    elif len(values) == 0:
-        check_data = False
-        msg = "No field values provided"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-        
-    elif len(pts) != len(values):
-        check_data = False
-        msg = "Points and Values lists are not matching. Please provide two lists with same number of elements"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
-    
-    if count is None:
-        check_data = False
-        msg = "No axis count provided"
+        msg = "No part provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
-    if resolution is None and check_data == True:
-        resolution = pts[0].DistanceTo(pts[1])
-        msg = "No resolution provided. Calculated resolution is %0.2f"%(resolution)
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
-    
+    ## execute main code if all needed inputs are available
     if check_data:
-        field = wasp.Field(name, boundaries, pts, count, resolution, values)
-        return field
+        return [part.geo for part in parts]
     else:
         return -1
 
-
-result = main(NAME, BOU, PTS, COUNT, RES, VAL)
+result = main(PART)
 
 if result != -1:
-    FIELD = result
+    GEO = result
