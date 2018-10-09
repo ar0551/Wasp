@@ -118,8 +118,6 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
         for part in parts:
             if part.field is None:
                 part.field = fields[0].name
-                msg = "Part " + part.name + " does not have a vaild field name assigned. Field " + part.field + " assigned by default."
-                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
                 
             elif part.field not in field_names:
                 check_data = False
@@ -149,8 +147,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
         
         if num_parts > sc.sticky[aggregation_id].p_count:
             #sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count, field, threshold)
-            error_msg = sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count)
-            print error_msg
+            error_msg = sc.sticky[aggregation_id].aggregate_field(num_parts-len(sc.sticky[aggregation_id].aggregated_parts))
             if error_msg is not None:
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, error_msg)
             """

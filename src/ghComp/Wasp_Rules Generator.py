@@ -38,6 +38,7 @@ Provided by Wasp 0.1.0
         PART: Parts from which to generate aggregation rules
         SELF_P: OPTIONAL // Create rules between connections belonging to the same part (True by default)
         SELF_C: OPTIONAL // Create rules between connection with same id (True by default)
+        TYP: OPTIONAL // Create rules only between connections of the same type (False by default)
         GR: OPTIONAL // Custom connection grammar with format "ConnType">"ConnType"
     Returns:
         R: Generated aggregation rules
@@ -68,7 +69,7 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(parts, self_part, self_connection, grammar):
+def main(parts, self_part, self_connection, use_types, grammar):
     
     check_data = True
     
@@ -83,6 +84,9 @@ def main(parts, self_part, self_connection, grammar):
     
     if self_connection == None:
         self_connection = True
+    
+    if use_types is None:
+        use_types = False
     
     if check_data:
         rules = []
@@ -104,7 +108,11 @@ def main(parts, self_part, self_connection, grammar):
                                         skip_conn = True
                                 
                                 if skip_conn == False:
-                                    if conn.type == other_conn.type:
+                                    if use_types:
+                                        if conn.type == other_conn.type:
+                                            r = wasp.Rule(part.name, conn.id, other_part.name, other_conn.id)
+                                            rules.append(r)
+                                    else:
                                         r = wasp.Rule(part.name, conn.id, other_part.name, other_conn.id)
                                         rules.append(r)
         else:
@@ -137,7 +145,7 @@ def main(parts, self_part, self_connection, grammar):
         return -1
 
 
-result = main(PART, SELF_P, SELF_C, GR)
+result = main(PART, SELF_P, SELF_C, TYP, GR)
 
 if result != -1:
     R = result[0]

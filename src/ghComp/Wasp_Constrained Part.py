@@ -108,11 +108,6 @@ def main(part_name, part_geo, connections, collider_geo, field_name, sub_parts, 
         msg = "The computed collider has a high faces count. Consider providing a low poly collider to improve performance"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
-    if add_collider is None and len(supports) == 0:
-        msg = "No information provided for Constrained mode. You might want to use the Basic Part component for better performance"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
-    
-    
     if check_data:
         ## create collider
         collider = wasp.Collider([collider_geo])

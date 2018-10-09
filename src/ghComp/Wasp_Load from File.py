@@ -54,6 +54,7 @@ import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
 import Grasshopper as gh
+import json
 
 
 ## add Wasp install directory to system path
@@ -87,67 +88,64 @@ def main(parts, file_path):
     if check_data:
         
         loaded_parts = []
-        txt_data = []
+        aggr_dict = {}
         
+        ## load json data
         with open(FILE, "r") as inF:
-            txt_data = inF.read().split("---\n")
+            txt_data = inF.read()
+            aggr_dict = json.loads(txt_data)
         
-        if len(txt_data) > 0:
-            for txt in txt_data:
-                try:
-                    data = txt.split("\n")
+        ## sort part ids
+        part_ids = [int(id) for id in aggr_dict.keys()]
+        part_ids.sort()
+        
+        ## load parts
+        for id in part_ids:
+            part_data = aggr_dict[str(id)]
                     
-                    ## part name
-                    name = data[0]
-                    
-                    ## part active connections
-                    active_conn = []
-                    aconn_data = data[1].split(";")
-                    for ac in aconn_data:
-                        try:
-                            aconn_id = int(ac)
-                            active_conn.append(aconn_id)
-                        except:
-                            pass
-                    
-                    ## part transform
-                    trans = rg.Transform(0)
-                    tranform_data = data[2].split(";")
-                    
-                    trans.M00 = float(tranform_data[0])
-                    trans.M01 = float(tranform_data[1])
-                    trans.M02 = float(tranform_data[2])
-                    trans.M03 = float(tranform_data[3])
-                    trans.M10 = float(tranform_data[4])
-                    trans.M11 = float(tranform_data[5])
-                    trans.M12 = float(tranform_data[6])
-                    trans.M13 = float(tranform_data[7])
-                    trans.M20 = float(tranform_data[8])
-                    trans.M21 = float(tranform_data[9])
-                    trans.M22 = float(tranform_data[10])
-                    trans.M23 = float(tranform_data[11])
-                    trans.M30 = float(tranform_data[12])
-                    trans.M31 = float(tranform_data[13])
-                    trans.M32 = float(tranform_data[14])
-                    trans.M33 = float(tranform_data[15])
-                    
-                    constrained = bool(data[3])
-                    
-                    new_part = None
-                    for part in PART:
-                        if part.name == name:
-                            new_part = part.transform(trans)
-                            break
-                    
-                    if new_part is not None:
-                        new_part.active_connections = active_conn
-                        new_part.is_constrained = constrained
-                        
-                        loaded_parts.append(new_part)
-                except:
-                    pass
+            ## part name
+            name = part_data['name']
             
-            return loaded_parts
+            ## part active connections
+            active_conn = part_data['active_connections']
+            
+            ## part transform
+            trans = rg.Transform(0)
+            trans.M00 = part_data['transform']['M00']
+            trans.M01 = part_data['transform']['M01']
+            trans.M02 = part_data['transform']['M02']
+            trans.M03 = part_data['transform']['M03']
+            
+            trans.M10 = part_data['transform']['M10']
+            trans.M11 = part_data['transform']['M11']
+            trans.M12 = part_data['transform']['M12']
+            trans.M13 = part_data['transform']['M13']
+            
+            trans.M20 = part_data['transform']['M20']
+            trans.M21 = part_data['transform']['M21']
+            trans.M22 = part_data['transform']['M22']
+            trans.M23 = part_data['transform']['M23']
+            
+            trans.M30 = part_data['transform']['M30']
+            trans.M31 = part_data['transform']['M31']
+            trans.M32 = part_data['transform']['M32']
+            trans.M33 = part_data['transform']['M33']
+            
+            constrained = part_data['is_constrained']
+            
+            new_part = None
+            for part in PART:
+                if part.name == name:
+                    new_part = part.transform(trans)
+                    break
+            
+            if new_part is not None:
+                new_part.active_connections = active_conn
+                new_part.is_constrained = constrained
+                
+                loaded_parts.append(new_part)
+            
+        return loaded_parts
     else:
         return -1
 

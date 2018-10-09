@@ -281,7 +281,6 @@ class Field(object):
 		self.y_count = int(count_vec.Y)
 		self.z_count = int(count_vec.Z)
 		
-		#self.pts = []
 		self.vals = []
 		pts_count = 0
 		
@@ -293,13 +292,10 @@ class Field(object):
 			pass
 		
 		for z in range(0, self.z_count):
-			#self.pts.append([])
 			self.vals.append([])
 			for y in range(0, self.y_count):
-				#self.pts[z].append([])
 				self.vals[z].append([])
 				for x in range(0, self.x_count):
-					#self.pts[z][y].append(pts[pts_count])
 					if len(boundaries) > 0:
 						inside = False
 						for bou in boundaries:
@@ -315,8 +311,6 @@ class Field(object):
 					else:
 						self.vals[z][y].append(values[pts_count])
 					pts_count += 1
-		
-		self.highest_pt = self.return_highest_pt()
 	
 	
 	def return_pt_val(self, pt):
@@ -451,7 +445,7 @@ class Aggregation(object):
 			self.parts[part.name] = part
 		
 		self.rules = _rules
-		self.reset_parts()
+		self.reset_base_parts()
 		
 		self.mode = _mode
 		self.coll_check = _coll_check
@@ -485,10 +479,14 @@ class Aggregation(object):
 		if len(_prev) > 0:
 			self.prev_num = len(_prev)
 			for prev_p in _prev:
-				prev_p.reset_part(self.rules)
-				self.aggregated_parts.append(prev_p)
+				prev_p_transform = prev_p.transformation
+				prev_p_copy = prev_p.transform(rg.Transform.Identity)
+				prev_p_copy.tranformation = prev_p_transform
+				prev_p_copy.reset_part(self.rules)
+				prev_p_copy.id = len(self.aggregated_parts)
+				self.aggregated_parts.append(prev_p_copy)
 				if self.field is not None:
-					self.compute_next_w_field(prev_p, self.p_count)
+					self.compute_next_w_field(prev_p_copy)
 				self.p_count += 1
 		
 		## WIP
@@ -499,27 +497,28 @@ class Aggregation(object):
 	
 	
 	## reset entire aggregation (NOT WORKING)
-	def reset(self):
+	def reset(self, prev):
 		self.aggregated_parts = []
 		self.p_count = 0
 		self.aggregation_queue = []
 		self.queue_values = []
 		self.queue_count = 0
 		
-		self.reset_parts()
+		self.reset_base_parts()
 		
 		if prev is not None:
 			for prev_p in prev:
 				prev_p.reset_part(self.rules)
+				prev_p.id = len(self.aggregated_parts)
 				self.aggregated_parts.append(prev_p)
 				
 				if self.field is not None:
-					self.compute_next_w_field(prev_p, self.p_count)
+					self.compute_next_w_field(prev_p)
 				
 				self.p_count += 1
 	
 	## reset all base parts
-	def reset_parts(self):
+	def reset_base_parts(self):
 		for p_key in self.parts:
 			self.parts[p_key].reset_part(self.rules)
 	
@@ -527,7 +526,7 @@ class Aggregation(object):
 	def reset_rules(self, rules):
 		if rules != self.rules:
 			self.rules = rules
-			self.reset_parts()
+			self.reset_base_parts()
 	
 	## trim aggregated parts list to a specific length
 	def remove_elements(self, num):
@@ -536,13 +535,14 @@ class Aggregation(object):
 		self.aggregation_queue = []
 		self.queue_values = []
 		self.queue_count = 0
+		self.p_count -= (self.p_count - num)
 		
 		for part in self.aggregated_parts:
 			part.reset_part(self.rules)
 			if self.field is not None:
-				self.compute_next_w_field(part, self.p_count)
+				self.compute_next_w_field(part)
 			
-		self.p_count -= (self.p_count - num)
+		
 	
 	#### constraints check
 	
@@ -719,13 +719,7 @@ class Aggregation(object):
 							next_rule_id = conn_01.active_rules[random.randint(0, len(conn_01.active_rules)-1)]
 							next_rule = conn_01.rules_table[next_rule_id]
 							break
-				### TO FIX >>> Give feedback when desired number of parts is not reached
-				"""
-				if next_rule == None:
-					msg = "aborted after " + str(count) + " iterations"
-					ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-					break
-				"""
+				
 				if next_rule is not None:
 					next_part = self.parts[next_rule.part2]
 					orientTransform = rg.Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn_01.pln)
@@ -800,7 +794,7 @@ class Aggregation(object):
 					msg = "Could not place " + str(num-added) + " parts"
 					return msg
 	##
-	def compute_next_w_field(self, part, part_id):
+	def compute_next_w_field(self, part):
 		
 		for i in xrange(len(part.active_connections)-1, -1, -1):
 			conn_id = part.active_connections[i]
@@ -821,7 +815,7 @@ class Aggregation(object):
 						field_val = self.field[f_name].return_pt_val(next_center)
 						
 						queue_index = bisect.bisect_left(self.queue_values, field_val)
-						queue_entry = (next_part.name, part_id, orientTransform)
+						queue_entry = (next_part.name, part.id, orientTransform)
 						
 						self.queue_values.insert(queue_index, field_val)
 						self.aggregation_queue.insert(queue_index, queue_entry)
@@ -832,7 +826,7 @@ class Aggregation(object):
 						field_val = self.field.return_pt_val(next_center)
 						
 						queue_index = bisect.bisect_left(self.queue_values, field_val)
-						queue_entry = (next_part.name, part_id, orientTransform)
+						queue_entry = (next_part.name, part.id, orientTransform)
 						
 						self.queue_values.insert(queue_index, field_val)
 						self.aggregation_queue.insert(queue_index, queue_entry)
@@ -879,7 +873,7 @@ class Aggregation(object):
 				self.aggregated_parts.append(first_part_trans)
 				
 				## compute all possible next parts and append to list
-				self.compute_next_w_field(first_part_trans, self.p_count)
+				self.compute_next_w_field(first_part_trans)
 				added += 1
 				self.p_count += 1
 			
@@ -932,13 +926,13 @@ class Aggregation(object):
 					for conn in next_part_trans.connections:
 						conn.generate_rules_table(self.rules)
 					
-					next_part_trans.id = self.p_count
+					next_part_trans.id = len(self.aggregated_parts)
 					self.aggregated_parts[next_data[1]].children.append(next_part_trans)
 					next_part_trans.parent = self.aggregated_parts[next_data[1]]
 					self.aggregated_parts.append(next_part_trans)
 					
 					## compute all possible next parts and append to list
-					self.compute_next_w_field(next_part_trans, self.p_count)
+					self.compute_next_w_field(next_part_trans)
 					added += 1
 					self.p_count += 1
 				

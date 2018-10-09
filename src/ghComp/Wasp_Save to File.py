@@ -56,6 +56,7 @@ import sys
 import scriptcontext as sc
 import Rhino.Geometry as rg
 import Grasshopper as gh
+import json
 
 ## add Wasp install directory to system path
 ghcompfolder = gh.Folders.DefaultAssemblyFolder
@@ -95,51 +96,53 @@ def main(aggregation, path, filename, save):
     ## execute main code if all needed inputs are available
     if check_data:
         
-        output = ""
+        aggr_dict = {}
         
         for part in aggregation:
             
-            str_data = ""
-            str_data += part.name + "\n"
+            part_dict = {}
             
-            str_a_conn = ""
-            for a_conn in part.active_connections:
-                str_a_conn += str(a_conn) + ";"
-            str_data += str_a_conn + "\n" 
+            part_dict['name'] = part.name
+            part_dict['active_connections'] = part.active_connections
             
-            str_transform = ""
-            str_transform += str(part.transformation.M00) + ";"
-            str_transform += str(part.transformation.M01) + ";"
-            str_transform += str(part.transformation.M02) + ";"
-            str_transform += str(part.transformation.M03) + ";"
-            str_transform += str(part.transformation.M10) + ";"
-            str_transform += str(part.transformation.M11) + ";"
-            str_transform += str(part.transformation.M12) + ";"
-            str_transform += str(part.transformation.M13) + ";"
-            str_transform += str(part.transformation.M20) + ";"
-            str_transform += str(part.transformation.M21) + ";"
-            str_transform += str(part.transformation.M22) + ";"
-            str_transform += str(part.transformation.M23) + ";"
-            str_transform += str(part.transformation.M30) + ";"
-            str_transform += str(part.transformation.M31) + ";"
-            str_transform += str(part.transformation.M32) + ";"
-            str_transform += str(part.transformation.M33) + ";"
-            str_data += str_transform + "\n"
+            part_dict['transform'] = {}
+            part_dict['transform']['M00'] = part.transformation.M00
+            part_dict['transform']['M01'] = part.transformation.M01
+            part_dict['transform']['M02'] = part.transformation.M02
+            part_dict['transform']['M03'] = part.transformation.M03
             
-            str_data += str(part.is_constrained) + "\n"
+            part_dict['transform']['M10'] = part.transformation.M10
+            part_dict['transform']['M11'] = part.transformation.M11
+            part_dict['transform']['M12'] = part.transformation.M12
+            part_dict['transform']['M13'] = part.transformation.M13
             
-            output += str_data + "---\n"
+            part_dict['transform']['M20'] = part.transformation.M20
+            part_dict['transform']['M21'] = part.transformation.M21
+            part_dict['transform']['M22'] = part.transformation.M22
+            part_dict['transform']['M23'] = part.transformation.M23
+            
+            part_dict['transform']['M30'] = part.transformation.M30
+            part_dict['transform']['M31'] = part.transformation.M31
+            part_dict['transform']['M32'] = part.transformation.M32
+            part_dict['transform']['M33'] = part.transformation.M33
+            
+            part_dict['is_constrained'] = part.is_constrained
+            
+            aggr_dict[part.id] = part_dict
+        
+        
+        full_path = path + "\\" + filename + ".json"
         
         if save:
-            full_path = path + "\\" + filename + ".txt"
             with open(full_path, "w") as outF:
-                outF.write(output)
+                json.dump(aggr_dict, outF)
         
-        return output
+        return json.dumps(aggr_dict), full_path
     else:
         return -1
 
 result = main(AGGR, PATH, NAME, SAVE)
 
 if result != -1:
-    TXT = result
+    TXT = result[0]
+    FILE = result[1]
