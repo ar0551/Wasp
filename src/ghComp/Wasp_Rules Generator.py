@@ -33,7 +33,7 @@ Automated rules generator given a list of parts. It has two separate modes:
 - If no grammar is provided in the GR input, the component generates rules between connections of the same type.
 - If a grammar is provided, rules are created between connections of different types, according to the specified grammar rules.
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         PART: Parts from which to generate aggregation rules
         SELF_P: OPTIONAL // Create rules between connections belonging to the same part (True by default)
@@ -46,11 +46,11 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Rules Generator"
 ghenv.Component.NickName = 'RuleGen'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 import sys

@@ -30,9 +30,8 @@
 
 """
 Loads an aggregation from a previously saved .txt file
---> WIP Component: might be incomplete or contain bugs! <--
 -
-Provided by Wasp 0.0.04
+Provided by Wasp 0.2.2
     Args:
         PART: Parts definition for the aggregation
         FILE: File where the aggregation is saved (.txt)
@@ -42,11 +41,11 @@ Provided by Wasp 0.0.04
 
 ghenv.Component.Name = "Wasp_Load from File"
 ghenv.Component.NickName = 'WaspLoad'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "X | Experimental"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
+ghenv.Component.SubCategory = "4 | Aggregation"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "5"
 except: pass
 
 
@@ -96,12 +95,12 @@ def main(parts, file_path):
             aggr_dict = json.loads(txt_data)
         
         ## sort part ids
-        part_ids = [int(id) for id in aggr_dict.keys()]
+        part_ids = [id for id in aggr_dict['parts'].keys()]
         part_ids.sort()
         
         ## load parts
         for id in part_ids:
-            part_data = aggr_dict[str(id)]
+            part_data = aggr_dict['parts'][id]
                     
             ## part name
             name = part_data['name']

@@ -31,7 +31,7 @@
 """
 Extract information from a rule instance.
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         R: Rule
     Returns:
@@ -44,11 +44,11 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Deconstruct Rule"
 ghenv.Component.NickName = 'DeRule'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 import sys

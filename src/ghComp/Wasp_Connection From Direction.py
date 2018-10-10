@@ -32,7 +32,7 @@
 Create a connection on a given part geometry from center and X-asix direction
 (Z direction is determined based on the normals of the component geometry)
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         GEO: Geometry of the part to which the connection belongs
         CEN: Origin of the connection plane
@@ -45,7 +45,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Connection From Direction"
 ghenv.Component.NickName = 'ConnDir'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

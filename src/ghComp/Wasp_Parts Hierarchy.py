@@ -31,21 +31,21 @@
 """
 Access sub-parts stored at different aggregation hierarchy levels
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
-        PART: Parts
-        LEVEL: ...
+        PART: Parts from which to extract hierarchical parts
+        LEVEL: Hierarchy level (0 to return the same parts in input)
     Returns:
         SUB_P: Parts at the selected hierarchy level
 """
 
 ghenv.Component.Name = "Wasp_Parts Hierarchy"
 ghenv.Component.NickName = 'PartHie'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "X | Experimental"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.SubCategory = "4 | Aggregation"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
 except: pass
 
 

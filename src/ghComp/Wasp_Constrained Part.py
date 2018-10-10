@@ -31,12 +31,14 @@
 """
 Create a Wasp Part with additional constraints (supports, additional colliders)
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         NAME: Part name
         GEO: Part geometry. It will be converted to mesh - to improve performance, perform the conversion before adding to the part and user a low-poly count
         CONN: Connections list
         COLL: OPTIONAL // Collider geometry (for collision detection). A collider will be automatically generated. For complex parts, automatic generation might not work, and you can add a custom collider geometry here.
+        FIELD: OPTIONAL // Field to associate with the part for Field-Driven Aggegation (Needed only when using multiple fields within one aggregation)
+        HI: OPTIONAL // Hierarchy: List of parts composing the part at a lower heriarchical level in the aggregation
         ATTR: OPTIONAL // Part attributes
         E_COLL: OPTIONAL // Additional collider geometry (e.g. assembly tool), to be checked in Constrained mode
         SUP: OPTIONAL // Required supports for part placement, to be checked in Constrained mode
@@ -46,11 +48,11 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Constrained Part"
 ghenv.Component.NickName = 'ConstrPart'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 import sys

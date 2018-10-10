@@ -31,7 +31,7 @@
 """
 Extract values stored in an atrribute with the given name.
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         ATTR: Attributes list to search
         ID: Name of the attribute to extract
@@ -41,7 +41,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Get Attribute by Name"
 ghenv.Component.NickName = 'GetAttr'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

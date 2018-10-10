@@ -33,18 +33,18 @@ Attribute to be attached to a part.
 Could be geometry or any other kind of data (eg. text, numeric variables, color).
 If Geometry, Transformable must be set to True to mantain the geometry attached to the part during aggregation.
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         ID: Name of the attribute
         VAL: Value of the attribute (any type of Gh-compatible data possible)
-        TR: Transformable. Set it to True for Geometry, False for other types of data
+        TR: OPTIONAL // Transformable. Set it to True for Geometry, False for other types of data (False by default)
     Returns:
         ATTR: Attribute instance to attach to a component
 """
 
 ghenv.Component.Name = "Wasp_Attribute"
 ghenv.Component.NickName = 'Attribute'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
@@ -74,9 +74,9 @@ def main(id, values, transformable):
     
     ##check inputs
     if id is None:
-        id = 'ATTR_01'
-        msg = "Default name 'ATTR_01' assigned to attribute"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+        check_data = False
+        msg = "Please provide a name for the attribute"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if len(values) == 0:
         check_data = False
@@ -84,8 +84,7 @@ def main(id, values, transformable):
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if transformable is None:
-        msg = "Transformable set to False by default"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+        transformable = False
     
     if transformable == True:
         val_count = 0

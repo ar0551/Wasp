@@ -31,7 +31,7 @@
 """
 Generates a scalar field given a grid of points and their relative scalar values
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         BOU: List of geometries defining the boundaries of the field. Geometries must be closed breps or meshes. All points of the field outside the geometries will be assigned a 0 value
         PTS: 3d point grid (from FieldPts component)
@@ -44,7 +44,7 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Field"
 ghenv.Component.NickName = 'Field'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -102,8 +102,6 @@ def main(name, boundaries, pts, count, resolution, values):
     
     if resolution is None and check_data == True:
         resolution = pts[0].DistanceTo(pts[1])
-        msg = "No resolution provided. Calculated resolution is %0.2f"%(resolution)
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
     
     if check_data:
         field = wasp.Field(name, boundaries, pts, count, resolution, values)

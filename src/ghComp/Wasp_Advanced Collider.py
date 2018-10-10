@@ -31,23 +31,23 @@
 """
 Description here
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         GEO: Geometry of the collider(s)
-        MUL: True if collider has multiple parts (one part not colliding sufficient to satisfy the constraint)
-        ALL: ...
-        CONN: OPTIONAL // If Multiple Colliders, associate a connection to each collider (e.g. a picking position for the tool collider)
+        MUL: OPTIONAL // Set to True if you are using multiple colliders and it is sufficient for one of them not to collide (False by default)
+        ALL: OPTIONAL // If MUL is set to True, set to True to check all colliders (False by default, search will stop after finding a valid collider)
+        CONN: OPTIONAL // If MUL is set to True, associate a connection to each collider, e.g. a picking position for the tool collider
     Returns:
         COLL: Collider instance
 """
 
 ghenv.Component.Name = "Wasp_Advanced Collider"
 ghenv.Component.NickName = 'AdvColl'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
 except: pass
 
 import sys
@@ -79,13 +79,9 @@ def main(geometry, multiple, check_all, connections):
     
     if multiple is None:
         multiple = False
-        msg = "Multiple set to False by default"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
     
     if check_all is None:
         check_all = False
-        msg = "Check_all set to False by default"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
     
     if len(connections) > 0 and len(connections) != len(geometry):
         check_data = False

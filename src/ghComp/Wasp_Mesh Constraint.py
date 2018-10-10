@@ -31,21 +31,21 @@
 """
 Mesh collision global constraint
 -
-Provided by Wasp 0.2.0
+Provided by Wasp 0.2.2
     Args:
         GEOMETRY: Geometry of the collision shape
-        IN: Check only for intersections (False) or also for inclusion (True)
+        IN: OPTIONAL // False to check only for intersections, True to check also for inclusion (True by default)
     Returns:
         GC: Mesh constraint
 """
 
 ghenv.Component.Name = "Wasp_Mesh Constraint"
 ghenv.Component.NickName = 'MeshConst'
-ghenv.Component.Message = "VER 0.2.1"
+ghenv.Component.Message = "VER 0.2.2"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "X | Experimental"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
+ghenv.Component.SubCategory = "4 | Aggregation"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 
 import sys
@@ -76,8 +76,9 @@ def main(geometry, inside):
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if inside is None:
-        inside == False
-    elif inside == True:
+        inside == True
+    
+    if inside == True:
         naked_edges = geometry.GetNakedEdges()
         if naked_edges is not None:
             check_data = False

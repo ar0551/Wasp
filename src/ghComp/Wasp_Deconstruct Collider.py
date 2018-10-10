@@ -31,22 +31,22 @@
 """
 Deconstruct a collider object.
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         COLL: Collider object
     Returns:
-        GEO: ...
-        CONN: ...
-        VC: ...
+        GEO: Collider geometry
+        CONN: If collider is Multiple, connections associated with the collider
+        VC: If collider is Multiple, valid connections not causing collisions
 """
 
 ghenv.Component.Name = "Wasp_Deconstruct Collider"
 ghenv.Component.NickName = 'DeColl'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
 except: pass
 
 

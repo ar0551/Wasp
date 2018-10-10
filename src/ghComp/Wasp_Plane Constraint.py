@@ -31,21 +31,21 @@
 """
 Plane global constraint
 -
-Provided by Wasp 0.2.0
+Provided by Wasp 0.2.2
     Args:
         PLN: Plane to use as constraints
-        POS: If True, parts are placed only on the positive Z side of the plane. If False, parts are placed only on the positive Z side of the plane
+        POS: OPTIONAL // True to place parts on the positive direction of the Z axis, False for the negative direction (True by default)
     Returns:
         PC: Plane constraint
 """
 
 ghenv.Component.Name = "Wasp_Plane Constraint"
 ghenv.Component.NickName = 'PlaneConst'
-ghenv.Component.Message = "VER 0.2.1"
+ghenv.Component.Message = "VER 0.2.2"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "X | Experimental"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
+ghenv.Component.SubCategory = "4 | Aggregation"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 
 import sys
@@ -77,8 +77,6 @@ def main(plane, positive):
     
     if positive is None:
         positive = True
-        msg = "Default plane direction set to +Z"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
     
     if check_data:
         plane_constraint = wasp.Plane_Constraint(plane, positive)

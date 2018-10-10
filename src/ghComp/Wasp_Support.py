@@ -32,17 +32,17 @@
 Support definition for constrained parts.
 Each set of lines defining support locations can be set
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         DIR: Directions of the support locations as lines
-        GEO: OPTIONAL // Geometry of the part the support belongs to
+        GEO: OPTIONAL // Geometry of the part the support belongs to (useful for checking if the supports are correctly placed)
     Returns:
-        SUP: Support element
+        SUP: Support instance
 """
 
 ghenv.Component.Name = "Wasp_Support"
 ghenv.Component.NickName = 'Support'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
@@ -90,9 +90,6 @@ def main(sup_dir, part_geo):
             if len(intersection[0]) == 0:
                 msg = "Support direction " + str(i) + " does not intersect with the part geometry. Please verify this is intended."
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-    else:
-        msg = "No part geometry provided. Correct position of supports cannot be verified."
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
     
     if check_data:
         support = wasp.Support(DIR)

@@ -29,23 +29,26 @@
 #########################################################################
 
 """
-Remove specific parts from an aggregation
+Remove specific parts from an aggregation.
+--> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.2.1
+Provided by Wasp 0.2.2
     Args:
-        PART: Parts
-        ID: ...
-        CHILD: ...
-        REM: ...
-        RESET: ...
+        AGGR: Aggregation to edit
+        ID: ID of the part to remove
+        CHILD: OPTIONAL // Remove also all children of the part (False by default)
+        REM: True to remove the part from the aggregation
+        RESET: Reset the aggregation to the initial state
     Returns:
-        AGGR_OUT: edited aggregation object
-        PART_OUT: edited parts
+        AGGR_OUT: Edited aggregation object
+        PART_OUT: Edited parts
+        C_PART: Geometry of the currently selected part (for visualization).
+        C_CHILD: Geometry of the children of the selected part (for visualization).
 """
 
 ghenv.Component.Name = "Wasp_Remove Parts"
 ghenv.Component.NickName = 'RemovePart'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

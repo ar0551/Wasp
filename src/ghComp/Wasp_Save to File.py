@@ -29,10 +29,9 @@
 #########################################################################
 
 """
-Saves an aggregation to a .txt file to be loaded for further work
---> WIP Component: might be incomplete or contain bugs! <--
+Saves current status of an aggregation to a .json file.
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         AGGR: Aggregation to save
         PATH: Path where to save the aggregation
@@ -44,11 +43,11 @@ Provided by Wasp 0.1.0
 
 ghenv.Component.Name = "Wasp_Save to File"
 ghenv.Component.NickName = 'WaspSave'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "X | Experimental"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
+ghenv.Component.SubCategory = "4 | Aggregation"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "5"
 except: pass
 
 
@@ -75,9 +74,9 @@ def main(aggregation, path, filename, save):
     check_data = True
     
     ## check inputs
-    if len(aggregation) == 0:
+    if aggregation is None:
         check_data = False
-        msg = "No parts provided"
+        msg = "No aggregation provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if path is None:
@@ -86,9 +85,9 @@ def main(aggregation, path, filename, save):
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if filename is None:
-        filename = "myAggregation"
-        msg = "No filename provided. Default name 'myAggregation' assigned to output file."
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+        check_data = False
+        msg = "No filename provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if save is None:
         save = False
@@ -97,8 +96,9 @@ def main(aggregation, path, filename, save):
     if check_data:
         
         aggr_dict = {}
-        
-        for part in aggregation:
+        aggr_dict['aggregation_name'] = aggregation.name
+        aggr_dict['parts'] = {}
+        for part in aggregation.aggregated_parts:
             
             part_dict = {}
             
@@ -128,7 +128,7 @@ def main(aggregation, path, filename, save):
             
             part_dict['is_constrained'] = part.is_constrained
             
-            aggr_dict[part.id] = part_dict
+            aggr_dict['parts'][part.id] = part_dict
         
         
         full_path = path + "\\" + filename + ".json"

@@ -29,25 +29,26 @@
 #########################################################################
         
 """
-Aggregate the given parts in a stochastic process, selecting parts and rules randomly at every step.
-The component works additively, hence increasing the number of parts in an aggregation just adds new parts on the existing ones, without triggering recomputing of the previous element.
+Sequential aggregation based on graph-grammars.
+--> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         PART: Parts to be aggregated (can be more than one)
         PREV: Previous aggregated parts. It is possible to input the results of a previous aggregation, or parts transformed with the TransformPart component
-        RULES: Rules for the aggregation
+        RULES: Rules sequence in text form (WIP)
         ID: OPTIONAL // Aggregation ID (to avoid overwriting when having different aggregation components in the same file)
+        RESET: Recompute the whole aggregation
     Returns:
         PART_OUT: Aggregated parts (includes both PREV input and newly aggregated parts)
 """
         
 ghenv.Component.Name = "Wasp_Graph-Grammar Aggregation"
 ghenv.Component.NickName = 'GraphAggr'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "4 | Aggregation"
+ghenv.Component.SubCategory = "X | Experimental"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
@@ -84,12 +85,9 @@ def main(parts, rules_sequence, aggregation_id, reset):
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
             
     if aggregation_id is None:
-        aggregation_id = 'Aggregation'
-        msg = "Default name 'Aggregation' assigned"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Remark, msg)
+        aggregation_id = 'mySequence'
             
     if check_data:
-                
         if sc.sticky.has_key(aggregation_id) == False:
             sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, [], 0)
                 
@@ -105,7 +103,7 @@ def main(parts, rules_sequence, aggregation_id, reset):
         return -1
 
 
-result = main(PART, RULE_S, ID, RESET)
+result = main(PART, RULES, ID, RESET)
 
 if result != -1:
     PART_OUT = result

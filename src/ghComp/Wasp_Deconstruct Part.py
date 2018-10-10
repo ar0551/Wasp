@@ -31,23 +31,24 @@
 """
 Extract all information stored in a part. Useful for visualization or for further geometry processing
 -
-Provided by Wasp 0.1.0
+Provided by Wasp 0.2.2
     Args:
         PART: Parts to deconstruct
     Returns:
         NAME: Name of the part
+        ID: Pard ID
         GEO: Geometry of the part (as mesh). If Brep geometry is needed, can be stored in the component as attribute, or obtained by transforming the original geometry with the TR output.
         CONN: Part connections
-        CONN_PLN: planes for each part connection
         TR: Transformation applied to the part. Can be used to transform other geometries in a similar way (eg. replace a low poly component with a more detailed one)
         PARENT: Parent of the part
         CHILD: Children parts attached to the part
+        ADD_COLL: Additional collider applied to the part
         ATTR: Part attributes
 """
 
 ghenv.Component.Name = "Wasp_Deconstruct Part"
 ghenv.Component.NickName = 'DePart'
-ghenv.Component.Message = 'VER 0.2.1'
+ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -103,7 +104,6 @@ def main(parts):
         parents = []
         
         conn_list = []
-        conn_pln_list = []
         children_list = []
         attributes_list = []
         
@@ -113,10 +113,6 @@ def main(parts):
             ids.append(data_dict['id'])
             geometries.append(data_dict['geo'])
             conn_list.append(data_dict['connections'])
-            
-            conn_pln_list.append([])
-            for conn in data_dict['connections']:
-                conn_pln_list[len(conn_pln_list)-1].append(conn.pln)
             
             if "transform" in data_dict.keys():
                 transforms.append(data_dict['transform'])
@@ -134,11 +130,10 @@ def main(parts):
                 attributes_list.append(data_dict['attributes'])
         
         connections = listToDataTree(conn_list)
-        connection_planes = listToDataTree(conn_pln_list)
         children = listToDataTree(children_list)
         attributes = listToDataTree(attributes_list)
         
-        return names, ids, geometries, transforms, add_colliders, connections, connection_planes, parents, children, attributes
+        return names, ids, geometries, transforms, add_colliders, connections, parents, children, attributes
     else:
         return -1
 
@@ -152,7 +147,6 @@ if result != -1:
     TR = result[3]
     ADD_COLL = result[4]
     CONN = result[5]
-    CONN_PLN = result[6]
-    PARENT = result[7]
-    CHILD = result[8]
-    ATTR = result[9]
+    PARENT = result[6]
+    CHILD = result[7]
+    ATTR = result[8]
