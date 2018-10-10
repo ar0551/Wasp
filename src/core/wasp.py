@@ -69,6 +69,11 @@ class Connection(object):
 		conn_trans.flip_pln.Transform(trans)
 		return conn_trans
 	
+	def copy(self):
+		pln_copy = rg.Plane(self.pln.Origin, self.pln.XAxis, self.pln.YAxis)
+		conn_copy = Connection(pln_copy, self.type, self.part, self.id)
+		return conn_copy
+	
 	## generate the rules-table for the connection
 	def generate_rules_table(self, rules):
 		count = 0
@@ -169,6 +174,24 @@ class Part(object):
 		part_trans.transformation = trans
 		return part_trans
 	
+	def copy(self):
+		geo_copy = self.geo.Duplicate()
+		
+		collider_copy = self.collider.copy()
+		
+		connections_copy = []
+		for conn in self.connections:
+			connections_copy.append(conn.copy())
+		
+		attributes_copy = []
+		if len(self.attributes) > 0:
+			for attr in self.attributes:
+				attributes_copy.append(attr.copy())
+		
+		part_copy = Part(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, dim=self.dim, id=self.id, field=self.field)
+		part_copy.transformation = self.transformation
+		return part_copy
+	
 	## return transformed center point
 	def transform_center(self, trans):
 		center_trans = rg.Point3d(self.center)
@@ -237,7 +260,7 @@ class Constrained_Part(Part):
 			for sup in self.supports:
 				sup_trans = sup.transform(trans)
 				supports_trans.append(sup_trans)
-		
+			
 		
 		if transform_sub_parts and len(self.sub_parts) > 0:
 			sub_parts_trans = []
@@ -255,6 +278,46 @@ class Constrained_Part(Part):
 			part_trans.is_constrained = True
 			return part_trans
 
+			
+	def copy(self):
+		geo_copy = self.geo.Duplicate()
+		
+		collider_copy = self.collider.copy()
+		
+		connections_copy = []
+		for conn in self.connections:
+			connections_copy.append(conn.copy())
+		
+		attributes_copy = []
+		if len(self.attributes) > 0:
+			for attr in self.attributes:
+				attributes_copy.append(attr.copy())
+		
+		add_collider_copy = None
+		if(self.add_collider != None):
+			add_collider_copy = self.add_collider.copy()
+			
+		supports_copy = []
+		if len(self.supports) > 0:
+			for sup in self.supports:
+				sup_copy = sup.copy()
+				supports_copy.append(sup_copy)
+		
+		if len(self.sub_parts) > 0:
+			sub_parts_copy = []
+			for sp in self.sub_parts:
+				sp_copy = sp.copy()
+				sub_parts_copy.append(sp_copy)
+			part_copy = Constrained_Part(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, add_collider_copy, supports_copy, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_copy)
+			part_copy.transformation = self.transformation
+			part_copy.is_constrained = True
+			return part_copy
+		
+		else:
+			part_copy = Constrained_Part(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, add_collider_copy, supports_copy, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts)
+			part_copy.transformation = self.transformation
+			part_copy.is_constrained = True
+			return part_copy
 
 #################################################################### Rule
 class Rule(object):
@@ -409,7 +472,23 @@ class Attribute(object):
 		else:
 			attr_trans = Attribute(self.name, self.values, self.transformable)
 		return attr_trans
-
+	
+	def copy(self):
+		if self.transformable == True:
+			values_copy = []
+			for val in self.values:
+				val_copy = None
+				if type(val) == rg.Point3d:
+					val_copy = rg.Point3d(val)
+				elif type(val) == rg.Plane:
+					val_copy = rg.Plane(val)
+				else:
+					val_copy = val.Duplicate()
+				values_copy.append(val_copy)
+			attr_copy = Attribute(self.name, values_copy, self.transformable)
+		else:
+			attr_copy = Attribute(self.name, self.values, self.transformable)
+		return attr_copy
 
 #################################################################### Support
 class Support(object):
@@ -429,7 +508,18 @@ class Support(object):
 			sup_dir_trans.append(dir_trans)
 		sup_trans = Support(sup_dir_trans)
 		return sup_trans
-
+	
+	def copy(self):
+		sup_dir_copy = []
+		for dir in self.sup_dir:
+			dir = dir.ToNurbsCurve()
+			start_copy = dir.PointAtStart
+			end_copy = dir.PointAtEnd
+			dir_copy = rg.Line(start_copy, end_copy)
+			sup_dir_copy.append(dir_copy)
+		sup_copy = Support(sup_dir_copy)
+		return sup_copy
+	
 
 #################################################################### Aggregation
 class Aggregation(object):
@@ -479,9 +569,7 @@ class Aggregation(object):
 		if len(_prev) > 0:
 			self.prev_num = len(_prev)
 			for prev_p in _prev:
-				prev_p_transform = prev_p.transformation
-				prev_p_copy = prev_p.transform(rg.Transform.Identity)
-				prev_p_copy.tranformation = prev_p_transform
+				prev_p_copy = prev_p.copy()
 				prev_p_copy.reset_part(self.rules)
 				prev_p_copy.id = len(self.aggregated_parts)
 				self.aggregated_parts.append(prev_p_copy)
@@ -1029,6 +1117,21 @@ class Collider(object):
 			coll_trans = Collider(geometry_trans, _multiple=self.multiple, _check_all=self.check_all, _connections=connections_trans)
 		
 		return coll_trans
+	
+	def copy(self):
+		geometry_copy = []
+		for geo in self.geometry:
+			geo_copy = geo.Duplicate()
+			geometry_copy.append(geo_copy)
+		
+		connections_copy = []
+		for conn in self.connections:
+			connections_copy.append(conn.copy())
+		
+		valid_connection_copy = list(self.valid_connections)
+		coll_copy = Collider(geometry_copy, _multiple=self.multiple, _check_all=self.check_all, _connections=connections_copy, _valid_connections=valid_connection_copy)
+		
+		return coll_copy
 	
 	
 	def check_collisions_w_parts(self, parts):
