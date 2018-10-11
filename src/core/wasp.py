@@ -42,7 +42,7 @@ global_tolerance = ActiveDoc.ModelAbsoluteTolerance*5
 ##								 CLASSES							   ##
 #########################################################################
 
-#################################################################### Connection
+#################################################################### Connection ####################################################################
 class Connection(object):
 	
 	## constructor
@@ -69,6 +69,7 @@ class Connection(object):
 		conn_trans.flip_pln.Transform(trans)
 		return conn_trans
 	
+	## return a copy of the connection
 	def copy(self):
 		pln_copy = rg.Plane(self.pln.Origin, self.pln.XAxis, self.pln.YAxis)
 		conn_copy = Connection(pln_copy, self.type, self.part, self.id)
@@ -85,7 +86,7 @@ class Connection(object):
 				self.active_rules.append(count)
 				count += 1
 
-#################################################################### Base Part
+#################################################################### Base Part ####################################################################
 class Part(object):
 	
 	## constructor
@@ -133,6 +134,7 @@ class Part(object):
 		
 		self.is_constrained = False
 	
+	## reset the part and connections according to new provided aggregation rules
 	def reset_part(self, rules):
 		count = 0
 		self.active_connections = []
@@ -141,6 +143,7 @@ class Part(object):
 			self.active_connections.append(count)
 			count += 1
 	
+	## return a dictionary containing all part data
 	def return_part_data(self):
 		data_dict = {}
 		data_dict['name'] = self.name
@@ -154,7 +157,7 @@ class Part(object):
 		data_dict['attributes'] = self.attributes
 		return data_dict
 	
-	## function to transform part
+	## return a transformed copy of the part
 	def transform(self, trans, transform_sub_parts=False):
 		geo_trans = self.geo.Duplicate()
 		geo_trans.Transform(trans)
@@ -174,6 +177,7 @@ class Part(object):
 		part_trans.transformation = trans
 		return part_trans
 	
+	## return a copy of the part
 	def copy(self):
 		geo_copy = self.geo.Duplicate()
 		
@@ -192,18 +196,18 @@ class Part(object):
 		part_copy.transformation = self.transformation
 		return part_copy
 	
-	## return transformed center point
+	## return transformed center point of the part
 	def transform_center(self, trans):
 		center_trans = rg.Point3d(self.center)
 		center_trans.Transform(trans)
 		return center_trans
 	
-	## return transformed collider mesh
+	## return transformed collider
 	def transform_collider(self, trans):
 		return self.collider.transform(trans)
 
 
-#################################################################### Constrained Part
+#################################################################### Constrained Part ####################################################################
 class Constrained_Part(Part):
 	
 	## constructor
@@ -221,6 +225,7 @@ class Constrained_Part(Part):
 		
 		self.sub_parts = sub_parts
 	
+	## return all part data
 	def return_part_data(self):
 		data_dict = {}
 		data_dict['name'] = self.name
@@ -235,7 +240,7 @@ class Constrained_Part(Part):
 		data_dict['add_collider'] = self.add_collider
 		return data_dict
 	
-	## function to transform component
+	## return a transformed copy of the part
 	def transform(self, trans, transform_sub_parts=False):
 		geo_trans = self.geo.Duplicate()
 		geo_trans.Transform(trans)
@@ -278,7 +283,7 @@ class Constrained_Part(Part):
 			part_trans.is_constrained = True
 			return part_trans
 
-			
+	## return a copy of the part		
 	def copy(self):
 		geo_copy = self.geo.Duplicate()
 		
@@ -319,7 +324,7 @@ class Constrained_Part(Part):
 			part_copy.is_constrained = True
 			return part_copy
 
-#################################################################### Rule
+#################################################################### Rule ####################################################################
 class Rule(object):
 	
 	def __init__(self, _part1, _conn1, _part2, _conn2, _active = True):
@@ -330,9 +335,10 @@ class Rule(object):
 		self.active = _active
 
 
-#################################################################### Field
+#################################################################### Field ####################################################################
 class Field(object):
 	
+	## constructor
 	def __init__(self, name, boundaries, pts, count_vec, resolution, values):
 		
 		self.name = name
@@ -375,7 +381,7 @@ class Field(object):
 						self.vals[z][y].append(values[pts_count])
 					pts_count += 1
 	
-	
+	## return value associated to the closest point of the field to the given point
 	def return_pt_val(self, pt):
 		pt_trans = pt - self.bbox.Min
 		x = int(math.floor(pt_trans.X/self.resolution))
@@ -385,6 +391,7 @@ class Field(object):
 		value = self.vals[z][y][x]
 		return value
 	
+	## find and return highest value in the field
 	def return_highest_pt(self, constraints = None):
 		max_val = -1
 		max_coords = None
@@ -446,15 +453,17 @@ class Field(object):
 		return highest_pt
 
 
-#################################################################### Attribute
+#################################################################### Attribute ####################################################################
 class Attribute(object):
 	
+	## constructor
 	def __init__(self, name, values, transformable):
 		
 		self.name = name
 		self.values = values
 		self.transformable = transformable
 	
+	## return a transformed copy of the attribute
 	def transform(self, trans):
 		if self.transformable == True:
 			values_trans = []
@@ -473,6 +482,7 @@ class Attribute(object):
 			attr_trans = Attribute(self.name, self.values, self.transformable)
 		return attr_trans
 	
+	## return a copy of the attribute
 	def copy(self):
 		if self.transformable == True:
 			values_copy = []
@@ -490,12 +500,15 @@ class Attribute(object):
 			attr_copy = Attribute(self.name, self.values, self.transformable)
 		return attr_copy
 
-#################################################################### Support
+		
+#################################################################### Support ####################################################################
 class Support(object):
 	
+	## constructor
 	def __init__(self, support_directions):
 		self.sup_dir = support_directions
 	
+	## return a transformed copy of the support
 	def transform(self, trans):
 		sup_dir_trans = []
 		for dir in self.sup_dir:
@@ -509,6 +522,7 @@ class Support(object):
 		sup_trans = Support(sup_dir_trans)
 		return sup_trans
 	
+	## return a copy of the support
 	def copy(self):
 		sup_dir_copy = []
 		for dir in self.sup_dir:
@@ -521,7 +535,7 @@ class Support(object):
 		return sup_copy
 	
 
-#################################################################### Aggregation
+#################################################################### Aggregation ####################################################################
 class Aggregation(object):
 	
 	## class constructor
@@ -540,6 +554,8 @@ class Aggregation(object):
 		self.mode = _mode
 		self.coll_check = _coll_check
 		
+		self.aggregated_parts = []
+		
 		## fields
 		self.multiple_fields = False
 		if len(_field) == 0 or _field is None:
@@ -551,9 +567,6 @@ class Aggregation(object):
 			for f in _field:
 				self.field[f.name] = f
 			self.multiple_fields = True
-		
-		## lists
-		self.aggregated_parts = []
 		
 		## temp list to store possible colliders to newly added parts
 		self.possible_collisions = []
@@ -575,13 +588,13 @@ class Aggregation(object):
 				if self.field is not None:
 					self.compute_next_w_field(prev_p_copy)
 		
-		## WIP
+		## global constraints applied to the aggregation
+		self.global_constraints = _global_constraints
+		
+		#### WIP ####
 		self.collision_shapes = []
 		self.graph = None
 		
-		self.global_constraints = _global_constraints
-	
-	
 	## reset entire aggregation (NOT WORKING)
 	def reset(self, prev):
 		self.aggregated_parts = []
@@ -623,10 +636,9 @@ class Aggregation(object):
 			part.reset_part(self.rules)
 			if self.field is not None:
 				self.compute_next_w_field(part)
-			
-		
 	
-	#### constraints check
+	
+	#### constraints checks ####
 	
 	## overlap // part-part collision check
 	def collision_check(self, part, trans):
@@ -696,6 +708,8 @@ class Aggregation(object):
 		return False
 	
 	
+	#### aggregation methods ####
+	
 	## sequential aggregation with Graph Grammar
 	def aggregate_sequence(self, graph_rules):
 		
@@ -764,7 +778,7 @@ class Aggregation(object):
 					pass ## implement error handling
 	
 	
-	## stochastic aggregation (BASIC)
+	## stochastic aggregation
 	def aggregate_rnd(self, num):
 		added = 0
 		loops = 0
@@ -873,7 +887,8 @@ class Aggregation(object):
 					## if no part is available, exit the aggregation routine and return an error message
 					msg = "Could not place " + str(num-added) + " parts"
 					return msg
-	##
+	
+	## compute all possibilities for child-parts of the given part, and store them in the aggregation queue
 	def compute_next_w_field(self, part):
 		
 		for i in xrange(len(part.active_connections)-1, -1, -1):
@@ -913,7 +928,7 @@ class Aggregation(object):
 						self.queue_count += 1
 	
 	
-	## Field-driven aggregation with aggregation queue
+	## field-driven aggregation
 	def aggregate_field(self, num):
 		
 		added = 0
@@ -926,9 +941,7 @@ class Aggregation(object):
 			
 			## if no part is present in the aggregation, add first random part
 			if len(self.aggregated_parts) == 0 and self.prev_num == 0:
-				
 				first_part = self.parts[random.choice(self.parts.keys())]
-				
 				start_point = None
 				if self.multiple_fields:
 					f_name = first_part.field
@@ -1019,14 +1032,16 @@ class Aggregation(object):
 				self.queue_count -=1
 
 
-## Global Constraint classes
+#################################################################### Plane Constraint ####################################################################
 class Plane_Constraint(object):
 	
+	## constructor
 	def __init__(self, _plane, _positive = True):
 		self.type = 'plane'
 		self.plane = _plane
 		self.positive = _positive
-		
+	
+	## constraint check method
 	def check(self, pt):
 		mapped_pt = self.plane.RemapToPlaneSpace(pt)[1]
 		
@@ -1039,18 +1054,22 @@ class Plane_Constraint(object):
 		
 		return False
 
+#################################################################### Mesh Constraint ####################################################################
 class Mesh_Constraint(object):
 	
+	## constructor
 	def __init__(self, _geo, _inside):
 		self.type = 'mesh_collider'
 		self.geo = _geo
 		self.inside = _inside
 	
+	## constraint check (only intersection)
 	def check(self, mesh):
 		if len(rg.Intersect.Intersection.MeshMeshFast(self.geo, mesh)) > 0:
 			return False
 		return True
 	
+	## constraint check (intersection + inclusion)
 	def check_inside(self, collider, pt):
 		for geo in collider.geometry:
 			if len(rg.Intersect.Intersection.MeshMeshFast(self.geo, geo)) > 0:
@@ -1061,6 +1080,7 @@ class Mesh_Constraint(object):
 		
 		return True
 	
+	## constraint check (only inclusion)
 	def check_inside_only(self, pt):
 		if self.geo.IsPointInside(pt, 0.001, False):
 			return False
@@ -1072,9 +1092,10 @@ class Mesh_Constraint(object):
 #########################################################################
 
 
-## collider class
+#################################################################### Collider ####################################################################
 class Collider(object):
 	
+	## constructor
 	def __init__(self, _geo, _multiple=False, _check_all = False, _connections=[], _valid_connections = []):
 		self.geometry = _geo
 		self.multiple = _multiple
@@ -1087,6 +1108,7 @@ class Collider(object):
 		if len(self.connections) == len(self.geometry) and self.multiple == True:
 			self.set_connections = True
 	
+	## return a transformed copy of the collider
 	########################################################################### check if valid connections need to be transformed or re-generated!!!
 	def transform(self, trans, transform_connections = False, maintain_valid = False):
 		geometry_trans = []
@@ -1108,6 +1130,7 @@ class Collider(object):
 		
 		return coll_trans
 	
+	## return a copy of the collider
 	def copy(self):
 		geometry_copy = []
 		for geo in self.geometry:
@@ -1123,7 +1146,7 @@ class Collider(object):
 		
 		return coll_copy
 	
-	
+	## check collisions between collider and given part
 	def check_collisions_w_parts(self, parts):
 		## multiple collider with associated connections
 		if self.multiple:
@@ -1159,6 +1182,7 @@ class Collider(object):
 							return True
 			return False
 	
+	## check collisions between collider and given ids in the given parts list
 	def check_collisions_by_id(self, parts, ids):
 		## multiple collider with associated connections
 		if self.multiple:
@@ -1189,14 +1213,14 @@ class Collider(object):
 							return True
 			return False
 
-	
+	## check intersection between collider and line (for supports check)
 	def check_intersection_w_line(self, ln):
 		for geo in self.geometry:
 			if len(rg.Intersect.Intersection.MeshLine(geo, ln)[0]) > 0:
 				return True
 		return False
 
-		
+	#### WIP ####
 	def check_global_constraints(self, constraint):
 		return False
 	
