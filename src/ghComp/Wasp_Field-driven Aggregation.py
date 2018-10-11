@@ -146,7 +146,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
         if reset:
             sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
         
-        if num_parts > sc.sticky[aggregation_id].p_count:
+        if num_parts > len(sc.sticky[aggregation_id].aggregated_parts):
             #sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count, field, threshold)
             error_msg = sc.sticky[aggregation_id].aggregate_field(num_parts-len(sc.sticky[aggregation_id].aggregated_parts))
             if error_msg is not None:
@@ -156,7 +156,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
                 msg = "Could not place " + str(num_parts - len(sc.sticky[aggregation_id])) + " parts"
                 ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
             """
-        elif num_parts < sc.sticky[aggregation_id].p_count:
+        elif num_parts < len(sc.sticky[aggregation_id].aggregated_parts):
             
             sc.sticky[aggregation_id].remove_elements(num_parts)
         

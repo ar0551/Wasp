@@ -554,7 +554,6 @@ class Aggregation(object):
 		
 		## lists
 		self.aggregated_parts = []
-		self.p_count = 0
 		
 		## temp list to store possible colliders to newly added parts
 		self.possible_collisions = []
@@ -575,7 +574,6 @@ class Aggregation(object):
 				self.aggregated_parts.append(prev_p_copy)
 				if self.field is not None:
 					self.compute_next_w_field(prev_p_copy)
-				self.p_count += 1
 		
 		## WIP
 		self.collision_shapes = []
@@ -587,7 +585,6 @@ class Aggregation(object):
 	## reset entire aggregation (NOT WORKING)
 	def reset(self, prev):
 		self.aggregated_parts = []
-		self.p_count = 0
 		self.aggregation_queue = []
 		self.queue_values = []
 		self.queue_count = 0
@@ -602,8 +599,6 @@ class Aggregation(object):
 				
 				if self.field is not None:
 					self.compute_next_w_field(prev_p)
-				
-				self.p_count += 1
 	
 	## reset all base parts
 	def reset_base_parts(self):
@@ -623,7 +618,6 @@ class Aggregation(object):
 		self.aggregation_queue = []
 		self.queue_values = []
 		self.queue_count = 0
-		self.p_count -= (self.p_count - num)
 		
 		for part in self.aggregated_parts:
 			part.reset_part(self.rules)
@@ -779,7 +773,7 @@ class Aggregation(object):
 			if loops > num*100:
 				break
 			## if no part is present in the aggregation, add first random part
-			if self.p_count == 0:
+			if len(self.aggregated_parts) == 0:
 				first_part = self.parts[random.choice(self.parts.keys())]
 				first_part_trans = first_part.transform(rg.Transform.Identity)
 				for conn in first_part_trans.connections:
@@ -787,7 +781,6 @@ class Aggregation(object):
 				first_part_trans.id = 0
 				self.aggregated_parts.append(first_part_trans)
 				added += 1
-				self.p_count += 1
 			## otherwise add new random part
 			else:
 				next_rule = None
@@ -798,7 +791,7 @@ class Aggregation(object):
 				
 				while new_rule_attempts < 1000:
 					new_rule_attempts += 1
-					part_01_id = random.randint(0,self.p_count-1)
+					part_01_id = random.randint(0,len(self.aggregated_parts)-1)
 					part_01 = self.aggregated_parts[part_01_id]
 					if len(part_01.active_connections) > 0:
 						conn_01_id = part_01.active_connections[random.randint(0, len(part_01.active_connections)-1)]
@@ -852,7 +845,7 @@ class Aggregation(object):
 							if next_part_trans.active_connections[i] == next_rule.conn2:
 								next_part_trans.active_connections.pop(i)
 								break
-						next_part_trans.id = self.p_count
+						next_part_trans.id = len(self.aggregated_parts)
 						
 						self.aggregated_parts[part_01_id].children.append(next_part_trans)
 						next_part_trans.parent = self.aggregated_parts[part_01_id]
@@ -863,7 +856,6 @@ class Aggregation(object):
 								self.aggregated_parts[part_01_id].active_connections.pop(i)
 								break
 						added += 1
-						self.p_count += 1
 					## TO FIX --> do not remove rules when only caused by missing supports
 					else:
 					   ## remove rules if they cause collisions or overlappings
@@ -933,7 +925,7 @@ class Aggregation(object):
 				break
 			
 			## if no part is present in the aggregation, add first random part
-			if self.p_count == 0 and self.prev_num == 0:
+			if len(self.aggregated_parts) == 0 and self.prev_num == 0:
 				
 				first_part = self.parts[random.choice(self.parts.keys())]
 				
@@ -963,7 +955,6 @@ class Aggregation(object):
 				## compute all possible next parts and append to list
 				self.compute_next_w_field(first_part_trans)
 				added += 1
-				self.p_count += 1
 			
 			else:
 				## if no part is available, exit the aggregation routine and return an error message
@@ -1022,7 +1013,6 @@ class Aggregation(object):
 					## compute all possible next parts and append to list
 					self.compute_next_w_field(next_part_trans)
 					added += 1
-					self.p_count += 1
 				
 				self.aggregation_queue.pop()
 				self.queue_values.pop()
