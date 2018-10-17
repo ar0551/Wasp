@@ -953,7 +953,7 @@ class Aggregation(object):
 					if (self.mode == 2 or self.mode == 3) and len(self.global_constraints) > 0:
 						start_point = self.field.return_highest_pt(constraints=self.global_constraints)
 					else:
-					   start_point = self.field.highest_pt
+					   start_point = self.field.return_highest_pt()
 				
 				mov_vec = rg.Vector3d.Subtract(rg.Vector3d(start_point), rg.Vector3d(first_part.center))
 				move_transform = rg.Transform.Translation(mov_vec.X, mov_vec.Y, mov_vec.Z)
