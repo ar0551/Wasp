@@ -83,7 +83,7 @@ def main(part, transform):
     
     if check_data:
         ## transform part
-        part_trans = part.transform(transform)
+        part_trans = part.transform(transform, transform_sub_parts=True)
         return part_trans
     else:
         return -1
