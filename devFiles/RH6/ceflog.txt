@@ -1,0 +1,20 @@
+[0107/143757.336:VERBOSE1:pref_proxy_config_tracker_impl.cc(154)] 000002052A973A40: set chrome proxy config service to 00000205328C8900
+[0107/143757.337:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Aviator' log
+[0107/143757.337:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Icarus' log
+[0107/143757.337:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Pilot' log
+[0107/143757.337:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Rocketeer' log
+[0107/143757.337:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Google 'Skydiver' log
+[0107/143757.337:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: DigiCert Log Server
+[0107/143757.337:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: DigiCert Log Server 2
+[0107/143757.338:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Symantec log
+[0107/143757.338:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Symantec 'Vega' log
+[0107/143757.338:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Symantec 'Sirius' log
+[0107/143757.338:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: WoSign log
+[0107/143757.338:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Venafi Gen2 CT log
+[0107/143757.338:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: CNNIC CT log
+[0107/143757.338:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: StartCom log
+[0107/143757.338:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Comodo 'Sabre' CT log
+[0107/143757.338:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Comodo 'Mammoth' CT log
+[0107/143757.338:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Izenpe log
+[0107/143757.338:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Venafi log
+[0107/143757.338:VERBOSE1:multi_log_ct_verifier.cc(75)] Adding CT log: Certly.IO log

@@ -33,7 +33,7 @@ Extract values stored in an atrribute with the given name.
 -
 Provided by Wasp 0.2.2
     Args:
-        ATTR: Attributes list to search
+        PART: Part from which to extract the attribute
         ID: Name of the attribute to extract
     Returns:
         VAL: Value stored in the requested attribute
@@ -64,14 +64,14 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(attributes, id):
+def main(part, id):
         
     check_data = True
     
     ## check inputs
-    if len(attributes) == 0:
+    if part is None:
         check_data = False
-        msg = "No attribute provided"
+        msg = "No part provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if id is None:
@@ -82,14 +82,18 @@ def main(attributes, id):
     ## execute main code if all needed inputs are available
     if check_data:
         values = []
-        for attr in attributes:
+        for attr in part.attributes:
             if attr.name == id:
                 values = attr.values
         return values
     else:
         return -1
 
-result = main(ATTR, ID)
+result = main(PART, ID)
 
 if result != -1:
-    VAL = result
+    if len(result) == 0:
+        msg = "No attribute found matching the provided id"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    else:
+        VAL = result
