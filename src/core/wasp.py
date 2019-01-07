@@ -61,6 +61,11 @@ class Connection(object):
 		self.rules_table = []
 		self.active_rules = []
 	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "Wasp_Connection"
+	
+	
 	## return a transformed copy of the connection
 	def transform(self, trans):
 		pln_trans = rg.Plane(self.pln.Origin, self.pln.XAxis, self.pln.YAxis)
@@ -133,6 +138,10 @@ class Part(object):
 			self.attributes = attributes
 		
 		self.is_constrained = False
+	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "Wasp_Part"
 	
 	## reset the part and connections according to new provided aggregation rules
 	def reset_part(self, rules):
@@ -333,7 +342,10 @@ class Rule(object):
 		self.part2 = _part2
 		self.conn2 = _conn2
 		self.active = _active
-
+	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "Wasp_Rule"
 
 #################################################################### Field ####################################################################
 class Field(object):
@@ -380,6 +392,10 @@ class Field(object):
 					else:
 						self.vals[z][y].append(values[pts_count])
 					pts_count += 1
+	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "Wasp_Field"
 	
 	## return value associated to the closest point of the field to the given point
 	def return_pt_val(self, pt):
@@ -463,6 +479,10 @@ class Attribute(object):
 		self.values = values
 		self.transformable = transformable
 	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "Wasp_Attribute"
+	
 	## return a transformed copy of the attribute
 	def transform(self, trans):
 		if self.transformable == True:
@@ -507,6 +527,10 @@ class Support(object):
 	## constructor
 	def __init__(self, support_directions):
 		self.sup_dir = support_directions
+	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "Wasp_Support"
 	
 	## return a transformed copy of the support
 	def transform(self, trans):
@@ -594,7 +618,11 @@ class Aggregation(object):
 		#### WIP ####
 		self.collision_shapes = []
 		self.graph = None
-		
+	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "Wasp_Aggregation"
+	
 	## reset entire aggregation (NOT WORKING)
 	def reset(self, prev):
 		self.aggregated_parts = []
@@ -1041,6 +1069,10 @@ class Plane_Constraint(object):
 		self.plane = _plane
 		self.positive = _positive
 	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "Wasp_PlaneConstraint"
+	
 	## constraint check method
 	def check(self, pt):
 		mapped_pt = self.plane.RemapToPlaneSpace(pt)[1]
@@ -1062,6 +1094,10 @@ class Mesh_Constraint(object):
 		self.type = 'mesh_collider'
 		self.geo = _geo
 		self.inside = _inside
+	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "Wasp_MeshConstraint"
 	
 	## constraint check (only intersection)
 	def check(self, mesh):
@@ -1107,6 +1143,10 @@ class Collider(object):
 		self.set_connections = False
 		if len(self.connections) == len(self.geometry) and self.multiple == True:
 			self.set_connections = True
+	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "Wasp_Collider"
 	
 	## return a transformed copy of the collider
 	########################################################################### check if valid connections need to be transformed or re-generated!!!
