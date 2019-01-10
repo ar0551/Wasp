@@ -666,6 +666,77 @@ class Aggregation(object):
 				self.compute_next_w_field(part)
 	
 	
+	## compute all possible parts which can be placed given an existing part and connection
+	def compute_possible_children(self, part_id, conn_id, check_constraints = False):
+		
+		possible_children = []
+		current_part = self.aggregated_parts[part_id]
+		
+		if conn_id in current_part.active_connections:
+			current_conn = current_part.connections[conn_id]
+			for rule_id in current_conn.active_rules:
+				rule = current_conn.rules_table[rule_id]
+				
+				next_part = self.parts[rule.part2]
+				orientTransform = rg.Transform.PlaneToPlane(next_part.connections[rule.conn2].flip_pln, current_conn.pln)
+				
+				## boolean checks for all constraints
+				coll_check = False
+				add_coll_check = False
+				valid_connections = []
+				missing_sup_check = False
+				global_const_check = False
+				
+				if check_constraints:
+					## collision check
+					self.possible_collisions = []
+					coll_check = self.collision_check(next_part, orientTransform)
+					
+					## constraints check
+					if self.mode == 1: ## only local constraints mode
+						if coll_check == False and next_part.is_constrained:
+							add_coll_check = self.additional_collider_check(next_part, orientTransform)
+							
+							if add_coll_check == False:
+							   missing_sup_check = self.missing_supports_check(next_part, orientTransform)
+					
+					elif self.mode == 2: ## onyl global constraints mode
+						if coll_check == False and len(self.global_constraints) > 0:
+							global_const_check = self.global_constraints_check(next_part, orientTransform)
+					
+					elif self.mode == 3: ## local+global constraints mode
+						if coll_check == False:
+							if len(self.global_constraints) > 0:
+								global_const_check = self.global_constraints_check(next_part, orientTransform)
+							if global_const_check == False and next_part.is_constrained:
+								add_coll_check = self.additional_collider_check(next_part, orientTransform)
+								if add_coll_check == False:
+								   missing_sup_check = self.missing_supports_check(next_part, orientTransform)
+				
+				if coll_check == False and add_coll_check == False and missing_sup_check == False and global_const_check == False:
+					next_part_trans = next_part.transform(orientTransform)
+					possible_children.append(next_part_trans)
+			
+			return possible_children	
+		else:
+			return -1
+		
+	
+	## add a custom pre-computed part which has been already transformed in place and checked for constraints
+	def add_custom_part(self, part_id, conn_id, next_part):
+		next_part.reset_part(self.rules)
+		next_part.id = len(self.aggregated_parts)
+		
+		self.aggregated_parts[part_id].children.append(next_part)
+		next_part.parent = self.aggregated_parts[part_id]
+		self.aggregated_parts.append(next_part)
+		
+		for i in range(len(self.aggregated_parts[part_id].active_connections)):
+			if self.aggregated_parts[part_id].active_connections[i] == conn_id:
+				self.aggregated_parts[part_id].active_connections.pop(i)
+				break
+	
+	
 	#### constraints checks ####
 	
 	## overlap // part-part collision check
