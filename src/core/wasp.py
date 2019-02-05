@@ -739,6 +739,11 @@ class Aggregation(object):
 	
 	#### constraints checks ####
 	
+	## function grouping all constraints checks (not yet implemented)
+	def constraints_check(self, part, trans):
+		pass
+	
+	
 	## overlap // part-part collision check
 	def collision_check(self, part, trans):
 		part_center = part.transform_center(trans)
