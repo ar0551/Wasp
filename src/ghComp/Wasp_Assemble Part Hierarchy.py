@@ -29,29 +29,29 @@
 #########################################################################
 
 """
-Access sub-parts stored at different aggregation hierarchy levels
+Applies a geometric transformation to an existing part, returning a transformed copy.
+Can be used with any Transform component from Grasshopper.
+Create a Transform component without inputting any geometry and plug the X output to the TR input.
 -
-Provided by Wasp 0.2.2
+Provided by Wasp 0.2
     Args:
-        PART: Parts from which to extract hierarchical parts
-        LEVEL: Hierarchy level (0 to return the same parts in input)
+        PART: Sub-parts to be assembled
+        TR: Relative transformation of each sub-part in the higher hierarchy assembly
     Returns:
-        SUB_P: Parts at the selected hierarchy level
+        HIE: Assembled parts
 """
 
-ghenv.Component.Name = "Wasp_Parts Hierarchy"
-ghenv.Component.NickName = 'PartHie'
-ghenv.Component.Message = 'VER 0.2.2'
+ghenv.Component.Name = "Wasp_Assemble Part Hierarchy"
+ghenv.Component.NickName = 'PartHierarchy'
+ghenv.Component.Message = 'VER 0.2.3'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "4 | Aggregation"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
+ghenv.Component.SubCategory = "X | Experimental"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
-
 
 import sys
 import scriptcontext as sc
-import Rhino.Geometry as rg
 import Grasshopper as gh
 
 ## add Wasp install directory to system path
@@ -66,50 +66,30 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(parts, hierarchy_level):
+def main(part, transform):
     
     check_data = True
     
     ##check inputs
-    if len(parts) == 0:
+    if part is None:
         check_data = False
-        msg = "No parts provided"
+        msg = "Please provide a valid part to be transformed"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if transform is None:
+        check_data = False
+        msg = "Please provide a valid transformation"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if check_data:
-        current_parts = parts
-        sub_parts = []
-        current_level = 0
-        
-        if hierarchy_level == 0:
-            return parts
-        else:
-            while current_level < hierarchy_level:
-                current_level += 1
-                
-                for part in current_parts:
-                    if len(part.sub_parts) > 0:
-                        for sp in part.sub_parts:
-                            sp_trans = sp.transform(part.transformation)
-                            sub_parts.append(sp_trans)
-                    else:
-                        msg = "The selected hierarchy level does not exist in the provided parts"
-                        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-                        return parts
-                
-                current_parts = []
-                for sp in sub_parts:
-                    current_parts.append(sp)
-                sub_parts = []
-                
-            
-            return current_parts
+        ## transform part
+        part_trans = part.transform(transform, transform_sub_parts = True, sub_level = part.hierarchy_level)
+        return part_trans
     else:
         return -1
 
 
-result = main(PART, LEVEL)
+result = main(PART, TR)
 
 if result != -1:
-    SUB_P = result
-
+    HIE = result

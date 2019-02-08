@@ -31,7 +31,7 @@
 """
 Loads an aggregation from a previously saved .txt file
 -
-Provided by Wasp 0.2.2
+Provided by Wasp 0.2
     Args:
         PART: Parts definition for the aggregation
         FILE: File where the aggregation is saved (.txt)
@@ -41,7 +41,7 @@ Provided by Wasp 0.2.2
 
 ghenv.Component.Name = "Wasp_Load from File"
 ghenv.Component.NickName = 'WaspLoad'
-ghenv.Component.Message = 'VER 0.2.2'
+ghenv.Component.Message = 'VER 0.2.3'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -95,18 +95,20 @@ def main(parts, file_path):
             aggr_dict = json.loads(txt_data)
         
         ## sort part ids
-        part_ids = [id for id in aggr_dict['parts'].keys()]
+        part_ids = [int(id) for id in aggr_dict['parts'].keys()]
         part_ids.sort()
         
         ## load parts
         for id in part_ids:
-            part_data = aggr_dict['parts'][id]
+            part_data = aggr_dict['parts'][str(id)]
                     
             ## part name
             name = part_data['name']
             
             ## part active connections
             active_conn = part_data['active_connections']
+            parent = part_data['parent']
+            children = part_data['children']
             
             ## part transform
             trans = rg.Transform(0)
@@ -140,6 +142,8 @@ def main(parts, file_path):
             
             if new_part is not None:
                 new_part.active_connections = active_conn
+                new_part.parent = parent
+                new_part.children = children
                 new_part.is_constrained = constrained
                 
                 loaded_parts.append(new_part)

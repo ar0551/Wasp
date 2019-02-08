@@ -46,24 +46,24 @@ global_tolerance = ActiveDoc.ModelAbsoluteTolerance*5
 class Connection(object):
 	
 	## constructor
-	def __init__(self, plane, type, part, id):
+	def __init__(self, _plane, _type, _part, _id):
 		
-		self.pln = plane
+		self.pln = _plane
 		
-		flip_pln_Y = rg.Vector3d(plane.YAxis)
+		flip_pln_Y = rg.Vector3d(self.pln.YAxis)
 		flip_pln_Y.Reverse()
-		self.flip_pln = rg.Plane(plane.Origin, plane.XAxis, flip_pln_Y)
+		self.flip_pln = rg.Plane(self.pln.Origin, self.pln.XAxis, flip_pln_Y)
 		
-		self.type = type
-		self.part = part
-		self.id = id
+		self.type = _type
+		self.part = _part
+		self.id = _id
 		
 		self.rules_table = []
 		self.active_rules = []
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "Wasp_Connection"
+		return "WaspConnection"
 	
 	
 	## return a transformed copy of the connection
@@ -141,7 +141,7 @@ class Part(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "Wasp_Part"
+		return "WaspPart"
 	
 	## reset the part and connections according to new provided aggregation rules
 	def reset_part(self, rules):
@@ -217,7 +217,7 @@ class Part(object):
 
 
 #################################################################### Constrained Part ####################################################################
-class Constrained_Part(Part):
+class AdvancedPart(Part):
 	
 	## constructor
 	def __init__(self, name, geometry, connections, collider, attributes, additional_collider, supports, dim = None, id=None, field=None, sub_parts=[]):
@@ -232,7 +232,15 @@ class Constrained_Part(Part):
 		if len(supports) > 0:
 			self.supports = supports
 		
+		## hierarchical sub-parts
 		self.sub_parts = sub_parts
+		self.hierarchy_level = 0
+		if len(self.sub_parts) > 0:
+			self.hierarchy_level = self.sub_parts[0].hierarchy_level + 1
+	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "WaspAdvPart"
 	
 	## return all part data
 	def return_part_data(self):
@@ -250,7 +258,7 @@ class Constrained_Part(Part):
 		return data_dict
 	
 	## return a transformed copy of the part
-	def transform(self, trans, transform_sub_parts=False):
+	def transform(self, trans, transform_sub_parts=False, sub_level = 0):
 		geo_trans = self.geo.Duplicate()
 		geo_trans.Transform(trans)
 		
@@ -276,22 +284,24 @@ class Constrained_Part(Part):
 				supports_trans.append(sup_trans)
 			
 		
-		if transform_sub_parts and len(self.sub_parts) > 0:
+		if transform_sub_parts and len(self.sub_parts) > 0 and sub_level > 0:
 			sub_parts_trans = []
 			for sp in self.sub_parts:
-				sp_trans = sp.transform(trans, transform_sub_parts=True)
+				sp_trans = sp.transform(trans, transform_sub_parts = True, sub_level = sub_level - 1)
 				sub_parts_trans.append(sp_trans)
-			part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_trans)
+			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_trans)
 			part_trans.transformation = trans
 			part_trans.is_constrained = True
 			return part_trans
 		
 		else:
-			part_trans = Constrained_Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts)
+			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts)
 			part_trans.transformation = trans
 			part_trans.is_constrained = True
 			return part_trans
-
+	
+	
+	
 	## return a copy of the part		
 	def copy(self):
 		geo_copy = self.geo.Duplicate()
@@ -322,16 +332,19 @@ class Constrained_Part(Part):
 			for sp in self.sub_parts:
 				sp_copy = sp.copy()
 				sub_parts_copy.append(sp_copy)
-			part_copy = Constrained_Part(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, add_collider_copy, supports_copy, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_copy)
+			part_copy = AdvancedPart(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, add_collider_copy, supports_copy, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_copy)
 			part_copy.transformation = self.transformation
 			part_copy.is_constrained = True
 			return part_copy
 		
 		else:
-			part_copy = Constrained_Part(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, add_collider_copy, supports_copy, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts)
+			part_copy = AdvancedPart(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, add_collider_copy, supports_copy, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts)
 			part_copy.transformation = self.transformation
 			part_copy.is_constrained = True
 			return part_copy
+			
+	
+	
 
 #################################################################### Rule ####################################################################
 class Rule(object):
@@ -345,7 +358,7 @@ class Rule(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "Wasp_Rule"
+		return "WaspRule"
 
 #################################################################### Field ####################################################################
 class Field(object):
@@ -395,7 +408,7 @@ class Field(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "Wasp_Field"
+		return "WaspField"
 	
 	## return value associated to the closest point of the field to the given point
 	def return_pt_val(self, pt):
@@ -474,14 +487,13 @@ class Attribute(object):
 	
 	## constructor
 	def __init__(self, name, values, transformable):
-		
 		self.name = name
 		self.values = values
 		self.transformable = transformable
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "Wasp_Attribute"
+		return "WaspAttribute"
 	
 	## return a transformed copy of the attribute
 	def transform(self, trans):
@@ -493,6 +505,8 @@ class Attribute(object):
 					val_trans = rg.Point3d(val)
 				elif type(val) == rg.Plane:
 					val_trans = rg.Plane(val)
+				elif type(val) == rg.Line:
+					val_trans = rg.Line(val.From, val.To)
 				else:
 					val_trans = val.Duplicate()
 				val_trans.Transform(trans)
@@ -512,6 +526,8 @@ class Attribute(object):
 					val_copy = rg.Point3d(val)
 				elif type(val) == rg.Plane:
 					val_copy = rg.Plane(val)
+				elif type(val) == rg.Line:
+					val_copy = rg.Line(val.From, val.To)
 				else:
 					val_copy = val.Duplicate()
 				values_copy.append(val_copy)
@@ -530,7 +546,7 @@ class Support(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "Wasp_Support"
+		return "WaspSupport"
 	
 	## return a transformed copy of the support
 	def transform(self, trans):
@@ -621,7 +637,7 @@ class Aggregation(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "Wasp_Aggregation"
+		return "WaspAggregation"
 	
 	## reset entire aggregation (NOT WORKING)
 	def reset(self, prev):
@@ -869,8 +885,8 @@ class Aggregation(object):
 					next_part_trans = next_part.transform(orientTransform)
 					next_part_trans.id = rule_ids[1]
 					## parent-child tracking
-					first_part.children.append(next_part_trans)
-					next_part_trans.parent = first_part
+					first_part.children.append(next_part_trans.id)
+					next_part_trans.parent = first_part.id
 					self.aggregated_parts.append(next_part_trans)
 				else:
 					pass ## implement error handling
@@ -959,8 +975,9 @@ class Aggregation(object):
 								break
 						next_part_trans.id = len(self.aggregated_parts)
 						
-						self.aggregated_parts[part_01_id].children.append(next_part_trans)
-						next_part_trans.parent = self.aggregated_parts[part_01_id]
+						## parent-child tracking
+						self.aggregated_parts[part_01_id].children.append(next_part_trans.id)
+						next_part_trans.parent = self.aggregated_parts[part_01_id].id
 						self.aggregated_parts.append(next_part_trans)
 						
 						for i in range(len(self.aggregated_parts[part_01_id].active_connections)):
@@ -1046,7 +1063,7 @@ class Aggregation(object):
 					if (self.mode == 2 or self.mode == 3) and len(self.global_constraints) > 0:
 						start_point = self.field[f_name].return_highest_pt(constraints=self.global_constraints)
 					else:
-					   start_point = self.field[f_name].highest_pt
+					   start_point = self.field[f_name].return_highest_pt()
 				else:
 					if (self.mode == 2 or self.mode == 3) and len(self.global_constraints) > 0:
 						start_point = self.field.return_highest_pt(constraints=self.global_constraints)
@@ -1117,8 +1134,8 @@ class Aggregation(object):
 						conn.generate_rules_table(self.rules)
 					
 					next_part_trans.id = len(self.aggregated_parts)
-					self.aggregated_parts[next_data[1]].children.append(next_part_trans)
-					next_part_trans.parent = self.aggregated_parts[next_data[1]]
+					self.aggregated_parts[next_data[1]].children.append(next_part_trans.id)
+					next_part_trans.parent = self.aggregated_parts[next_data[1]].id
 					self.aggregated_parts.append(next_part_trans)
 					
 					## compute all possible next parts and append to list
@@ -1142,7 +1159,7 @@ class Plane_Constraint(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "Wasp_PlaneConstraint"
+		return "WaspPlaneConst"
 	
 	## constraint check method
 	def check(self, pt = None, collider = None):
@@ -1184,7 +1201,7 @@ class Mesh_Constraint(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "Wasp_MeshConstraint"
+		return "WaspMeshConst"
 	
 	## constraint check method
 	def check(self, pt = None, collider = None):
@@ -1237,7 +1254,7 @@ class Collider(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "Wasp_Collider"
+		return "WaspCollider"
 	
 	## return a transformed copy of the collider
 	########################################################################### check if valid connections need to be transformed or re-generated!!!

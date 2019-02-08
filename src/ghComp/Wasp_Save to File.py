@@ -31,7 +31,7 @@
 """
 Saves current status of an aggregation to a .json file.
 -
-Provided by Wasp 0.2.2
+Provided by Wasp 0.2
     Args:
         AGGR: Aggregation to save
         PATH: Path where to save the aggregation
@@ -43,7 +43,7 @@ Provided by Wasp 0.2.2
 
 ghenv.Component.Name = "Wasp_Save to File"
 ghenv.Component.NickName = 'WaspSave'
-ghenv.Component.Message = 'VER 0.2.2'
+ghenv.Component.Message = 'VER 0.2.3'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -104,6 +104,9 @@ def main(aggregation, path, filename, save):
             
             part_dict['name'] = part.name
             part_dict['active_connections'] = part.active_connections
+            part_dict['parent'] = part.parent
+            part_dict['children'] = part.children
+            
             
             part_dict['transform'] = {}
             part_dict['transform']['M00'] = part.transformation.M00

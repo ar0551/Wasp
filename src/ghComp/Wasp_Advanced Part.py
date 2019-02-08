@@ -46,8 +46,8 @@ Provided by Wasp 0.2.2
         PART: Part instance
 """
 
-ghenv.Component.Name = "Wasp_Constrained Part"
-ghenv.Component.NickName = 'ConstrPart'
+ghenv.Component.Name = "Wasp_Advanced Part"
+ghenv.Component.NickName = 'AdvPart'
 ghenv.Component.Message = 'VER 0.2.2'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
@@ -118,7 +118,7 @@ def main(part_name, part_geo, connections, collider_geo, field_name, sub_parts, 
             add_collider = wasp.Collider([add_collider])
         
         ## create part instance
-        new_part = wasp.Constrained_Part(part_name, part_geo, connections, collider, attributes, add_collider, supports, field=field_name, sub_parts=sub_parts)
+        new_part = wasp.AdvancedPart(part_name, part_geo, connections, collider, attributes, add_collider, supports, field=field_name, sub_parts=sub_parts)
         new_part.is_constrained = True
         return new_part
     else:

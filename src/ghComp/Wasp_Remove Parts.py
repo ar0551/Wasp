@@ -77,11 +77,11 @@ except:
 
 def main(aggregation, id, remove_children, remove, reset):
     
-    def returnChildren(part, list):
+    def returnChildren(aggregation, part, list):
         if len(part.children) > 0:
             for child in part.children:
-                list.append(child.id)
-                returnChildren(child, list)
+                list.append(child)
+                returnChildren(aggregation, aggregation.aggregated_parts[child], list)
         return list
     
     
@@ -128,7 +128,7 @@ def main(aggregation, id, remove_children, remove, reset):
         if current_part is not None:
             remove_ids.append(id)
             if remove_children:
-                remove_ids = returnChildren(current_part, remove_ids)
+                remove_ids = returnChildren(sc.sticky[new_name], current_part, remove_ids)
             remove_ids.sort()
             
             if remove:

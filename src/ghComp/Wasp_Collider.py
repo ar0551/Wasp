@@ -29,29 +29,30 @@
 #########################################################################
 
 """
-Applies a geometric transformation to an existing part, returning a transformed copy.
-Can be used with any Transform component from Grasshopper.
-Create a Transform component without inputting any geometry and plug the X output to the TR input.
+Description here
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.2.2
     Args:
-        PART: Part to be transformed
-        TR: Transformation
+        GEO: Geometry of the collider(s)
+        MUL: OPTIONAL // Set to True if you are using multiple colliders and it is sufficient for one of them not to collide (False by default)
+        ALL: OPTIONAL // If MUL is set to True, set to True to check all colliders (False by default, search will stop after finding a valid collider)
+        CONN: OPTIONAL // If MUL is set to True, associate a connection to each collider, e.g. a picking position for the tool collider
     Returns:
-        PART_OUT: Transformed part
+        COLL: Collider instance
 """
 
-ghenv.Component.Name = "Wasp_Transform Part"
-ghenv.Component.NickName = 'PartTr'
+ghenv.Component.Name = "Wasp_Collider"
+ghenv.Component.NickName = 'Collider'
 ghenv.Component.Message = 'VER 0.2.3'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "2 | Parts"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.SubCategory = "1 | Elements"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
 except: pass
 
 import sys
 import scriptcontext as sc
+import Rhino.Geometry as rg
 import Grasshopper as gh
 
 ## add Wasp install directory to system path
@@ -66,30 +67,43 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(part, transform):
+def main(geometry, multiple, check_all, connections):
     
     check_data = True
     
     ##check inputs
-    if part is None:
+    if len(geometry) == 0:
         check_data = False
-        msg = "Please provide a valid part to be transformed"
+        msg = "No geometry provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
-    if transform is None:
+    if multiple is None:
+        multiple = False
+    
+    if check_all is None:
+        check_all = False
+    
+    if len(connections) > 0 and len(connections) != len(geometry):
         check_data = False
-        msg = "Please provide a valid transformation"
+        msg = "Please provide the same amount of collider geometries and connections."
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if len(geometry) > 0:
+        faces_count = 0
+        for geo in geometry:
+            faces_count += geo.Faces.Count
+        if faces_count > 1000:
+            msg = "The given collider has a high faces count. Consider providing a low poly collider to improve performance"
+            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if check_data:
-        ## transform part
-        part_trans = part.transform(transform)
-        return part_trans
+        collider = wasp.Collider(geometry, multiple, check_all, connections)
+        return collider
     else:
         return -1
 
 
-result = main(PART, TR)
+result = main(GEO, MUL, ALL, CONN)
 
 if result != -1:
-    PART_OUT = result
+    COLL = result

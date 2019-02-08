@@ -29,26 +29,25 @@
 #########################################################################
 
 """
-Description here
+Access sub-parts stored at different aggregation hierarchy levels
 -
-Provided by Wasp 0.2.2
+Provided by Wasp 0.2
     Args:
-        GEO: Geometry of the collider(s)
-        MUL: OPTIONAL // Set to True if you are using multiple colliders and it is sufficient for one of them not to collide (False by default)
-        ALL: OPTIONAL // If MUL is set to True, set to True to check all colliders (False by default, search will stop after finding a valid collider)
-        CONN: OPTIONAL // If MUL is set to True, associate a connection to each collider, e.g. a picking position for the tool collider
+        AGGREGATION: Aggregation from which to extract hierarchical parts
+        LEVEL: Hierarchy level (0 to return the same parts in input)
     Returns:
-        COLL: Collider instance
+        SUB_P: Parts at the selected hierarchy level
 """
 
-ghenv.Component.Name = "Wasp_Advanced Collider"
-ghenv.Component.NickName = 'AdvColl'
-ghenv.Component.Message = 'VER 0.2.2'
+ghenv.Component.Name = "Wasp_Get Parts Hierarchy"
+ghenv.Component.NickName = 'GetHierarchy'
+ghenv.Component.Message = 'VER 0.2.3'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "1 | Elements"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
+ghenv.Component.SubCategory = "X | Experimental"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
+
 
 import sys
 import scriptcontext as sc
@@ -67,43 +66,57 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(geometry, multiple, check_all, connections):
+
+def main(aggregation, hierarchy_level):
     
     check_data = True
     
     ##check inputs
-    if len(geometry) == 0:
+    if aggregation is None:
         check_data = False
-        msg = "No geometry provided"
+        msg = "No aggregation provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-    
-    if multiple is None:
-        multiple = False
-    
-    if check_all is None:
-        check_all = False
-    
-    if len(connections) > 0 and len(connections) != len(geometry):
-        check_data = False
-        msg = "Please provide the same amount of collider geometries and connections."
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-    
-    if len(geometry) > 0:
-        faces_count = 0
-        for geo in geometry:
-            faces_count += geo.Faces.Count
-        if faces_count > 1000:
-            msg = "The given collider has a high faces count. Consider providing a low poly collider to improve performance"
-            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if check_data:
-        collider = wasp.Collider(geometry, multiple, check_all, connections)
-        return collider
+        
+        if hierarchy_level == 0:
+            return aggregation.aggregated_parts
+        else:
+            
+            current_parts = []
+            for part in aggregation.aggregated_parts:
+                base_part = aggregation.parts[part.name]
+                part_trans = base_part.transform(part.transformation, transform_sub_parts = True, sub_level = hierarchy_level+1)
+                current_parts.append(part_trans)
+            
+            sub_parts = []
+            current_level = 0
+            
+            while current_level < hierarchy_level:
+                current_level += 1
+                
+                for part in current_parts:
+                    if len(part.sub_parts) > 0:
+                        for sp in part.sub_parts:
+                            sub_parts.append(sp)
+                    else:
+                        msg = "The selected hierarchy level does not exist in the provided parts"
+                        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+                        return aggregation.aggregated_parts
+                
+                current_parts = []
+                for sp in sub_parts:
+                    current_parts.append(sp)
+                sub_parts = []
+                
+            
+            return current_parts
     else:
         return -1
 
 
-result = main(GEO, MUL, ALL, CONN)
+result = main(AGGR, LEVEL)
 
 if result != -1:
-    COLL = result
+    SUB_P = result
+
