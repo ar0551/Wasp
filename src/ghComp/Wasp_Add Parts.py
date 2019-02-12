@@ -29,21 +29,24 @@
 #########################################################################
 
 """
-ADD specific parts to an aggregation.
+Add specific parts to an aggregation.
 --> WIP Component: might be incomplete or contain bugs <--
 -
 Provided by Wasp 0.2.3
     Args:
         AGGR: Aggregation to edit
-        ID: ID of the part to remove
-        CHILD: OPTIONAL // Remove also all children of the part (False by default)
-        REM: True to remove the part from the aggregation
+        PID: ID of the parent part
+        CID: ID of the parent connection
+        NEXT: Index of the next part among the available ones
+        CHECK: OPTIONAL // True to check for the constraints set in the aggregation, False to return all possibilities ignoring constraints (True by default)
+        ADD: Add the part to the aggregation
         RESET: Reset the aggregation to the initial state
     Returns:
         AGGR_OUT: Edited aggregation object
         PART_OUT: Edited parts
-        C_PART: Geometry of the currently selected part (for visualization).
-        C_CHILD: Geometry of the children of the selected part (for visualization).
+        C_PART: Parent part
+        C_CONN: Parent connection
+        NEXT_P: Part to be added
 """
 
 ghenv.Component.Name = "Wasp_Add Parts"

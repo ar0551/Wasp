@@ -42,8 +42,8 @@ Provided by Wasp 0.2.2
     Returns:
         AGGR_OUT: Edited aggregation object
         PART_OUT: Edited parts
-        C_PART: Geometry of the currently selected part (for visualization).
-        C_CHILD: Geometry of the children of the selected part (for visualization).
+        C_PART: Currently selected part (for visualization).
+        C_CHILD: Children of the selected part (for visualization).
 """
 
 ghenv.Component.Name = "Wasp_Remove Parts"
@@ -140,9 +140,9 @@ def main(aggregation, id, remove_children, remove, reset):
                 for i in range(len(sc.sticky[new_name].aggregated_parts)-1, -1, -1):
                     if sc.sticky[new_name].aggregated_parts[i].id in remove_ids:
                         if sc.sticky[new_name].aggregated_parts[i].id == id:
-                            current_part = sc.sticky[new_name].aggregated_parts[i].geo
+                            current_part = sc.sticky[new_name].aggregated_parts[i]
                         else:
-                            current_children.append(sc.sticky[new_name].aggregated_parts[i].geo)
+                            current_children.append(sc.sticky[new_name].aggregated_parts[i])
         
         else:
             msg = "The provided id does not exist in the current aggregation. Might be out of range or already removed."

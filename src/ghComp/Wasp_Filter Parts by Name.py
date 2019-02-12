@@ -31,17 +31,18 @@
 """
 Filter a list of parts according to part names
 -
-Provided by Wasp 0.2.2
+Provided by Wasp 0.2
     Args:
         PART: Parts to filter
         NAME: Name of the parts to extract
     Returns:
         PART_OUT: Filtered parts
+        MASK: Boolean mask for the filtered parts
 """
 
 ghenv.Component.Name = "Wasp_Filter Parts by Name"
 ghenv.Component.NickName = 'NameFilter'
-ghenv.Component.Message = 'VER 0.2.2'
+ghenv.Component.Message = 'VER 0.2.3'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -98,12 +99,17 @@ def main(parts, names):
     if check_data:
         
         filtered_parts = []
+        cull_patterns = []
         for i in xrange(len(names)):
             filtered_parts.append([])
+            cull_patterns.append([])
             for part in parts:
                 if part.name == names[i]:
                     filtered_parts[i].append(part)
-        return listToDataTree(filtered_parts)
+                    cull_patterns[i].append(True)
+                else:
+                    cull_patterns[i].append(False)
+        return listToDataTree(filtered_parts), listToDataTree(cull_patterns)
         
     else:
         return -1
@@ -111,4 +117,5 @@ def main(parts, names):
 result = main(PART, NAME)
 
 if result != -1:
-    PART_OUT = result
+    PART_OUT = result[0]
+    MASK = result[1]
