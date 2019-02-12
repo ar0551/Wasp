@@ -29,14 +29,14 @@
 #########################################################################
 
 """
-Description here
+Generate a collider for a given geometry.
 -
-Provided by Wasp 0.2.2
+Provided by Wasp 0.2
     Args:
         GEO: Geometry of the collider(s)
         MUL: OPTIONAL // Set to True if you are using multiple colliders and it is sufficient for one of them not to collide (False by default)
         ALL: OPTIONAL // If MUL is set to True, set to True to check all colliders (False by default, search will stop after finding a valid collider)
-        CONN: OPTIONAL // If MUL is set to True, associate a connection to each collider, e.g. a picking position for the tool collider
+        CONN: OPTIONAL // If MUL is set to True, associate a connection to each collider (e.g. a picking position for the tool collider).
     Returns:
         COLL: Collider instance
 """
