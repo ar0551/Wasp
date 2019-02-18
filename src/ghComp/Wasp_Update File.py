@@ -32,9 +32,10 @@
 This component doesn't update the installation. It will only update the file
 to your current installation. The components that can't be updated automatically
 will be marked and should be replaced manually.
+--> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.2.2
-Code is adapted from Ladybug file updater (github reference)
+Provided by Wasp 0.2
+Code is adapted from Ladybug file updater (https://github.com/mostaphaRoudsari/ladybug)
     
     Args:
         UP: Set to "True" if you want this component to search through the current Grasshopper file and update Wasp components.

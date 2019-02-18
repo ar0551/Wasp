@@ -31,7 +31,7 @@
 """
 Extract values stored in an atrribute
 -
-Provided by Wasp 0.2.2
+Provided by Wasp 0.2
     Args:
         ATTR: Attribute to deconstruct
     Returns:
@@ -41,7 +41,7 @@ Provided by Wasp 0.2.2
 
 ghenv.Component.Name = "Wasp_Deconstruct Attribute"
 ghenv.Component.NickName = 'DeAttr'
-ghenv.Component.Message = 'VER 0.2.2'
+ghenv.Component.Message = 'VER 0.2.3'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

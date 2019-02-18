@@ -30,6 +30,7 @@
 
 """
 Access sub-parts stored at different aggregation hierarchy levels
+--> WIP Component: might be incomplete or contain bugs <--
 -
 Provided by Wasp 0.2
     Args:

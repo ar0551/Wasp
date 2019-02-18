@@ -31,7 +31,7 @@
 """
 Plane global constraint
 -
-Provided by Wasp 0.2.2
+Provided by Wasp 0.2
     Args:
         PLN: Plane to use as constraints
         POS: OPTIONAL // True to place parts on the positive direction of the Z axis, False for the negative direction (True by default)

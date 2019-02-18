@@ -32,7 +32,7 @@
 Add specific parts to an aggregation.
 --> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.2.3
+Provided by Wasp 0.2
     Args:
         AGGR: Aggregation to edit
         PID: ID of the parent part

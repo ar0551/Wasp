@@ -31,7 +31,7 @@
 """
 Mesh collision global constraint
 -
-Provided by Wasp 0.2.2
+Provided by Wasp 0.2
     Args:
         GEOMETRY: Geometry of the collision shape
         IN: OPTIONAL // False to allow only parts outside the constraint geometry, True to allow parts only inside (True by default)

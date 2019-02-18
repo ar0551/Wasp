@@ -32,7 +32,7 @@
 Sequential aggregation based on graph-grammars.
 --> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.2.2
+Provided by Wasp 0.2
     Args:
         PART: Parts to be aggregated (can be more than one)
         PREV: Previous aggregated parts. It is possible to input the results of a previous aggregation, or parts transformed with the TransformPart component
@@ -45,7 +45,7 @@ Provided by Wasp 0.2.2
         
 ghenv.Component.Name = "Wasp_Graph-Grammar Aggregation"
 ghenv.Component.NickName = 'GraphAggr'
-ghenv.Component.Message = 'VER 0.2.2'
+ghenv.Component.Message = 'VER 0.2.3'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

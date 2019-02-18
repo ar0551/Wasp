@@ -32,7 +32,7 @@
 Draws isolines across a field object
 --> WIP Component: might be incomplete or contain bugs! <--
 -
-Provided by Wasp 0.2.2
+Provided by Wasp 0.2
     Args:
         FIELD: Field object to extract isolines from
         PLN: Plane for isolines extraction (0: XY Plane, 1: YZ Plane, 2: XZ Plane)

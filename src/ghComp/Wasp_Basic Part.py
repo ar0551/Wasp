@@ -31,7 +31,7 @@
 """
 Create a basic Wasp Part to be used for aggregation
 -
-Provided by Wasp 0.2.2
+Provided by Wasp 0.2
     Args:
         NAME: Part name
         GEO: Part geometry. It will be converted to mesh - to improve performance, perform the conversion before adding to the part and user a low-poly count
@@ -44,7 +44,7 @@ Provided by Wasp 0.2.2
 
 ghenv.Component.Name = "Wasp_Basic Part"
 ghenv.Component.NickName = 'Part'
-ghenv.Component.Message = 'VER 0.2.2'
+ghenv.Component.Message = 'VER 0.2.3'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
