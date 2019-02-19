@@ -590,7 +590,6 @@ class Aggregation(object):
 			self.parts[part.name] = part
 		
 		self.rules = _rules
-		self.reset_base_parts()
 		
 		self.mode = _mode
 		self.coll_check = _coll_check
@@ -608,6 +607,9 @@ class Aggregation(object):
 			for f in _field:
 				self.field[f.name] = f
 			self.multiple_fields = True
+		
+		## reset base parts
+		self.reset_base_parts()
 		
 		## temp list to store possible colliders to newly added parts
 		self.possible_collisions = []
@@ -677,19 +679,22 @@ class Aggregation(object):
 			for part in self.aggregated_parts:
 				part.reset_part(rules)
 	
-	## trim aggregated parts list to a specific length
-	def remove_elements(self, num):
-		self.aggregated_parts = self.aggregated_parts[:num]
-		
+	## recompute aggregation queue
+	def recompute_aggregation_queue(self):
 		self.aggregation_queue = []
 		self.queue_values = []
 		self.queue_count = 0
-		
+		for part in self.aggregated_parts:
+			self.compute_next_w_field(part)
+	
+	## trim aggregated parts list to a specific length
+	def remove_elements(self, num):
+		self.aggregated_parts = self.aggregated_parts[:num]
 		for part in self.aggregated_parts:
 			part.reset_part(self.rules)
-			if self.field is not None:
-				self.compute_next_w_field(part)
-	
+		
+		if self.field is not None:
+			self.recompute_aggregation_queue()
 	
 	## compute all possible parts which can be placed given an existing part and connection
 	def compute_possible_children(self, part_id, conn_id, check_constraints = False):

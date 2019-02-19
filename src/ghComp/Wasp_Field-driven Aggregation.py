@@ -136,10 +136,12 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
             sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
         
         ## handle parameters changes
+        part_rules_change = False
         #### parts
         if parts != sc.sticky[aggregation_id].parts.values():
             sc.sticky[aggregation_id].reset_base_parts(new_parts = parts)
             sc.sticky[aggregation_id].reset_rules(rules)
+            part_rules_change = True
         
         #### rules
         if rules != sc.sticky[aggregation_id].rules:
@@ -147,6 +149,10 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
                 part.reset_part(rules)
             sc.sticky[aggregation_id].rules = rules
             sc.sticky[aggregation_id].reset_rules(rules)
+            part_rules_change = True
+        
+        if part_rules_change:
+            sc.sticky[aggregation_id].recompute_aggregation_queue()
         
         #### mode
         if aggregation_mode != sc.sticky[aggregation_id].mode:
