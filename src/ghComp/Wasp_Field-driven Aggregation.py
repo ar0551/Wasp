@@ -126,40 +126,51 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if check_data:
-        ## store rules in sticky dict
-        if sc.sticky.has_key('rules') == False:
-            sc.sticky['rules'] = rules
-        
-        ## if rules changed, reset parts and recompute rule tables
-        if rules != sc.sticky['rules']:
-            for part in parts:
-                part.reset_part(rules)
-            sc.sticky['rules'] = rules
-            if sc.sticky.has_key(aggregation_id):
-                sc.sticky[aggregation_id].reset_rules(rules)
         
         ## create aggregation in sticky dict
         if sc.sticky.has_key(aggregation_id) == False:
-            sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
+            sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
             
-        ## reset aggregation
+        ## reset aggregation - TO DO: create a reset() function rather than recreate the whole aggregation
         if reset:
-            sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, sc.sticky['rules'], aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
+            sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
         
+        ## handle parameters changes
+        #### parts
+        if parts != sc.sticky[aggregation_id].parts.values():
+            sc.sticky[aggregation_id].reset_base_parts(new_parts = parts)
+            sc.sticky[aggregation_id].reset_rules(rules)
+        
+        #### rules
+        if rules != sc.sticky[aggregation_id].rules:
+            for part in parts:
+                part.reset_part(rules)
+            sc.sticky[aggregation_id].rules = rules
+            sc.sticky[aggregation_id].reset_rules(rules)
+        
+        #### mode
+        if aggregation_mode != sc.sticky[aggregation_id].mode:
+            sc.sticky[aggregation_id].mode = aggregation_mode
+        
+        #### constraints
+        if global_constraints != sc.sticky[aggregation_id].global_constraints:
+            sc.sticky[aggregation_id].global_constraints = global_constraints
+        
+        ## field (TO DO)
+        #########################
+        
+        ## add parts to aggregation
         if num_parts > len(sc.sticky[aggregation_id].aggregated_parts):
             #sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count, field, threshold)
             error_msg = sc.sticky[aggregation_id].aggregate_field(num_parts-len(sc.sticky[aggregation_id].aggregated_parts))
             if error_msg is not None:
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, error_msg)
-            """
-            if len(sc.sticky[aggregation_id]) < num_parts:
-                msg = "Could not place " + str(num_parts - len(sc.sticky[aggregation_id])) + " parts"
-                ghenv.Component.AddRuntimeMessage(gh.GH_RuntimeMessageLevel.Warning, msg)
-            """
+        
+        ## remove parts from aggregation
         elif num_parts < len(sc.sticky[aggregation_id].aggregated_parts):
-            
             sc.sticky[aggregation_id].remove_elements(num_parts)
         
+        ## return result
         return sc.sticky[aggregation_id]
         
     else:
