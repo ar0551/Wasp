@@ -36,7 +36,7 @@ import Rhino.Geometry as rg
 #########################################################################
 ##							GLOBAL VARIABLES						   ##
 #########################################################################
-global_tolerance = ActiveDoc.ModelAbsoluteTolerance*5
+global_tolerance = ActiveDoc.ModelAbsoluteTolerance*2
 
 #########################################################################
 ##								 CLASSES							   ##
@@ -151,6 +151,7 @@ class Part(object):
 			conn.generate_rules_table(rules)
 			self.active_connections.append(count)
 			count += 1
+	
 	
 	## return a dictionary containing all part data
 	def return_part_data(self):
@@ -657,16 +658,24 @@ class Aggregation(object):
 				if self.field is not None:
 					self.compute_next_w_field(prev_p)
 	
-	## reset all base parts
-	def reset_base_parts(self):
+	## reset base parts
+	def reset_base_parts(self, new_parts = None):
+		if new_parts != None:
+			self.parts = {}
+			for part in new_parts:
+				self.parts[part.name] = part
+		
 		for p_key in self.parts:
 			self.parts[p_key].reset_part(self.rules)
-	
+			
 	## reset rules and regenerate rule tables for each part
 	def reset_rules(self, rules):
 		if rules != self.rules:
 			self.rules = rules
 			self.reset_base_parts()
+			
+			for part in self.aggregated_parts:
+				part.reset_part(rules)
 	
 	## trim aggregated parts list to a specific length
 	def remove_elements(self, num):
