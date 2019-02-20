@@ -801,8 +801,8 @@ class Aggregation(object):
 			add_collider = part.add_collider.transform(trans, transform_connections=True, maintain_valid = False)
 			if add_collider.check_collisions_w_parts(self.aggregated_parts):
 				return True
-		## assign computed valid connections according to collider location
-		part.add_collider.valid_connections = list(add_collider.valid_connections)
+			## assign computed valid connections according to collider location
+			part.add_collider.valid_connections = list(add_collider.valid_connections)
 		return False
 	
 	## support check
