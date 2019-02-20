@@ -1,6 +1,6 @@
 1_01 Field Basics    X
 1_02 Field Boundaries
-1_03 Field from Curves
+1_03 Field from Curves    X
 1_04 Field from Expression
 1_05 Field from Solids
 1_06 Multi-Channel Field

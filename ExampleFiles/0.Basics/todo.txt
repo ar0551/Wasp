@@ -4,8 +4,5 @@
 0_04 Geometry Replacement    X
 0_05 Transform Part / Start Point
 0_06 Transform Part / Aggregation Base
-0_07 Rules Generator / Basics
-0_08 Rules Generator / Connection Types
-0_09 Rules Generator / Connection Grammar
-0_10 Attributes
-0_11 Save / Load
+0_07 Attributes
+0_08 Save / Load
