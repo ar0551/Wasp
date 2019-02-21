@@ -114,18 +114,29 @@ def main(part_geo, conn_centers, conn_ups, conn_type):
             up_end = rg.Vector3d(up.PointAtEnd)
             up_vec = rg.Vector3d.Subtract(up_end, up_start)
             
-            for face in GEO.Faces:
-                pt_uv = face.ClosestPoint(center)
-                pt = face.PointAt(pt_uv[1], pt_uv[2])
-                dist = rg.Point3d.DistanceTo(center, pt)
-                if(dist < wasp.global_tolerance):
-                    normal = face.NormalAt(pt_uv[1], pt_uv[2])
+            if type(part_geo) == rg.Brep:
+                for face in part_geo.Faces:
+                    pt_uv = face.ClosestPoint(center)
+                    pt = face.PointAt(pt_uv[1], pt_uv[2])
+                    dist = rg.Point3d.DistanceTo(center, pt)
+                    if(dist < wasp.global_tolerance):
+                        normal = face.NormalAt(pt_uv[1], pt_uv[2])
+                        plane = rg.Plane(center, normal)
+                        x_axis = plane.XAxis
+                        angle = rg.Vector3d.VectorAngle(x_axis, up_vec, plane)
+                        plane.Rotate(angle, normal)
+                        break
+            
+            elif type(part_geo) == rg.Mesh:
+                part_geo.RebuildNormals()
+                mesh_pt = part_geo.ClosestMeshPoint(center, wasp.global_tolerance)
+                if mesh_pt is not None:
+                    normal = part_geo.NormalAt(mesh_pt)
                     plane = rg.Plane(center, normal)
                     x_axis = plane.XAxis
                     angle = rg.Vector3d.VectorAngle(x_axis, up_vec, plane)
                     plane.Rotate(angle, normal)
-                    break
-                    
+            
             if plane is None:
                 msg = "No valid plane provided for connection %d"%(i)
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
