@@ -57,7 +57,6 @@ try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
 import sys
-import scriptcontext as sc
 import Rhino.Geometry as rg
 import Grasshopper as gh
 import random as rnd
@@ -74,7 +73,7 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_constraints, aggregation_id, reset):
+def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_constraints, aggregation_id, reset, aggregation):
     
     check_data = True
     
@@ -109,52 +108,53 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
     if check_data:
         
         ## create aggregation in sticky dict
-        if sc.sticky.has_key(aggregation_id) == False:
-            sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints)
-        
-        ## reset aggregation - TO DO: create a reset() function rather than recreate the whole aggregation
-        if reset:
-            sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints)
+        if aggregation is None or aggregation == -1 or reset:
+            aggregation = wasp.Aggregation(aggregation_id, parts, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints)
         
         ## handle parameters changes
         #### parts
-        if parts != sc.sticky[aggregation_id].parts.values():
-            sc.sticky[aggregation_id].reset_base_parts(new_parts = parts)
-            sc.sticky[aggregation_id].reset_rules(rules)
+        if parts != aggregation.parts.values():
+            aggregation.reset_base_parts(new_parts = parts)
+            aggregation.reset_rules(rules)
         
         #### rules
-        if rules != sc.sticky[aggregation_id].rules:
+        if rules != aggregation.rules:
             for part in parts:
                 part.reset_part(rules)
-            sc.sticky[aggregation_id].rules = rules
-            sc.sticky[aggregation_id].reset_rules(rules)
+            aggregation.rules = rules
+            aggregation.reset_rules(rules)
         
         #### mode
-        if aggregation_mode != sc.sticky[aggregation_id].mode:
-            sc.sticky[aggregation_id].mode = aggregation_mode
+        if aggregation_mode != aggregation.mode:
+            aggregation.mode = aggregation_mode
         
         #### constraints
-        if global_constraints != sc.sticky[aggregation_id].global_constraints:
-            sc.sticky[aggregation_id].global_constraints = global_constraints
+        if global_constraints != aggregation.global_constraints:
+            aggregation.global_constraints = global_constraints
         
         ## add parts to aggregation
-        if num_parts > len(sc.sticky[aggregation_id].aggregated_parts):
-            error_msg = sc.sticky[aggregation_id].aggregate_rnd(num_parts-len(sc.sticky[aggregation_id].aggregated_parts))
+        if num_parts > len(aggregation.aggregated_parts):
+            error_msg = aggregation.aggregate_rnd(num_parts-len(aggregation.aggregated_parts))
             if error_msg is not None:
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, error_msg)
         
         ## remove parts from aggregation
-        elif num_parts < len(sc.sticky[aggregation_id].aggregated_parts):
-            sc.sticky[aggregation_id].remove_elements(num_parts)
+        elif num_parts < len(aggregation.aggregated_parts):
+            aggregation.remove_elements(num_parts)
         
         ## return result
-        return sc.sticky[aggregation_id]
+        return aggregation
         
     else:
         return -1
 
-result = main(PART, PREV, N, RULES, MODE, GC, ID, RESET)
 
-if result != -1:
-    AGGR = result
-    PART_OUT = result.aggregated_parts
+## create aggregation container in global variables dict
+if 'aggregation_container' not in globals():
+    aggregation_container = None
+
+aggregation_container = main(PART, PREV, N, RULES, MODE, GC, ID, RESET, aggregation_container)
+
+if aggregation_container != -1:
+    AGGR = aggregation_container
+    PART_OUT = aggregation_container.aggregated_parts
