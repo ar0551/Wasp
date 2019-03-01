@@ -70,7 +70,7 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(parts, rules_sequence, aggregation_id, reset):
+def main(parts, rules_sequence, aggregation_id, reset, aggregation):
     
     check_data = True
     ##check inputs
@@ -88,22 +88,25 @@ def main(parts, rules_sequence, aggregation_id, reset):
         aggregation_id = 'mySequence'
             
     if check_data:
-        if sc.sticky.has_key(aggregation_id) == False:
-            sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, [], 0)
-                
-        if reset:
-            sc.sticky[aggregation_id] = wasp.Aggregation(aggregation_id, parts, [], 0)
+        if aggregation is None or aggregation == -1 or reset:
+            aggregation = wasp.Aggregation(aggregation_id, parts, [], 0)
                 
         else:
-            sc.sticky[aggregation_id].aggregate_sequence(rules_sequence)
+            aggregation.aggregate_sequence(rules_sequence)
                 
-        return sc.sticky[aggregation_id].aggregated_parts
+        return aggregation
             
     else:
         return -1
 
+## create aggregation container in global variables dict
+if 'aggregation_container' not in globals():
+    aggregation_container = None
 
-result = main(PART, RULES, ID, RESET)
+result = main(PART, RULES, ID, RESET, aggregation_container)
 
 if result != -1:
-    PART_OUT = result
+    aggregation_container = result
+    
+    AGGR = aggregation_container
+    PART_OUT = aggregation_container.aggregated_parts

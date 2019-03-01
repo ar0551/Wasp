@@ -41,7 +41,7 @@ Provided by Wasp 0.2
         COLL: OPTIONAL // Collision detection. By default is active and checks for collisions between the aggregated parts
         MODE: OPTIONAL // Switches between aggregation modes: 0 = no constraints, 1 = local constraints, 2 = global constraints, 3 = local + global constraints
         GC: OPTIONAL // Global constraints to apply to aggregation
-        ID: OPTIONAL // Aggregation ID (to avoid overwriting when having different aggregation components in the same file)
+        ID: OPTIONAL // Aggregation ID
         RESET: Recompute the whole aggregation
     Returns:
         PART_OUT: Aggregated parts (includes both PREV input and newly aggregated parts)
@@ -153,8 +153,10 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
 if 'aggregation_container' not in globals():
     aggregation_container = None
 
-aggregation_container = main(PART, PREV, N, RULES, MODE, GC, ID, RESET, aggregation_container)
+result = main(PART, PREV, N, RULES, MODE, GC, ID, RESET, aggregation_container)
 
-if aggregation_container != -1:
+if result != -1:
+    aggregation_container = result
+    
     AGGR = aggregation_container
     PART_OUT = aggregation_container.aggregated_parts
