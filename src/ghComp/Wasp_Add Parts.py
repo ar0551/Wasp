@@ -51,7 +51,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Add Parts"
 ghenv.Component.NickName = 'AddPart'
-ghenv.Component.Message = 'VER 0.2.3'
+ghenv.Component.Message = 'VER 0.2.04'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -78,12 +78,12 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(aggregation, part_id, connection_id, next_part, check_constraints, add, reset):
+def main(base_aggregation, part_id, connection_id, next_part, check_constraints, add, reset, aggregation):
     
     check_data = True
     
     ##check inputs
-    if aggregation is None:
+    if base_aggregation is None:
         check_data = False
         msg = "No aggregation provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
@@ -111,19 +111,19 @@ def main(aggregation, part_id, connection_id, next_part, check_constraints, add,
     
     if check_data:
         
-        new_name = aggregation.name + "_edit"
+        new_name = base_aggregation.name + "_edit"
         remove_ids = []
         current_part = None
         current_connection = None
         
-        if reset or sc.sticky.has_key(new_name) == False:
-            parts_list = [aggregation.parts[key] for key in aggregation.parts]
-            sc.sticky[new_name] = copy.deepcopy(aggregation)
-            sc.sticky[new_name].name = new_name
+        if reset or aggregation is None:
+            parts_list = [base_aggregation.parts[key] for key in base_aggregation.parts]
+            aggregation = copy.deepcopy(base_aggregation)
+            aggregation.name = new_name
         
-        for i in range(len(sc.sticky[new_name].aggregated_parts)):
-            if sc.sticky[new_name].aggregated_parts[i].id == part_id:
-                current_part = sc.sticky[new_name].aggregated_parts[i]
+        for i in range(len(aggregation.aggregated_parts)):
+            if aggregation.aggregated_parts[i].id == part_id:
+                current_part = aggregation.aggregated_parts[i]
                 break
         
         if current_part is not None:
@@ -134,41 +134,47 @@ def main(aggregation, part_id, connection_id, next_part, check_constraints, add,
                     break
             
             if current_connection is not None:
-                possible_next_parts = sc.sticky[new_name].compute_possible_children(part_id, connection_id, check_constraints)
+                possible_next_parts = aggregation.compute_possible_children(part_id, connection_id, check_constraints)
                 
                 if possible_next_parts != -1:
                     if len(possible_next_parts) > next_part:
                         
                         if add:
-                            sc.sticky[new_name].add_custom_part(part_id, connection_id, possible_next_parts[next_part])
+                            aggregation.add_custom_part(part_id, connection_id, possible_next_parts[next_part])
                         
-                        return sc.sticky[new_name], current_part, current_connection, possible_next_parts[next_part]
+                        return aggregation, current_part, current_connection, possible_next_parts[next_part]
                     else:
                         msg = "The provided index for the next part exceeds the number of available possible parts."
                         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-                        return sc.sticky[new_name], current_part, current_connection, None
+                        return aggregation, current_part, current_connection, None
                 else:
                     msg = "The chosen connection does not provide any valid part to be placed."
                     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-                    return sc.sticky[new_name], current_part, current_connection, None
+                    return aggregation, current_part, current_connection, None
         
             else:
                 msg = "The provided id does not exist in the current part connections. Might be out of range."
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-                return sc.sticky[new_name], current_part, None, None
+                return aggregation, current_part, None, None
         
         else:
             msg = "The provided id does not exist in the current aggregation. Might be out of range."
             ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-            return sc.sticky[new_name], None, None, None
+            return aggregation, None, None, None
     else:
         return -1
 
-result = main(AGGR, PID, CID, NEXT, CHECK, ADD, RESET)
+## create aggregation container in global variables dict
+if 'aggregation_container' not in globals():
+    aggregation_container = None
+
+result = main(AGGR, PID, CID, NEXT, CHECK, ADD, RESET, aggregation_container)
 
 if result != -1:
-    AGGR_OUT = result[0]
-    PART_OUT = result[0].aggregated_parts
+    aggregation_container = result[0]
+    
+    AGGR_OUT = aggregation_container
+    PART_OUT = aggregation_container.aggregated_parts
     C_PART = result[1]
     C_CONN = result[2]
     NEXT_P = result[3]

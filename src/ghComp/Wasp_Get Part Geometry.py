@@ -40,7 +40,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Get Part Geometry"
 ghenv.Component.NickName = 'PartGeo'
-ghenv.Component.Message = 'VER 0.2.3'
+ghenv.Component.Message = 'VER 0.2.04'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -65,19 +65,19 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(parts):
+def main(part):
         
     check_data = True
     
     ## check inputs
-    if len(parts) == 0:
+    if part is None:
         check_data = False
-        msg = "No part provided"
+        msg = "No or null part provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     ## execute main code if all needed inputs are available
     if check_data:
-        return [part.geo for part in parts]
+        return part.geo
     else:
         return -1
 

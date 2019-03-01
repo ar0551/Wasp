@@ -48,7 +48,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Remove Parts"
 ghenv.Component.NickName = 'RemovePart'
-ghenv.Component.Message = 'VER 0.2.3'
+ghenv.Component.Message = 'VER 0.2.04'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -75,26 +75,20 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(aggregation, id, remove_children, remove, reset):
+def main(base_aggregation, id, remove_children, remove, reset, aggregation):
     
-    def returnChildren(aggregation, part, list):
+    def returnChildren(base_aggregation, part, list):
         if len(part.children) > 0:
             for child in part.children:
                 list.append(child)
-                returnChildren(aggregation, aggregation.aggregated_parts[child], list)
+                returnChildren(base_aggregation, base_aggregation.aggregated_parts[child], list)
         return list
     
     
     check_data = True
     
     ##check inputs
-    if aggregation is None:
-        check_data = False
-        msg = "No aggregation provided"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-    
-    ##check inputs
-    if aggregation is None:
+    if base_aggregation is None:
         check_data = False
         msg = "No aggregation provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
@@ -110,53 +104,59 @@ def main(aggregation, id, remove_children, remove, reset):
     
     if check_data:
         
-        new_name = aggregation.name + "_edit"
+        new_name = base_aggregation.name + "_edit"
         remove_ids = []
         current_part = None
         current_children = []
         
-        if reset or sc.sticky.has_key(new_name) == False:
-            parts_list = [aggregation.parts[key] for key in aggregation.parts]
-            sc.sticky[new_name] = copy.deepcopy(aggregation)
-            sc.sticky[new_name].name = new_name
+        if reset or aggregation is None:
+            parts_list = [base_aggregation.parts[key] for key in base_aggregation.parts]
+            aggregation = copy.deepcopy(base_aggregation)
+            aggregation.name = new_name
         
-        for i in range(len(sc.sticky[new_name].aggregated_parts)):
-            if sc.sticky[new_name].aggregated_parts[i].id == id:
-                current_part = sc.sticky[new_name].aggregated_parts[i]
+        for i in range(len(aggregation.aggregated_parts)):
+            if aggregation.aggregated_parts[i].id == id:
+                current_part = aggregation.aggregated_parts[i]
                 break
         
         if current_part is not None:
             remove_ids.append(id)
             if remove_children:
-                remove_ids = returnChildren(sc.sticky[new_name], current_part, remove_ids)
+                remove_ids = returnChildren(aggregation, current_part, remove_ids)
             remove_ids.sort()
             
             if remove:
-                for i in range(len(sc.sticky[new_name].aggregated_parts)-1, -1, -1):
-                    if sc.sticky[new_name].aggregated_parts[i].id in remove_ids:
-                        sc.sticky[new_name].aggregated_parts.pop(i)
+                for i in range(len(aggregation.aggregated_parts)-1, -1, -1):
+                    if aggregation.aggregated_parts[i].id in remove_ids:
+                        aggregation.aggregated_parts.pop(i)
             
             else:
-                for i in range(len(sc.sticky[new_name].aggregated_parts)-1, -1, -1):
-                    if sc.sticky[new_name].aggregated_parts[i].id in remove_ids:
-                        if sc.sticky[new_name].aggregated_parts[i].id == id:
-                            current_part = sc.sticky[new_name].aggregated_parts[i]
+                for i in range(len(aggregation.aggregated_parts)-1, -1, -1):
+                    if aggregation.aggregated_parts[i].id in remove_ids:
+                        if aggregation.aggregated_parts[i].id == id:
+                            current_part = aggregation.aggregated_parts[i]
                         else:
-                            current_children.append(sc.sticky[new_name].aggregated_parts[i])
+                            current_children.append(aggregation.aggregated_parts[i])
         
         else:
             msg = "The provided id does not exist in the current aggregation. Might be out of range or already removed."
             ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
         
-        return sc.sticky[new_name], current_part, current_children
+        return aggregation, current_part, current_children
     else:
         return -1
 
-result = main(AGGR, ID, CHILD, REM, RESET)
+## create aggregation container in global variables dict
+if 'aggregation_container' not in globals():
+    aggregation_container = None
+
+result = main(AGGR, ID, CHILD, REM, RESET, aggregation_container)
 
 if result != -1:
-    AGGR_OUT = result[0]
-    PART_OUT = result[0].aggregated_parts
+    aggregation_container = result[0]
+    
+    AGGR_OUT = aggregation_container
+    PART_OUT = aggregation_container.aggregated_parts
     C_PART = result[1]
     C_CHILD = result[2]
 

@@ -40,12 +40,13 @@ Provided by Wasp 0.2
         ID: OPTIONAL // Aggregation ID (to avoid overwriting when having different aggregation components in the same file)
         RESET: Recompute the whole aggregation
     Returns:
+        AGGR: Aggregation object
         PART_OUT: Aggregated parts (includes both PREV input and newly aggregated parts)
 """
         
 ghenv.Component.Name = "Wasp_Graph-Grammar Aggregation"
 ghenv.Component.NickName = 'GraphAggr'
-ghenv.Component.Message = 'VER 0.2.3'
+ghenv.Component.Message = 'VER 0.2.04'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
