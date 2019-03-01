@@ -42,7 +42,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Filter Parts by Name"
 ghenv.Component.NickName = 'NameFilter'
-ghenv.Component.Message = 'VER 0.2.3'
+ghenv.Component.Message = 'VER 0.2.04'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -109,7 +109,7 @@ def main(parts, names):
                     cull_patterns[i].append(True)
                 else:
                     cull_patterns[i].append(False)
-        return listToDataTree(filtered_parts), listToDataTree(cull_patterns)
+        return filtered_parts, cull_patterns
         
     else:
         return -1
@@ -117,5 +117,10 @@ def main(parts, names):
 result = main(PART, NAME)
 
 if result != -1:
-    PART_OUT = result[0]
-    MASK = result[1]
+    for i in range(len(result[0])):
+        if len(result[0][i]) == 0:
+            msg = "No part found with name %s" % (NAME[i])
+            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    PART_OUT = listToDataTree(result[0])
+    MASK = listToDataTree(result[1])
