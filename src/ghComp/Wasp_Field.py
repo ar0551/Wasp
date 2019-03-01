@@ -44,7 +44,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Field"
 ghenv.Component.NickName = 'Field'
-ghenv.Component.Message = 'VER 0.2.3'
+ghenv.Component.Message = 'VER 0.2.04'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -69,7 +69,7 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(name, boundaries, pts, count, resolution, values):
+def main(name, empty_field, values):
     
     check_data = True
     
@@ -77,40 +77,33 @@ def main(name, boundaries, pts, count, resolution, values):
     if name is None:
         name = "field"
     
-    if len(boundaries) == 0:
-        boundaries.append(rg.BoundingBox(pts).ToBrep())
-    
-    if len(pts) == 0:
+    if empty_field is None:
         check_data = False
-        msg = "No point grid provided"
+        msg = "No base empty field provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    else:
         
-    elif len(values) == 0:
-        check_data = False
-        msg = "No field values provided"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+        values_count = empty_field.x_count*empty_field.y_count*empty_field.z_count
         
-    elif len(pts) != len(values):
-        check_data = False
-        msg = "Points and Values lists are not matching. Please provide two lists with same number of elements"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
-    
-    if count is None:
-        check_data = False
-        msg = "No axis count provided"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-    
-    if resolution is None and check_data == True:
-        resolution = pts[0].DistanceTo(pts[1])
+        if len(values) == 0:
+            check_data = False
+            msg = "No field values provided"
+            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+            
+        elif values_count != len(values):
+            check_data = False
+            msg = "Field points and Values lists are not matching. Please provide a number of values matching the number of points in the base field."
+            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
     
     if check_data:
-        field = wasp.Field(name, boundaries, pts, count, resolution, values)
+        count_vec = rg.Vector3d(empty_field.x_count, empty_field.y_count, empty_field.z_count)
+        field = wasp.Field(name, empty_field.boundaries, empty_field.pts, count_vec, empty_field.resolution, values)
         return field
     else:
         return -1
 
 
-result = main(NAME, BOU, PTS, COUNT, RES, VAL)
+result = main(NAME, E_FIELD, VAL)
 
 if result != -1:
     FIELD = result

@@ -42,7 +42,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Field Points"
 ghenv.Component.NickName = 'FieldPts'
-ghenv.Component.Message = 'VER 0.2.3'
+ghenv.Component.Message = 'VER 0.2.04'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -121,7 +121,9 @@ def main(boundaries, resolution):
                 for x in range(x_count):
                     pt = rg.Point3d(s_pt.X + x*resolution, s_pt.Y + y*resolution, s_pt.Z + z*resolution)
                     pts.append(pt)
-        return pts, count_vec
+        
+        empty_field = wasp.Field("", boundaries, pts, count_vec, resolution)
+        return pts, empty_field
         
     else:
         return -1
@@ -131,4 +133,4 @@ result = main(BOU, RES)
 
 if result != -1:
     PTS = result[0]
-    COUNT = result[1]
+    E_FIELD = result[1]

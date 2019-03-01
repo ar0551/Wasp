@@ -365,11 +365,13 @@ class Rule(object):
 class Field(object):
 	
 	## constructor
-	def __init__(self, name, boundaries, pts, count_vec, resolution, values):
+	def __init__(self, name, boundaries, pts, count_vec, resolution, values = []):
 		
 		self.name = name
 		self.resolution = resolution
 		
+		self.boundaries = boundaries
+		self.pts = pts
 		self.bbox = rg.BoundingBox(pts)
 		
 		self.x_count = int(count_vec.X)
@@ -386,26 +388,27 @@ class Field(object):
 		except:
 			pass
 		
-		for z in range(0, self.z_count):
-			self.vals.append([])
-			for y in range(0, self.y_count):
-				self.vals[z].append([])
-				for x in range(0, self.x_count):
-					if len(boundaries) > 0:
-						inside = False
-						for bou in boundaries:
-							if bou.IsPointInside(pts[pts_count], global_tolerance, True) == True:
-								self.vals[z][y].append(values[pts_count])
-								inside = True
-								break
-						if inside == False:
-							if self.is_tensor_field:
-								self.vals[z][y].append(rg.Vector3d(0,0,0))
-							else:
-								self.vals[z][y].append(0.0)
-					else:
-						self.vals[z][y].append(values[pts_count])
-					pts_count += 1
+		if len(values) > 0:
+			for z in range(0, self.z_count):
+				self.vals.append([])
+				for y in range(0, self.y_count):
+					self.vals[z].append([])
+					for x in range(0, self.x_count):
+						if len(self.boundaries) > 0:
+							inside = False
+							for bou in self.boundaries:
+								if bou.IsPointInside(self.pts[pts_count], global_tolerance, True) == True:
+									self.vals[z][y].append(values[pts_count])
+									inside = True
+									break
+							if inside == False:
+								if self.is_tensor_field:
+									self.vals[z][y].append(rg.Vector3d(0,0,0))
+								else:
+									self.vals[z][y].append(0.0)
+						else:
+							self.vals[z][y].append(values[pts_count])
+						pts_count += 1
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
@@ -641,24 +644,6 @@ class Aggregation(object):
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspAggregation"
-	
-	## reset entire aggregation (NOT WORKING)
-	def reset(self, prev):
-		self.aggregated_parts = []
-		self.aggregation_queue = []
-		self.queue_values = []
-		self.queue_count = 0
-		
-		self.reset_base_parts()
-		
-		if prev is not None:
-			for prev_p in prev:
-				prev_p.reset_part(self.rules)
-				prev_p.id = len(self.aggregated_parts)
-				self.aggregated_parts.append(prev_p)
-				
-				if self.field is not None:
-					self.compute_next_w_field(prev_p)
 	
 	## reset base parts
 	def reset_base_parts(self, new_parts = None):
