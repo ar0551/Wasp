@@ -48,7 +48,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Deconstruct Part"
 ghenv.Component.NickName = 'DePart'
-ghenv.Component.Message = 'VER 0.2.3'
+ghenv.Component.Message = 'VER 0.2.04'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -84,56 +84,46 @@ def listToDataTree(list):
     return result
 
 
-def main(parts):
+def main(part):
     
     check_data = True
     
     ##check inputs
-    if len(parts) == 0:
+    if part is None:
         check_data = False
-        msg = "No parts provided"
+        msg = "No or null part provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if check_data:
         
-        names = []
-        ids = []
-        geometries = []
-        transforms = []
-        add_colliders = []
-        parents = []
+        data_dict = part.return_part_data()
         
-        conn_list = []
-        children_list = []
-        attributes_list = []
+        name = data_dict['name']
+        id = data_dict['id']
+        geometry = data_dict['geo']
+        connections = data_dict['connections']
         
-        for part in parts:
-            data_dict = part.return_part_data()
-            names.append(data_dict['name'])
-            ids.append(data_dict['id'])
-            geometries.append(data_dict['geo'])
-            conn_list.append(data_dict['connections'])
-            
-            if "transform" in data_dict.keys():
-                transforms.append(data_dict['transform'])
-            
-            if "add_collider" in data_dict.keys():
-                add_colliders.append(data_dict['add_collider'])
-            
-            if "parent" in data_dict.keys():
-                parents.append(data_dict['parent'])
-            
-            if "children" in data_dict.keys():
-                children_list.append(data_dict['children'])
-            
-            if "attributes" in data_dict.keys():
-                attributes_list.append(data_dict['attributes'])
+        transform = None
+        if "transform" in data_dict.keys():
+            transform = data_dict['transform']
         
-        connections = listToDataTree(conn_list)
-        children = listToDataTree(children_list)
-        attributes = listToDataTree(attributes_list)
+        add_collider = None
+        if "add_collider" in data_dict.keys():
+            add_collider = data_dict['add_collider']
         
-        return names, ids, geometries, transforms, add_colliders, connections, parents, children, attributes
+        parent = None
+        if "parent" in data_dict.keys():
+            parents = data_dict['parent']
+        
+        children = None
+        if "children" in data_dict.keys():
+            children = data_dict['children']
+        
+        attributes = None
+        if "attributes" in data_dict.keys():
+            attributes = data_dict['attributes']
+        
+        return name, id, geometry, transform, add_collider, connections, parent, children, attributes
     else:
         return -1
 
