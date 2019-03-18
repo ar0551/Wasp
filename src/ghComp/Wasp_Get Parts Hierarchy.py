@@ -42,7 +42,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Get Parts Hierarchy"
 ghenv.Component.NickName = 'GetHierarchy'
-ghenv.Component.Message = 'VER 0.2.3'
+ghenv.Component.Message = 'VER 0.2.04'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -101,7 +101,7 @@ def main(aggregation, hierarchy_level):
                         for sp in part.sub_parts:
                             sub_parts.append(sp)
                     else:
-                        msg = "The selected hierarchy level does not exist in the provided parts"
+                        msg = "The selected hierarchy level does not exist in the provided aggregation"
                         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
                         return aggregation.aggregated_parts
                 
