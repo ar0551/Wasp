@@ -63,7 +63,7 @@ except: pass
 import sys
 import Rhino.Geometry as rg
 import Grasshopper as gh
-import random as rnd
+
 
 ## add Wasp install directory to system path
 ghcompfolder = gh.Folders.DefaultAssemblyFolder
@@ -158,7 +158,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
             aggregation.global_constraints = global_constraints
         
         ## field (TO DO)
-        #########################
+        ##################################
         
         ## add parts to aggregation
         if num_parts > len(aggregation.aggregated_parts):

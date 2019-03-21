@@ -44,7 +44,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Assemble Part Hierarchy"
 ghenv.Component.NickName = 'PartHierarchy'
-ghenv.Component.Message = 'VER 0.2.3'
+ghenv.Component.Message = 'VER 0.2.04'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -52,7 +52,6 @@ try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 
 import sys
-import scriptcontext as sc
 import Grasshopper as gh
 
 ## add Wasp install directory to system path

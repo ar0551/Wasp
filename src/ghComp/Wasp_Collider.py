@@ -43,7 +43,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Collider"
 ghenv.Component.NickName = 'Collider'
-ghenv.Component.Message = 'VER 0.2.3'
+ghenv.Component.Message = 'VER 0.2.04'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
@@ -51,7 +51,6 @@ try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
 except: pass
 
 import sys
-import scriptcontext as sc
 import Rhino.Geometry as rg
 import Grasshopper as gh
 

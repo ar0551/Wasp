@@ -56,7 +56,6 @@ try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 
 import sys
-import scriptcontext as sc
 import Grasshopper as gh
 
 ## add Wasp install directory to system path

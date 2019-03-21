@@ -61,10 +61,9 @@ except: pass
 
 import sys
 import copy
-import scriptcontext as sc
 import Rhino.Geometry as rg
 import Grasshopper as gh
-import random as rnd
+
 
 ## add Wasp install directory to system path
 ghcompfolder = gh.Folders.DefaultAssemblyFolder

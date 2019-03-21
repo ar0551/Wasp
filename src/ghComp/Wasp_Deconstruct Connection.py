@@ -43,7 +43,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Deconstruct Connection"
 ghenv.Component.NickName = 'DeConn'
-ghenv.Component.Message = 'VER 0.2.3'
+ghenv.Component.Message = 'VER 0.2.04'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
@@ -51,7 +51,6 @@ try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 import sys
-import scriptcontext as sc
 import Rhino.Geometry as rg
 import Grasshopper as gh
 

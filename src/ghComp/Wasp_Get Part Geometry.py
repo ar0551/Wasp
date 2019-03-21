@@ -49,7 +49,6 @@ except: pass
 
 
 import sys
-import scriptcontext as sc
 import Rhino.Geometry as rg
 import Grasshopper as gh
 
@@ -65,19 +64,19 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(part):
+def main(parts):
         
     check_data = True
     
     ## check inputs
-    if part is None:
+    if len(parts) == 0:
         check_data = False
-        msg = "No or null part provided"
+        msg = "No part provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     ## execute main code if all needed inputs are available
     if check_data:
-        return part.geo
+        return [part.geo for part in parts]
     else:
         return -1
 

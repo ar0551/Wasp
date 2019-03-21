@@ -54,7 +54,6 @@ except: pass
 
 
 import sys
-import scriptcontext as sc
 import Rhino.Geometry as rg
 import Grasshopper as gh
 
