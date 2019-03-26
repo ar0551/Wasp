@@ -64,19 +64,19 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(parts):
+def main(part):
         
     check_data = True
     
     ## check inputs
-    if len(parts) == 0:
+    if part is None:
         check_data = False
-        msg = "No part provided"
+        msg = "No or null part provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     ## execute main code if all needed inputs are available
     if check_data:
-        return [part.geo for part in parts]
+        return part.geo
     else:
         return -1
 
