@@ -12,7 +12,7 @@ Wasp installation
 - Download Wasp latest release from Food4Rhino: www.food4rhino.com/app/wasp
 - Unzip the file
 - Copy the folder "Wasp" in the Grasshopper Libraries folder (File -> Special Folder -> Components)
-- Copy the content of the UserObjects folder into Gh user objects folder (File -> Special folders -> User Objects)
+- Copy the CONTENT of the UserObjects folder into Gh user objects folder (File -> Special folders -> User Objects)
 - Restart Rhino
 
 For bugs or issues: a.rossi.andrea(at)gmail.com
