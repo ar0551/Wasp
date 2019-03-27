@@ -1,7 +1,7 @@
 1_01 Field Basics    X
 1_02 Field Boundaries
 1_03 Field from Curves    X
-1_04 Field from Expression
+1_04 Field from Expression    X
 1_05 Field from Solids
 1_06 Multi-Channel Field
 1_07a Topology Optimization / Millipede
