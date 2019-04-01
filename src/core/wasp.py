@@ -464,13 +464,13 @@ class Field(object):
 								pt += self.bbox.Min
 								for constraint in constraints:
 									if constraint.type == 'plane':
-										if constraint.check(pt) == False:
+										if constraint.check_soft(pt) == False:
 											constraint_check = True
 											break
 										
 									elif constraint.type == 'mesh_collider':
 										if constraint.inside:
-											if constraint.check_inside_only(pt) == False:
+											if constraint.check_soft(pt) == False:
 												constraint_check = True
 												break
 								if constraint_check == False:
