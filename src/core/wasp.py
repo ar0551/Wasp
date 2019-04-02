@@ -412,7 +412,7 @@ class Field(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspField [name: %s, res: %s]" % (self.name, self.resolution)
+		return "WaspField [name: %s, res: %s, count: %s]" % (self.name, self.resolution, len(self.pts))
 	
 	## return value associated to the closest point of the field to the given point
 	def return_pt_val(self, pt):
