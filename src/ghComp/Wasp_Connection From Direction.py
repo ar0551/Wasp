@@ -127,7 +127,7 @@ def main(part_geo, conn_centers, conn_ups, conn_type):
                         break
             
             elif type(part_geo) == rg.Mesh:
-                part_geo.RebuildNormals()
+                part_geo.Normals.ComputeNormals()
                 mesh_pt = part_geo.ClosestMeshPoint(center, wasp.global_tolerance)
                 if mesh_pt is not None:
                     normal = part_geo.NormalAt(mesh_pt)
