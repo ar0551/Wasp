@@ -63,7 +63,7 @@ class Connection(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspConnection"
+		return "WaspConnection [id: %s, type: %s]" % (self.id, self.type)
 	
 	
 	## return a transformed copy of the connection
@@ -141,7 +141,7 @@ class Part(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspPart"
+		return "WaspPart [name: %s, id: %s]" % (self.name, self.id)
 	
 	## reset the part and connections according to new provided aggregation rules
 	def reset_part(self, rules):
@@ -241,7 +241,7 @@ class AdvancedPart(Part):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspAdvPart"
+		return "WaspAdvPart [name: %s, id: %s]" % (self.name, self.id)
 	
 	## return all part data
 	def return_part_data(self):
@@ -359,7 +359,7 @@ class Rule(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspRule"
+		return "WaspRule [%s|%s_%s|%s]" % (self.part1, self.conn1, self.part2, self.conn2)
 
 #################################################################### Field ####################################################################
 class Field(object):
@@ -412,7 +412,7 @@ class Field(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspField"
+		return "WaspField [name: %s, res: %s]" % (self.name, self.resolution)
 	
 	## return value associated to the closest point of the field to the given point
 	def return_pt_val(self, pt):
@@ -433,6 +433,7 @@ class Field(object):
 			for y in range(0, self.y_count):
 				for x in range(0, self.x_count):
 					value = self.vals[z][y][x]
+					## tensor field aggregation (WIP)
 					if self.is_tensor_field:
 						if value.Length > max_val:
 							if constraints is not None:
@@ -440,16 +441,9 @@ class Field(object):
 								pt = rg.Point3d(x*self.resolution, y*self.resolution, z*self.resolution)
 								pt += self.bbox.Min
 								for constraint in constraints:
-									if constraint.type == 'plane':
-										if constraint.check(pt) == False:
-											constraint_check = True
-											break
-										
-									elif constraint.type == 'mesh_collider':
-										if constraint.inside:
-											if constraint.check_inside(part_collider, part_center) == False:
-												constraint_check = True
-												break
+									if constraint.check_soft(pt) == False:
+										constraint_check = True
+										break
 								if constraint_check == False:
 									max_val = value.Length
 									max_coords = (x,y,z)
@@ -463,16 +457,9 @@ class Field(object):
 								pt = rg.Point3d(x*self.resolution, y*self.resolution, z*self.resolution)
 								pt += self.bbox.Min
 								for constraint in constraints:
-									if constraint.type == 'plane':
-										if constraint.check_soft(pt) == False:
-											constraint_check = True
-											break
-										
-									elif constraint.type == 'mesh_collider':
-										if constraint.inside:
-											if constraint.check_soft(pt) == False:
-												constraint_check = True
-												break
+									if constraint.check_soft(pt) == False:
+										constraint_check = True
+										break
 								if constraint_check == False:
 									max_val = value
 									max_coords = (x,y,z)
@@ -497,7 +484,7 @@ class Attribute(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspAttribute"
+		return "WaspAttribute [name: %s]" % (self.name)
 	
 	## return a transformed copy of the attribute
 	def transform(self, trans):
@@ -550,7 +537,7 @@ class Support(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspSupport"
+		return "WaspSupport [len: %s]" % (len(self.sup_dir))
 	
 	## return a transformed copy of the support
 	def transform(self, trans):
@@ -643,7 +630,7 @@ class Aggregation(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspAggregation"
+		return "WaspAggregation [name: %s, size: %s]" % (self.name, len(self.aggregated_parts))
 	
 	## reset base parts
 	def reset_base_parts(self, new_parts = None):
@@ -1158,7 +1145,7 @@ class Plane_Constraint(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspPlaneConst"
+		return "WaspPlaneConst [+: %s, soft: %s]" % (self.positive, self.soft)
 	
 	## constraint check method
 	def check(self, pt = None, collider = None):
@@ -1200,7 +1187,7 @@ class Mesh_Constraint(object):
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspMeshConst"
+		return "WaspMeshConst [in: %s, soft: %s]" % (self.inside, self.soft)
 	
 	## constraint check method
 	def check(self, pt = None, collider = None):
