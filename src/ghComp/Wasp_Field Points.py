@@ -36,8 +36,8 @@ Provided by Wasp 0.2
         BOU: List of geometries defining the boundaries of the field. Geometries must be closed breps or meshes.
         RES: Resolution (Dimension of each cell)
     Returns:
-        PTS: Points for field
-        COUNT: Cell counts in x, y and z directions
+        E_FIELD: Empty field. Assign values with the "Wasp_Field" component
+        PTS: Field points
 """
 
 ghenv.Component.Name = "Wasp_Field Points"
@@ -121,7 +121,7 @@ def main(boundaries, resolution):
                     pt = rg.Point3d(s_pt.X + x*resolution, s_pt.Y + y*resolution, s_pt.Z + z*resolution)
                     pts.append(pt)
         
-        empty_field = wasp.Field("", boundaries, pts, count_vec, resolution)
+        empty_field = wasp.Field(None, boundaries, pts, count_vec, resolution)
         return pts, empty_field
         
     else:

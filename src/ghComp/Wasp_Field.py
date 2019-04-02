@@ -33,13 +33,11 @@ Generates a scalar field given a grid of points and their relative scalar values
 -
 Provided by Wasp 0.2
     Args:
-        BOU: List of geometries defining the boundaries of the field. Geometries must be closed breps or meshes. All points of the field outside the geometries will be assigned a 0 value
-        PTS: 3d point grid (from FieldPts component)
-        COUNT: Vector storing cell counts for each axis (from FieldPts component)
-        RES: Resolution of cell grid
-        VAL: Values to assign to each cell
+        NAME: OPTIONAL // Field name (needed for multi-field aggregation)
+        E_FIELD: Empty field where to store values. Created with "Wasp_Field Points" component
+        VAL: Values to assign to each cell. Must match E_FIELD point count
     Returns:
-        FIELD: Field object (to be used to drive the FieldAggr component)
+        FIELD: Field object
 """
 
 ghenv.Component.Name = "Wasp_Field"
