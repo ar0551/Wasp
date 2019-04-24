@@ -86,7 +86,7 @@ result = main(COLL)
 if result != -1:
     GEO = result[0]
     CONN = result[1]
-    V_CONN = result[2]
+    VC = result[2]
 
 
 
