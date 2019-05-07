@@ -1,0 +1,96 @@
+# Wasp: Discrete Design with Grasshopper plug-in (GPL) initiated by Andrea Rossi
+# 
+# This file is part of Wasp.
+# 
+# Copyright (c) 2017, Andrea Rossi <a.rossi.andrea@gmail.com>
+# Wasp is free software; you can redistribute it and/or modify 
+# it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation; either version 3 of the License, 
+# or (at your option) any later version. 
+# 
+# Wasp is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with Wasp; If not, see <http://www.gnu.org/licenses/>.
+# 
+# @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
+#
+# Significant parts of Wasp have been developed by Andrea Rossi
+# as part of research on digital materials and discrete design at:
+# DDU Digital Design Unit - Prof. Oliver Tessmann
+# Technische Universitt Darmstadt
+
+
+#########################################################################
+##                            COMPONENT INFO                           ##
+#########################################################################
+
+"""
+Generates a scalar field given a grid of points and their relative scalar values
+-
+Provided by Wasp 0.2
+    Args:
+        FIELD: Field to deconstruct
+    Returns:
+        NAME: Field name
+        RES: Field resolution
+        BOU: Field boundaries
+        PTS: Field points
+        VAL: Field values
+        COUNT: Points count on x,y,z axes
+"""
+
+ghenv.Component.Name = "Wasp_Deconstruct Field"
+ghenv.Component.NickName = 'DeField'
+ghenv.Component.Message = 'VER 0.2.04'
+ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
+ghenv.Component.Category = "Wasp"
+ghenv.Component.SubCategory = "4 | Aggregation"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
+except: pass
+
+
+import sys
+import Rhino.Geometry as rg
+import Grasshopper as gh
+
+## add Wasp install directory to system path
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
+try:
+    import wasp
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
+
+def main(field):
+    
+    check_data = True
+    
+    ##check inputs
+    if field is None:
+        check_data = False
+        msg = "No field provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if check_data:
+        return field.name, field.resolution, field.boundaries, field.pts, field.return_values_list(), rg.Vector3d(field.x_count, field.y_count, field.z_count)
+    else:
+        return -1
+
+
+result = main(FIELD)
+
+if result != -1:
+    NAME = result[0]
+    RES = result[1]
+    BOU = result[2]
+    PTS = result[3]
+    VAL = result[4]
+    COUNT = result[5]

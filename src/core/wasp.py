@@ -414,6 +414,15 @@ class Field(object):
 	def ToString(self):
 		return "WaspField [name: %s, res: %s, count: %s]" % (self.name, self.resolution, len(self.pts))
 	
+	def return_values_list(self):
+		values_list = []
+		for z in range(0, self.z_count):
+			for y in range(0, self.y_count):
+				for x in range(0, self.x_count):
+					values_list.append(self.vals[z][y][x])
+		return values_list
+						
+	
 	## return value associated to the closest point of the field to the given point
 	def return_pt_val(self, pt):
 		pt_trans = pt - self.bbox.Min
