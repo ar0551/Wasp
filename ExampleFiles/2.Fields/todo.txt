@@ -4,10 +4,7 @@
 1_04 Field from Expression    X
 1_05 Field from Meshes / Kangaroo    X
 1_06 Multi-Channel Field    X
-1_07a Topology Optimization / Millipede    X
-1_07b Topology Optimization / tOpos    X
-1_08 ??? Karamba Structural Shell
-1_09 ??? Honeybee Daylight Field
+
 
 
  
