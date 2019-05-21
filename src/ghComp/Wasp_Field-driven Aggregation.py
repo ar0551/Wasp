@@ -152,10 +152,14 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
         #### mode
         if aggregation_mode != aggregation.mode:
             aggregation.mode = aggregation_mode
+            aggregation.reset_rules(rules)
+            aggregation.recompute_aggregation_queue()
         
         #### constraints
         if global_constraints != aggregation.global_constraints:
             aggregation.global_constraints = global_constraints
+            aggregation.reset_rules(rules)
+            aggregation.recompute_aggregation_queue()
         
         ## field (TO DO)
         ##################################
