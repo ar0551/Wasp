@@ -119,6 +119,11 @@ def main(part_name, part_geo, connections, collider_geo, field_name, sub_parts, 
         ## create part instance
         new_part = wasp.AdvancedPart(part_name, part_geo, connections, collider, attributes, add_collider, supports, field=field_name, sub_parts=sub_parts)
         new_part.is_constrained = True
+        
+        if new_part.dim < wasp.global_tolerance*10:
+            msg = "The parts you created are very small. You might consider scaling them or decreasing the tolerance of your Rhino file."
+            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+        
         return new_part
     else:
         return -1

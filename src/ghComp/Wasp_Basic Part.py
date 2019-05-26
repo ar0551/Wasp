@@ -110,6 +110,11 @@ def main(part_name, part_geo, connections, collider_geo, attributes):
         collider = wasp.Collider([collider_geo])
         
         new_part = wasp.Part(part_name, part_geo, connections, collider, attributes)
+        
+        if new_part.dim < wasp.global_tolerance*10:
+            msg = "The parts you created are very small. You might consider scaling them or decreasing the tolerance of your Rhino file."
+            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+        
         return new_part
     else:
         return -1
