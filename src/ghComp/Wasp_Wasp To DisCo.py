@@ -30,6 +30,7 @@
 
 """
 Export Wasp information for DisCo VR software.
+DisCo (Discrete Choreography) is developed by Jan Philipp Drude at dMA Hannover - Prof. Mirco Becker.
 --> WIP Component: might be incomplete or contain bugs <--
 -
 Provided by Wasp 0.2
@@ -52,7 +53,7 @@ ghenv.Component.NickName = 'Wasp2DisCo'
 ghenv.Component.Message = 'VER 0.2.05'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "5 | VR"
+ghenv.Component.SubCategory = "5 | DisCo VR"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
