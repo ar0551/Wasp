@@ -49,10 +49,10 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Wasp To DisCo"
 ghenv.Component.NickName = 'Wasp2DisCo'
-ghenv.Component.Message = 'VER 0.2.04'
+ghenv.Component.Message = 'VER 0.2.05'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "X | Experimental"
+ghenv.Component.SubCategory = "5 | VR"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
