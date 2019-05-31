@@ -38,7 +38,7 @@ Provided by Wasp 0.2
         PART: Parts from which to generate aggregation rules
         SELF_P: OPTIONAL // Create rules between connections belonging to the same part (True by default)
         SELF_C: OPTIONAL // Create rules between connection with same id (True by default)
-        TYP: OPTIONAL // Create rules only between connections of the same type (False by default)
+        TYP: OPTIONAL // Create rules only between connections of the same type (False by default). Make sure this component is set to False when using Rule Grammars.
         GR: OPTIONAL // Custom connection grammar with format "ConnType">"ConnType"
     Returns:
         R: Generated aggregation rules
@@ -46,7 +46,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Rules Generator"
 ghenv.Component.NickName = 'RuleGen'
-ghenv.Component.Message = 'VER 0.2.04'
+ghenv.Component.Message = 'VER 0.2.05'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"
