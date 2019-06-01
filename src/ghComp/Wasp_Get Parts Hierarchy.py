@@ -42,7 +42,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Get Parts Hierarchy"
 ghenv.Component.NickName = 'GetHierarchy'
-ghenv.Component.Message = 'VER 0.2.04'
+ghenv.Component.Message = 'VER 0.2.05'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
