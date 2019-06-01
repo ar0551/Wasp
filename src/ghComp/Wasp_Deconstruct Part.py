@@ -39,6 +39,7 @@ Provided by Wasp 0.2
         ID: Pard ID
         GEO: Geometry of the part (as mesh). If Brep geometry is needed, can be stored in the component as attribute, or obtained by transforming the original geometry with the TR output.
         CONN: Part connections
+        COLL: Part collider
         TR: Transformation applied to the part. Can be used to transform other geometries in a similar way (eg. replace a low poly component with a more detailed one)
         PARENT: Parent of the part
         CHILD: Children parts attached to the part
@@ -48,7 +49,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Deconstruct Part"
 ghenv.Component.NickName = 'DePart'
-ghenv.Component.Message = 'VER 0.2.04'
+ghenv.Component.Message = 'VER 0.2.05'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -101,6 +102,7 @@ def main(part):
         id = data_dict['id']
         geometry = data_dict['geo']
         connections = data_dict['connections']
+        collider = data_dict['collider']
         
         transform = None
         if "transform" in data_dict.keys():
@@ -122,7 +124,7 @@ def main(part):
         if "attributes" in data_dict.keys():
             attributes = data_dict['attributes']
         
-        return name, id, geometry, transform, add_collider, connections, parent, children, attributes
+        return name, id, geometry, connections, collider, transform, parent, children, add_collider, attributes
     else:
         return -1
 
@@ -133,9 +135,10 @@ if result != -1:
     NAME = result[0]
     ID = result[1]
     GEO = result[2]
-    TR = result[3]
-    ADD_COLL = result[4]
-    CONN = result[5]
+    CONN = result[3]
+    COLL = result[4]
+    TR = result[5]
     PARENT = result[6]
     CHILD = result[7]
-    ATTR = result[8]
+    ADD_COLL = result[8]
+    ATTR = result[9]

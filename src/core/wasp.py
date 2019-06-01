@@ -161,6 +161,7 @@ class Part(object):
 		data_dict['geo'] = self.geo
 		data_dict['connections'] = self.connections
 		data_dict['transform'] = self.transformation
+		data_dict['collider'] = self.collider
 		data_dict['center'] = self.center
 		data_dict['parent'] = self.parent
 		data_dict['children'] = self.children
@@ -251,6 +252,7 @@ class AdvancedPart(Part):
 		data_dict['geo'] = self.geo
 		data_dict['connections'] = self.connections
 		data_dict['transform'] = self.transformation
+		data_dict['collider'] = self.collider
 		data_dict['center'] = self.center
 		data_dict['parent'] = self.parent
 		data_dict['children'] = self.children
