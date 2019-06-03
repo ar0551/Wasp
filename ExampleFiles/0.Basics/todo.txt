@@ -1,7 +1,0 @@
-0_01 Basic Aggregation    X
-0_02 Multi-Part Aggregation    X
-0_03 Vertex / Edge Connections    X
-0_04 Geometry Replacement    X
-0_05 Transform Part / Start Point    X
-0_06 Attributes    X
-0_07 Save / Load    X
