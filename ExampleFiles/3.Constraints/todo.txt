@@ -1,6 +1,4 @@
 2_01 Local Constraints / Supports    X
 2_02 Local Constraints / Simple Collider    X
-2_03 Local Constraints / Multiple Collider
-2_03 Global Constraints / Planes
-2_04 Global Constraints / Meshes
-2_05 Constraints Modes
+2_03 Global Constraints / Planes    X
+2_04 Global Constraints / Meshes    X
