@@ -31,6 +31,7 @@
 """
 Export Wasp information for DisCo VR software.
 DisCo (Discrete Choreography) is developed by Jan Philipp Drude at dMA Hannover - Prof. Mirco Becker.
+Project DisCo is available at: http://www.project-disco.com/
 --> WIP Component: might be incomplete or contain bugs <--
 -
 Provided by Wasp 0.2
