@@ -1,4 +1,0 @@
-2_01 Local Constraints / Supports    X
-2_02 Local Constraints / Simple Collider    X
-2_03 Global Constraints / Planes    X
-2_04 Global Constraints / Meshes    X

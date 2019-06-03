@@ -4,3 +4,4 @@
 4_04 Honeybee Daylight Field
 4_05 Robot Path Planning
 4_06 Wasp 2 Fologram
+4_07 Wasp 2 DisCo
