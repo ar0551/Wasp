@@ -1,4 +1,4 @@
-+++ For Rhino5 users only +++
++++++++++++++++ For Rhino5 users only +++++++++++++++
 Wasp is written in Python, and hence requires the GhPython addon to be already installed in your Grasshopper folder.
 
 GhPython installation
@@ -6,14 +6,15 @@ GhPython installation
 - Copy the .gha file in the Grasshopper libraries folder (File -> Special folders -> Libraries)
 - Right click on the copied file, go to properties and make sure the file is not blocked.
 - Reload Grasshopper and under Math/Scripts you should have a new Python component.
-+++
++++++++++++++++
 
-Wasp installation
++++++++++++++++ Wasp installation +++++++++++++++
 - Download Wasp latest release from Food4Rhino: www.food4rhino.com/app/wasp
 - Unzip the file
 - Copy the folder "Wasp" in the Grasshopper Libraries folder (File -> Special Folder -> Components)
-- Copy the CONTENT of the UserObjects folder into Gh user objects folder (File -> Special folders -> User Objects)
+- Copy the CONTENT of the UserObjects folder into Grasshopper user objects folder (File -> Special folders -> User Objects)
 - Restart Rhino
++++++++++++++++
 
 For bugs or issues: a.rossi.andrea(at)gmail.com
 
