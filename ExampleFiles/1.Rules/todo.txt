@@ -1,3 +1,0 @@
-1_01 Rules Generator / Basics
-1_02 Rules Generator / Connection Types
-1_03 Rules Generator / Connection Grammar    X
