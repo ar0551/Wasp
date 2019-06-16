@@ -43,7 +43,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Save to File"
 ghenv.Component.NickName = 'WaspSave'
-ghenv.Component.Message = 'VER 0.2.05'
+ghenv.Component.Message = 'VER 0.2.06'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"

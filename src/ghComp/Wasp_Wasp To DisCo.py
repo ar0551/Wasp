@@ -51,7 +51,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Wasp To DisCo"
 ghenv.Component.NickName = 'Wasp2DisCo'
-ghenv.Component.Message = 'VER 0.2.05'
+ghenv.Component.Message = 'VER 0.2.06'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | DisCo VR"
@@ -108,7 +108,7 @@ def MeshToString(mesh, name):
 
 
 
-def main(parts, rules, colliders, probabilities, additional_geometry, filepath, filename, save):
+def main(parts, rules, rule_groups, colliders, probabilities, additional_geometry, filepath, filename, save):
     
     check_data = True
     
@@ -234,6 +234,13 @@ def main(parts, rules, colliders, probabilities, additional_geometry, filepath, 
         
         data_dict["RuleData"] = rules_data
         
+        groups_data = []
+        for group in rule_groups:
+            group_dict = json.loads(group)
+            groups_data.append(group_dict)
+            
+        data_dict["RuleGroupsData"] = groups_data
+        
         
         add_geo_data = []
         add_geo_count = 0
@@ -259,7 +266,7 @@ def main(parts, rules, colliders, probabilities, additional_geometry, filepath, 
         return -1
 
 
-result = main(PART, RULES, COLL, PROB, ADD_GEO, PATH, NAME, SAVE)
+result = main(PART, RULES, RULE_G, COLL, PROB, ADD_GEO, PATH, NAME, SAVE)
 
 if result != -1:
     TXT = result[0]

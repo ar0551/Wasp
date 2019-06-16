@@ -29,28 +29,38 @@
 #########################################################################
 
 """
-Deconstruct a collider object.
+Export Wasp information for DisCo VR software.
+DisCo (Discrete Choreography) is developed by Jan Philipp Drude at dMA Hannover - Prof. Mirco Becker.
+Project DisCo is available at: http://www.project-disco.com/
+--> WIP Component: might be incomplete or contain bugs <--
 -
 Provided by Wasp 0.2
     Args:
-        COLL: Collider object
+        PART: Parts to be aggregated in DisCo
+        RULES: Aggregation rules
+        COLL: OPTIONAL // Part collider. If not provided, part geometry will be used.
+        PROB: OPTIONAL // Probability distribution for each part
+        ADD_GEO: OPTIONAL // Additional geometry to import in DisCo (e.g., environment geometry)
+        PATH: Path where to save the DisCo .json file
+        NAME: Export file name
+        SAVE: True to export
     Returns:
-        GEO: Collider geometry
-        CONN: If collider is Multiple, connections associated with the collider
-        VC: If collider is Multiple, valid connections not causing collisions
+        TXT: ...
+        FILE: ...
 """
 
-ghenv.Component.Name = "Wasp_Deconstruct Collider"
-ghenv.Component.NickName = 'DeColl'
+ghenv.Component.Name = "Wasp_DisCo Rule Group"
+ghenv.Component.NickName = 'RuleG'
 ghenv.Component.Message = 'VER 0.2.06'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "1 | Elements"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
+ghenv.Component.SubCategory = "5 | DisCo VR"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 
-
 import sys
+import json
+import Rhino.Geometry as rg
 import Grasshopper as gh
 
 ## add Wasp install directory to system path
@@ -65,28 +75,33 @@ except:
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 
-def main(collider):
-        
+def main(group_name, rule_grammar):
+    
     check_data = True
     
     ## check inputs
-    if collider is None:
+    if group_name is None:
         check_data = False
-        msg = "No collider provided"
+        msg = "No group name provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
-    ## execute main code if all needed inputs are available
+    if len(rule_grammar) == 0:
+        check_data = False
+        msg = "No rules grammar provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    
     if check_data:
-        return collider.geometry, collider.connections, collider.valid_connections
+        group_dict = {}
+        group_dict['RuleGroupName'] = group_name
+        group_dict["RuleGrammar"] = rule_grammar
+        
+        return json.dumps(group_dict)
     else:
         return -1
 
-result = main(COLL)
+
+result = main(NAME, GR)
 
 if result != -1:
-    GEO = result[0]
-    CONN = result[1]
-    VC = result[2]
-
-
-
+    RULE_G = result
