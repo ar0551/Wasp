@@ -16,6 +16,6 @@ GhPython installation
 - Restart Rhino
 +++++++++++++++
 
-For bugs or issues: a.rossi.andrea(at)gmail.com
+For bugs or issues: ghwasp(at)gmail.com
 
 Work in progress releases and source code: www.github.com/ar0551/Wasp
