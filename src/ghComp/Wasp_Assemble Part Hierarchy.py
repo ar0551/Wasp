@@ -44,7 +44,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Assemble Part Hierarchy"
 ghenv.Component.NickName = 'PartHierarchy'
-ghenv.Component.Message = 'VER 0.2.07'
+ghenv.Component.Message = 'VER 0.2.08'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -84,6 +84,7 @@ def main(part, transform):
     if check_data:
         ## transform part
         part_trans = part.transform(transform, transform_sub_parts = True, sub_level = part.hierarchy_level)
+        
         return part_trans
     else:
         return -1

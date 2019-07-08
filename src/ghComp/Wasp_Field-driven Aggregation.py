@@ -52,7 +52,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Field-driven Aggregation"
 ghenv.Component.NickName = 'FieldAggregation'
-ghenv.Component.Message = "VER 0.2.07"
+ghenv.Component.Message = "VER 0.2.08"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -128,22 +128,33 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
         
         ## create aggregation in sticky dict
         if aggregation is None or aggregation == -1 or reset:
-            aggregation = wasp.Aggregation(aggregation_id, parts, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
+            
+            ## copy parts to avoid editing the original parts
+            parts_copy = []
+            for part in parts:
+                parts_copy.append(part.copy())
+            
+            aggregation = wasp.Aggregation(aggregation_id, parts_copy, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
         
         ## handle parameters changes
         part_rules_change = False
         #### parts
         if parts != aggregation.parts.values():
-            aggregation.reset_base_parts(new_parts = parts)
-            aggregation.reset_rules(rules)
+            
+            ## copy parts to avoid editing the original parts
+            parts_copy = []
+            for part in parts:
+                parts_copy.append(part.copy())
+            
+            aggregation.reset_base_parts(new_parts = parts_copy)
+            aggregation.reset_rules(aggregation.rules)
             part_rules_change = True
         
         #### rules
         if rules != aggregation.rules:
-            for part in parts:
-                part.reset_part(rules)
             aggregation.rules = rules
-            aggregation.reset_rules(rules)
+            aggregation.reset_base_parts()
+            aggregation.reset_rules(aggregation.rules)
             part_rules_change = True
         
         if part_rules_change:
@@ -152,13 +163,13 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
         #### mode
         if aggregation_mode != aggregation.mode:
             aggregation.mode = aggregation_mode
-            aggregation.reset_rules(rules)
+            aggregation.reset_rules(aggregation.rules)
             aggregation.recompute_aggregation_queue()
         
         #### constraints
         if global_constraints != aggregation.global_constraints:
             aggregation.global_constraints = global_constraints
-            aggregation.reset_rules(rules)
+            aggregation.reset_rules(aggregation.rules)
             aggregation.recompute_aggregation_queue()
         
         ## field (TO DO)

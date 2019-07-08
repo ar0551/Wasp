@@ -41,7 +41,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Load from File"
 ghenv.Component.NickName = 'WaspLoad'
-ghenv.Component.Message = 'VER 0.2.07'
+ghenv.Component.Message = 'VER 0.2.08'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -137,6 +137,20 @@ def main(parts, file_path):
             for part in PART:
                 if part.name == name:
                     new_part = part.transform(trans)
+                    
+                    ## flip part if negative scaling occurs
+                    if trans.M00 * trans.M11 * trans.M22 < 0:
+                        ## geometry
+                        new_part.geo.Flip(True, True, True)
+                        ## connections
+                        for conn in new_part.connections:
+                            pass
+                            conn.pln.Flip()
+                            conn.pln.Rotate(math.pi/2, conn.pln.ZAxis)
+                        ## collider
+                        for geo in new_part.collider.geometry:
+                            geo.Flip(True, True, True)
+                    
                     break
             
             if new_part is not None:

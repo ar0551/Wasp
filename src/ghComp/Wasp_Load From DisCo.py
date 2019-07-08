@@ -42,7 +42,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Load From DisCo"
 ghenv.Component.NickName = 'DisCoLoad'
-ghenv.Component.Message = 'VER 0.2.07'
+ghenv.Component.Message = 'VER 0.2.08'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | DisCo VR"
@@ -54,6 +54,7 @@ import sys
 import Rhino.Geometry as rg
 import Grasshopper as gh
 import json
+import math
 
 
 ## add Wasp install directory to system path
@@ -144,6 +145,20 @@ def main(parts, file_path):
                     full_trans = rg.Transform.Multiply(trans, center_transform)
                     
                     new_part = part.transform(full_trans)
+                    
+                    ## flip part if negative scaling occurs
+                    if full_trans.M00 * full_trans.M11 * full_trans.M22 < 0:
+                        ## geometry
+                        new_part.geo.Flip(True, True, True)
+                        ## connections
+                        for conn in new_part.connections:
+                            pass
+                            conn.pln.Flip()
+                            conn.pln.Rotate(math.pi/2, conn.pln.ZAxis)
+                        ## collider
+                        for geo in new_part.collider.geometry:
+                            geo.Flip(True, True, True)
+                    
                     new_part.id = id
                     break
             

@@ -43,7 +43,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Transform Part"
 ghenv.Component.NickName = 'PartTr'
-ghenv.Component.Message = 'VER 0.2.07'
+ghenv.Component.Message = 'VER 0.2.08'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -52,6 +52,7 @@ except: pass
 
 import sys
 import Grasshopper as gh
+import math
 
 ## add Wasp install directory to system path
 ghcompfolder = gh.Folders.DefaultAssemblyFolder
@@ -83,6 +84,20 @@ def main(part, transform):
     if check_data:
         ## transform part
         part_trans = part.transform(transform)
+        
+        ## flip part if negative scaling occurs
+        if transform.M00 * transform.M11 * transform.M22 < 0:
+            ## geometry
+            part_trans.geo.Flip(True, True, True)
+            ## connections
+            for conn in part_trans.connections:
+                pass
+                conn.pln.Flip()
+                conn.pln.Rotate(math.pi/2, conn.pln.ZAxis)
+            ## collider
+            for geo in part_trans.collider.geometry:
+                geo.Flip(True, True, True)
+        
         return part_trans
     else:
         return -1

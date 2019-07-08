@@ -46,7 +46,7 @@ Provided by Wasp 0.2
         
 ghenv.Component.Name = "Wasp_Graph-Grammar Aggregation"
 ghenv.Component.NickName = 'GraphAggr'
-ghenv.Component.Message = 'VER 0.2.07'
+ghenv.Component.Message = 'VER 0.2.08'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -89,7 +89,13 @@ def main(parts, rules_sequence, aggregation_id, reset, aggregation):
             
     if check_data:
         if aggregation is None or aggregation == -1 or reset:
-            aggregation = wasp.Aggregation(aggregation_id, parts, [], 0)
+            
+            ## copy parts to avoid editing the original parts
+            parts_copy = []
+            for part in parts:
+                parts_copy.append(part.copy())
+            
+            aggregation = wasp.Aggregation(aggregation_id, parts_copy, [], 0)
                 
         else:
             aggregation.aggregate_sequence(rules_sequence)

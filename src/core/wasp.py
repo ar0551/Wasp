@@ -914,7 +914,7 @@ class Aggregation(object):
 				next_rule_id = -1
 				new_rule_attempts = 0
 				
-				while new_rule_attempts < 1000:
+				while new_rule_attempts < 10000:
 					new_rule_attempts += 1
 					part_01_id = random.randint(0,len(self.aggregated_parts)-1)
 					part_01 = self.aggregated_parts[part_01_id]
