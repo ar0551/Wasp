@@ -42,7 +42,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Filter Parts by Name"
 ghenv.Component.NickName = 'NameFilter'
-ghenv.Component.Message = 'VER 0.2.08'
+ghenv.Component.Message = 'VER 0.3.01'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -54,16 +54,22 @@ import sys
 import Rhino.Geometry as rg
 import Grasshopper as gh
 
+
 ## add Wasp install directory to system path
+wasp_loaded = False
 ghcompfolder = gh.Folders.DefaultAssemblyFolder
-wasp_path = ghcompfolder + "Wasp"
-if wasp_path not in sys.path:
-    sys.path.append(wasp_path)
+if ghcompfolder not in sys.path:
+    sys.path.append(ghcompfolder)
 try:
-    import wasp
+    from wasp import __version__
+    wasp_loaded = True
 except:
     msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
+## if Wasp is installed correctly, load the classes required by the component
+if wasp_loaded:
+    from wasp import Part
 
 
 ## from http://www.chenjingcheng.com/grasshopper-python-datatree-list-conversion/

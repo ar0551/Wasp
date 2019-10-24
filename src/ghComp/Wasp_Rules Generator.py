@@ -46,7 +46,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Rules Generator"
 ghenv.Component.NickName = 'RuleGen'
-ghenv.Component.Message = 'VER 0.2.08'
+ghenv.Component.Message = 'VER 0.3.01'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"
@@ -56,16 +56,22 @@ except: pass
 import sys
 import Grasshopper as gh
 
+
 ## add Wasp install directory to system path
+wasp_loaded = False
 ghcompfolder = gh.Folders.DefaultAssemblyFolder
-wasp_path = ghcompfolder + "Wasp"
-if wasp_path not in sys.path:
-    sys.path.append(wasp_path)
+if ghcompfolder not in sys.path:
+    sys.path.append(ghcompfolder)
 try:
-    import wasp
+    from wasp import __version__
+    wasp_loaded = True
 except:
     msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
+## if Wasp is installed correctly, load the classes required by the component
+if wasp_loaded:
+    from wasp import Rule
 
 
 def main(parts, self_part, self_connection, use_types, grammar):
@@ -109,10 +115,10 @@ def main(parts, self_part, self_connection, use_types, grammar):
                                 if skip_conn == False:
                                     if use_types:
                                         if conn.type == other_conn.type:
-                                            r = wasp.Rule(part.name, conn.id, other_part.name, other_conn.id)
+                                            r = Rule(part.name, conn.id, other_part.name, other_conn.id)
                                             rules.append(r)
                                     else:
-                                        r = wasp.Rule(part.name, conn.id, other_part.name, other_conn.id)
+                                        r = Rule(part.name, conn.id, other_part.name, other_conn.id)
                                         rules.append(r)
         else:
             for gr_rule in grammar:
@@ -137,7 +143,7 @@ def main(parts, self_part, self_connection, use_types, grammar):
                                                     skip_conn = True
                                             
                                             if skip_conn == False:
-                                                r = wasp.Rule(part.name, conn.id, other_part.name, other_conn.id)
+                                                r = Rule(part.name, conn.id, other_part.name, other_conn.id)
                                                 rules.append(r)
         return [rules]
     else:

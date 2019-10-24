@@ -48,7 +48,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Advanced Part"
 ghenv.Component.NickName = 'AdvPart'
-ghenv.Component.Message = 'VER 0.2.08'
+ghenv.Component.Message = 'VER 0.3.01'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -59,16 +59,24 @@ import sys
 import Rhino.Geometry as rg
 import Grasshopper as gh
 
+
 ## add Wasp install directory to system path
+wasp_loaded = False
 ghcompfolder = gh.Folders.DefaultAssemblyFolder
-wasp_path = ghcompfolder + "Wasp"
-if wasp_path not in sys.path:
-    sys.path.append(wasp_path)
+if ghcompfolder not in sys.path:
+    sys.path.append(ghcompfolder)
 try:
-    import wasp
+    from wasp import __version__
+    wasp_loaded = True
 except:
     msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
+## if Wasp is installed correctly, load the classes required by the component
+if wasp_loaded:
+    from wasp import AdvancedPart
+    from wasp import Collider
+    from wasp import global_tolerance
 
 
 def main(part_name, part_geo, connections, collider_geo, field_name, sub_parts, attributes, add_collider, supports):
@@ -89,14 +97,14 @@ def main(part_name, part_geo, connections, collider_geo, field_name, sub_parts, 
     
     ## compute collider, if no custom collider is provided
     if collider_geo is None and part_geo is not None:
-        collider_geo = part_geo.Duplicate().Offset(wasp.global_tolerance)
+        collider_geo = part_geo.Duplicate().Offset(global_tolerance)
         collider_intersection = rg.Intersect.Intersection.MeshMeshFast(collider_geo, part_geo)
         if len(collider_intersection) > 0:
             collider_geo = None
             collider_geo = part_geo.Duplicate()
             center = part_geo.GetBoundingBox(True).Center
             scale_plane = rg.Plane(center, rg.Vector3d(1,0,0), rg.Vector3d(0,1,0))
-            scale_transform = rg.Transform.Scale(scale_plane, 1-wasp.global_tolerance, 1-wasp.global_tolerance, 1-wasp.global_tolerance)
+            scale_transform = rg.Transform.Scale(scale_plane, 1-global_tolerance, 1-global_tolerance, 1-global_tolerance)
             collider_geo.Transform(scale_transform)
             collider_intersection = rg.Intersect.Intersection.MeshMeshFast(collider_geo, part_geo)
             if len(collider_intersection) > 0:
@@ -111,16 +119,16 @@ def main(part_name, part_geo, connections, collider_geo, field_name, sub_parts, 
     
     if check_data:
         ## create collider
-        collider = wasp.Collider([collider_geo])
+        collider = Collider([collider_geo])
         
-        if add_collider is not None and type(add_collider) != wasp.Collider:
-            add_collider = wasp.Collider([add_collider])
+        if add_collider is not None and type(add_collider) != Collider:
+            add_collider = Collider([add_collider])
         
         ## create part instance
-        new_part = wasp.AdvancedPart(part_name, part_geo, connections, collider, attributes, add_collider, supports, field=field_name, sub_parts=sub_parts)
+        new_part = AdvancedPart(part_name, part_geo, connections, collider, attributes, add_collider, supports, field=field_name, sub_parts=sub_parts)
         new_part.is_constrained = True
         
-        if new_part.dim < wasp.global_tolerance*10:
+        if new_part.dim < global_tolerance*10:
             msg = "The parts you created are very small. You might consider scaling them or decreasing the tolerance of your Rhino file."
             ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
         
