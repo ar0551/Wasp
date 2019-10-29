@@ -33,7 +33,7 @@ Automated rules generator given a list of parts. It has two separate modes:
 - If no grammar is provided in the GR input, the component generates rules between connections of the same type.
 - If a grammar is provided, rules are created between connections of different types, according to the specified grammar rules.
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         PART: Parts from which to generate aggregation rules
         SELF_P: OPTIONAL // Create rules between connections belonging to the same part (True by default)

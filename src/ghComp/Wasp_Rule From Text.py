@@ -31,7 +31,7 @@
 """
 Generate an aggregation rule from a text string description
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         TXT: Text description of the rule with format "Part1|Conn1_Part2|Conn2"
     Returns:

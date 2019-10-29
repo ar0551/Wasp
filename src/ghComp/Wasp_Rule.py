@@ -31,7 +31,7 @@
 """
 Generate an aggregation rule from part names and connections ids
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         P1: Name of base part
         C1: Id of base connection

@@ -31,7 +31,7 @@
 """
 Extract information from a rule instance.
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         R: Rule
     Returns:

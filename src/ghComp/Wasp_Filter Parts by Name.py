@@ -31,7 +31,7 @@
 """
 Filter a list of parts according to part names
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         PART: Parts to filter
         NAME: Name of the parts to extract

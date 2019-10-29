@@ -32,7 +32,7 @@
 Aggregate the given parts in a stochastic process, selecting parts and rules randomly at every step.
 The component works additively, hence increasing the number of parts in an aggregation just adds new parts on the existing ones, without triggering recomputing of the previous element.
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         PART: Parts to be aggregated (can be more than one)
         PREV: OPTIONAL // Previous aggregated parts. It is possible to input the results of a previous aggregation, or parts transformed with the TransformPart component

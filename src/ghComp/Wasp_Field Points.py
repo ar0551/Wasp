@@ -31,7 +31,7 @@
 """
 Generate a 3d point grid to be fed to the field component
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         BOU: List of geometries defining the boundaries of the field. Geometries must be closed breps or meshes.
         RES: Resolution (Dimension of each cell)
@@ -42,7 +42,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Field Points"
 ghenv.Component.NickName = 'FieldPts'
-ghenv.Component.Message = 'VER 0.2.08'
+ghenv.Component.Message = 'VER 0.3.01'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -55,16 +55,22 @@ import Rhino.Geometry as rg
 import Grasshopper as gh
 import math
 
+
 ## add Wasp install directory to system path
+wasp_loaded = False
 ghcompfolder = gh.Folders.DefaultAssemblyFolder
-wasp_path = ghcompfolder + "Wasp"
-if wasp_path not in sys.path:
-    sys.path.append(wasp_path)
+if ghcompfolder not in sys.path:
+    sys.path.append(ghcompfolder)
 try:
-    import wasp
+    from wasp import __version__
+    wasp_loaded = True
 except:
     msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
+## if Wasp is installed correctly, load the classes required by the component
+if wasp_loaded:
+    from wasp import Field
 
 
 def main(boundaries, resolution):
@@ -121,7 +127,7 @@ def main(boundaries, resolution):
                     pt = rg.Point3d(s_pt.X + x*resolution, s_pt.Y + y*resolution, s_pt.Z + z*resolution)
                     pts.append(pt)
         
-        empty_field = wasp.Field(None, boundaries, pts, count_vec, resolution)
+        empty_field = Field(None, boundaries, pts, count_vec, resolution)
         return pts, empty_field
         
     else:

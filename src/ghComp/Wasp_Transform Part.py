@@ -33,7 +33,7 @@ Applies a geometric transformation to an existing part, returning a transformed 
 Can be used with any Transform component from Grasshopper.
 Create a Transform component without inputting any geometry and plug the X output to the TR input.
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         PART: Part to be transformed
         TR: Transformation

@@ -32,7 +32,7 @@
 Support definition for constrained parts.
 Each set of lines defining support locations can be set
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         DIR: Directions of the support locations as lines
         GEO: OPTIONAL // Geometry of the part the support belongs to (useful for checking if the supports are correctly placed)

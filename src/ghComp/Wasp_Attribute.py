@@ -33,7 +33,7 @@ Attribute to be attached to a part.
 Could be geometry or any other kind of data (eg. text, numeric variables, color).
 If Geometry, Transformable must be set to True to mantain the geometry attached to the part during aggregation.
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         ID: Name of the attribute
         VAL: Value of the attribute (any type of Gh-compatible data possible)

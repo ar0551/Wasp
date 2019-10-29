@@ -31,7 +31,7 @@
 """
 Generate a collider for a given geometry.
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         GEO: Geometry of the collider(s)
         MUL: OPTIONAL // Set to True if you are using multiple colliders and it is sufficient for one of them not to collide (False by default)

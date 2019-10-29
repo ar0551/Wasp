@@ -31,7 +31,7 @@
 """
 Extract the geometry of one part (for visualization or further processing).
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         PART: Part from where to extract the geometry
     Returns:

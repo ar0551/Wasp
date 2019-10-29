@@ -32,7 +32,7 @@
 Aggregate the given parts according to a given scalar field. New parts are added following higher values in the field.
 The component works additively, hence increasing the number of parts in an aggregation just adds new parts on the existing ones, without triggering recomputing of the previous element
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         PART: Parts to be aggregated (can be more than one)
         PREV: OPTIONAL // Previous aggregated parts. It is possible to input the results of a previous aggregation, or parts transformed with the TransformPart component
@@ -52,7 +52,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Field-driven Aggregation"
 ghenv.Component.NickName = 'FieldAggregation'
-ghenv.Component.Message = "VER 0.2.08"
+ghenv.Component.Message = "VER 0.3.01"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -66,15 +66,20 @@ import Grasshopper as gh
 
 
 ## add Wasp install directory to system path
+wasp_loaded = False
 ghcompfolder = gh.Folders.DefaultAssemblyFolder
-wasp_path = ghcompfolder + "Wasp"
-if wasp_path not in sys.path:
-    sys.path.append(wasp_path)
+if ghcompfolder not in sys.path:
+    sys.path.append(ghcompfolder)
 try:
-    import wasp
+    from wasp import __version__
+    wasp_loaded = True
 except:
     msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
+## if Wasp is installed correctly, load the classes required by the component
+if wasp_loaded:
+    from wasp import Aggregation
 
 
 ## Main code execution
@@ -134,7 +139,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
             for part in parts:
                 parts_copy.append(part.copy())
             
-            aggregation = wasp.Aggregation(aggregation_id, parts_copy, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
+            aggregation = Aggregation(aggregation_id, parts_copy, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
         
         ## handle parameters changes
         part_rules_change = False

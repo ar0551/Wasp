@@ -32,7 +32,7 @@
 Create a connection from a given plane.
 It can create connections which cause collisions and overlapping of components
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         PLN: Connection plane
         T: OPTIONAL // Connection type (to be used with Rule Generator component)

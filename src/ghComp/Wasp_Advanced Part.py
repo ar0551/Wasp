@@ -31,7 +31,7 @@
 """
 Create a Wasp Part with additional constraints (supports, additional colliders)
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         NAME: Part name
         GEO: Part geometry. It will be converted to mesh - to improve performance, perform the conversion before adding to the part and user a low-poly count

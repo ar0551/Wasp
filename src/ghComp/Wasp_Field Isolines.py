@@ -32,7 +32,7 @@
 Draws isolines across a field object
 --> WIP Component: might be incomplete or contain bugs! <--
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         FIELD: Field object to extract isolines from
         PLN: Plane for isolines extraction (0: XY Plane, 1: YZ Plane, 2: XZ Plane)
@@ -44,7 +44,7 @@ Provided by Wasp 0.2
 
 ghenv.Component.Name = "Wasp_Field Isolines"
 ghenv.Component.NickName = 'FieldIso'
-ghenv.Component.Message = 'VER 0.2.08'
+ghenv.Component.Message = 'VER 0.3.01'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory =  "4 | Aggregation"
@@ -52,9 +52,27 @@ try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 
+import sys
 import Rhino.Geometry as rg
 import Grasshopper as gh
 import math
+
+
+## add Wasp install directory to system path
+wasp_loaded = False
+ghcompfolder = gh.Folders.DefaultAssemblyFolder
+if ghcompfolder not in sys.path:
+    sys.path.append(ghcompfolder)
+try:
+    from wasp import __version__
+    wasp_loaded = True
+except:
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+
+## if Wasp is installed correctly, load the classes required by the component
+if wasp_loaded:
+    pass
 
 
 
@@ -86,12 +104,6 @@ def main(field, plane, t, iso):
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if check_data:
-    
-    
-    
-    
-    
-    
         binary_matrix = []
         contour_cases = []
         contours = []

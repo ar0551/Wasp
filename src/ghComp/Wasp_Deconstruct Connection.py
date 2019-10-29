@@ -31,7 +31,7 @@
 """
 Extract information from a Connection.
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         CONN: Connection to deconstruct
     Returns:

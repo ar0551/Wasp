@@ -32,7 +32,7 @@
 Create a connection on a given part geometry from center and X-asix direction
 (Z direction is determined based on the normals of the component geometry)
 -
-Provided by Wasp 0.2
+Provided by Wasp 0.3
     Args:
         GEO: Geometry of the part to which the connection belongs
         CEN: Origin of the connection plane
