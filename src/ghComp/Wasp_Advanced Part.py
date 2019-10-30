@@ -79,7 +79,7 @@ if wasp_loaded:
     from wasp import global_tolerance
 
 
-def main(part_name, part_geo, connections, collider_geo, field_name, sub_parts, attributes, add_collider, supports):
+def main(part_name, part_geo, connections, collider, field_name, sub_parts, attributes, add_collider, supports):
     
     check_data = True
     
@@ -96,31 +96,42 @@ def main(part_name, part_geo, connections, collider_geo, field_name, sub_parts, 
         check_data = False
     
     ## compute collider, if no custom collider is provided
-    if collider_geo is None and part_geo is not None:
-        collider_geo = part_geo.Duplicate().Offset(global_tolerance)
-        collider_intersection = rg.Intersect.Intersection.MeshMeshFast(collider_geo, part_geo)
-        if len(collider_intersection) > 0:
-            collider_geo = None
-            collider_geo = part_geo.Duplicate()
-            center = part_geo.GetBoundingBox(True).Center
-            scale_plane = rg.Plane(center, rg.Vector3d(1,0,0), rg.Vector3d(0,1,0))
-            scale_transform = rg.Transform.Scale(scale_plane, 1-global_tolerance, 1-global_tolerance, 1-global_tolerance)
-            collider_geo.Transform(scale_transform)
+    if collider is None:
+        if part_geo is not None:
+            collider_geo = part_geo.Duplicate().Offset(global_tolerance)
             collider_intersection = rg.Intersect.Intersection.MeshMeshFast(collider_geo, part_geo)
             if len(collider_intersection) > 0:
                 collider_geo = None
-                msg = "Could not compute a valid collider geometry. Please provide a valid collider in the COLL input."
+                collider_geo = part_geo.Duplicate()
+                center = part_geo.GetBoundingBox(True).Center
+                scale_plane = rg.Plane(center, rg.Vector3d(1,0,0), rg.Vector3d(0,1,0))
+                scale_transform = rg.Transform.Scale(scale_plane, 1-global_tolerance, 1-global_tolerance, 1-global_tolerance)
+                collider_geo.Transform(scale_transform)
+                collider_intersection = rg.Intersect.Intersection.MeshMeshFast(collider_geo, part_geo)
+                if len(collider_intersection) > 0:
+                    collider_geo = None
+                    msg = "Could not compute a valid collider geometry. Please provide a valid collider in the COLL input."
+                    ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+                    check_data = False
+            
+            if collider_geo is not None:
+                collider = Collider([collider_geo])
+    
+    else:
+        if type(collider) != Collider:
+            if type(collider) == rg.Mesh:
+                collider = Collider([collider])
+            else:
+                msg = "Collider geometry must be of type Mesh or WaspCollider."
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
                 check_data = False
-    
-    if collider_geo is not None and collider_geo.Faces.Count > 1000:
-        msg = "The computed collider has a high faces count. Consider providing a low poly collider to improve performance"
+        
+    if collider is not None and collider.faces_count > 1000:
+        msg = "The collider has a high faces count. Consider providing a low poly collider to improve performance"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
+    
     if check_data:
-        ## create collider
-        collider = Collider([collider_geo])
-        
         if add_collider is not None and type(add_collider) != Collider:
             add_collider = Collider([add_collider])
         

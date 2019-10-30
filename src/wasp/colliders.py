@@ -9,6 +9,10 @@ class Collider(object):
 		self.multiple = _multiple
 		self.check_all = _check_all
 		self.connections = _connections
+
+		self.faces_count = 0
+		for geo in self.geometry:
+			self.faces_count += geo.Faces.Count
 		
 		self.valid_connections = _valid_connections
 		
