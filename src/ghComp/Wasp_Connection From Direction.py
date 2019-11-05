@@ -66,7 +66,7 @@ try:
     from wasp import __version__
     wasp_loaded = True
 except:
-    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    msg = "Cannot import Wasp. Is the wasp folder available in " + ghcompfolder + "?"
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 ## if Wasp is installed correctly, load the classes required by the component
@@ -124,7 +124,7 @@ def main(part_geo, conn_centers, conn_ups, conn_type):
                     pt_uv = face.ClosestPoint(center)
                     pt = face.PointAt(pt_uv[1], pt_uv[2])
                     dist = rg.Point3d.DistanceTo(center, pt)
-                    if(dist < wasp.global_tolerance):
+                    if(dist < global_tolerance):
                         normal = face.NormalAt(pt_uv[1], pt_uv[2])
                         plane = rg.Plane(center, normal)
                         x_axis = plane.XAxis

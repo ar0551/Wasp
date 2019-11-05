@@ -69,7 +69,7 @@ try:
     from wasp import __version__
     wasp_loaded = True
 except:
-    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
+    msg = "Cannot import Wasp. Is the wasp folder available in " + ghcompfolder + "?"
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
 
 ## if Wasp is installed correctly, load the classes required by the component
