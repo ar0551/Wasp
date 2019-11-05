@@ -42,7 +42,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Filter Parts by Name"
 ghenv.Component.NickName = 'NameFilter'
-ghenv.Component.Message = 'VER 0.3.01'
+ghenv.Component.Message = 'VER 0.3.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
