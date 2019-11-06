@@ -145,7 +145,7 @@ class AdvancedPart(Part):
 		if len(supports) > 0:
 			self.supports = supports
 		
-		if len(self.add_collider) > 0 and len(self.supports) > 0:
+		if self.add_collider is not None or len(self.supports) > 0:
 			self.is_constrained = True 
 		
 		## hierarchical sub-parts

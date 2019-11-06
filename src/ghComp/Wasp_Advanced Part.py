@@ -48,7 +48,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Advanced Part"
 ghenv.Component.NickName = 'AdvPart'
-ghenv.Component.Message = 'VER 0.3.001'
+ghenv.Component.Message = 'VER 0.3.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -137,7 +137,6 @@ def main(part_name, part_geo, connections, collider, field_name, sub_parts, attr
         
         ## create part instance
         new_part = AdvancedPart(part_name, part_geo, connections, collider, attributes, add_collider, supports, field=field_name, sub_parts=sub_parts)
-        new_part.is_constrained = True
         
         if new_part.dim < global_tolerance*10:
             msg = "The parts you created are very small. You might consider scaling them or decreasing the tolerance of your Rhino file."
