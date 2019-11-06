@@ -182,31 +182,76 @@ class Aggregation(object):
 	
 	#### constraints checks ####
 	
-	## function grouping all constraints checks (not yet implemented)
-	def constraints_check(self, part, trans):
-		pass
-	
-	
+	## function grouping all collsion and constraints checks
+	def check_all_constraints(self, part, trans):
+		
+		## boolean checks for all constraints
+		coll_check = False
+		add_coll_check = False
+		missing_sup_check = False
+		global_const_check = False
+
+		## variables to store already computed colliders
+		part_center_trans = None
+		part_collider_trans = None
+
+		## check overlaps/collisions with previously placed parts
+		coll_check, part_center_trans, part_collider_trans = self.collision_check(part, trans)
+
+		if coll_check == False:
+			## check constraints
+			## only local constraints mode
+			if self.mode == 1:
+				if part.is_constrained:
+					add_coll_check = self.additional_collider_check(part, trans)
+					
+					if add_coll_check == False:
+						missing_sup_check = self.missing_supports_check(part, trans)
+			
+			## onyl global constraints mode
+			elif self.mode == 2:
+				if len(self.global_constraints) > 0:
+					global_const_check = self.global_constraints_check(part, trans, part_center_trans, part_collider_trans)
+			
+			## local+global constraints mode
+			elif self.mode == 3:
+				if len(self.global_constraints) > 0:
+					global_const_check = self.global_constraints_check(part, trans, part_center_trans, part_collider_trans)
+				if global_const_check == False and part.is_constrained:
+					add_coll_check = self.additional_collider_check(part, trans)
+					if add_coll_check == False:
+						missing_sup_check = self.missing_supports_check(part, trans)
+
+		## combine all constraints check result
+		global_check = coll_check or add_coll_check or missing_sup_check or global_const_check
+
+		return global_check, coll_check, add_coll_check, missing_sup_check, global_const_check
+
+
 	## overlap // part-part collision check
-	def collision_check(self, part, trans):
-		part_center = part.transform_center(trans)
+	def collision_check(self, part, trans, part_center=None, part_collider=None):
+
+		self.possible_collisions = []
+		if part_center is None:
+			part_center = part.transform_center(trans)
 		
 		## overlap check
 		coll_count = 0
 		for ex_part in self.aggregated_parts:
 			dist = ex_part.center.DistanceTo(part_center)
 			if dist < global_tolerance:
-				return True
+				return True, None, None
 			elif dist < ex_part.dim + part.dim:
 				self.possible_collisions.append(coll_count)
 			coll_count += 1
 		
 		## collision check
 		if self.coll_check == True:
-			part_collider = part.transform_collider(trans)
+			if part_collider is None:
+				part_collider = part.transform_collider(trans)
 			if part_collider.check_collisions_by_id(self.aggregated_parts, self.possible_collisions):
-				return True
-		return False
+				return True, None, None
+		return False, part_center, part_collider
 	
 	## additional collider check
 	def additional_collider_check(self, part, trans):
@@ -236,14 +281,16 @@ class Aggregation(object):
 			return False
 	
 	## global constraints check
-	def global_constraints_check(self, part, trans):
+	def global_constraints_check(self, part, trans, part_center=None, part_collider=None):
 		for constraint in self.global_constraints:
-			part_center = part.transform_center(trans)
+			if part_center is None:
+				part_center = part.transform_center(trans)
 			if constraint.soft:
 				if constraint.check(pt = part_center) == False:
 					return True
 			else:
-				part_collider = part.transform_collider(trans)
+				if part_collider is None:
+					part_collider = part.transform_collider(trans)
 				if constraint.check(pt = part_center, collider = part_collider) == False:
 					return True
 		return False
@@ -360,40 +407,9 @@ class Aggregation(object):
 					next_part = self.parts[next_rule.part2]
 					orientTransform = Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn_01.pln)
 					
-					## boolean checks for all constraints
-					coll_check = False
-					add_coll_check = False
-					valid_connections = []
-					missing_sup_check = False
-					global_const_check = False
+					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check = self.check_all_constraints(next_part, orientTransform)
 					
-					## collision check
-					self.possible_collisions = []
-					coll_check = self.collision_check(next_part, orientTransform)
-					
-					## constraints check
-					if self.mode == 1: ## only local constraints mode
-						if coll_check == False and next_part.is_constrained:
-							add_coll_check = self.additional_collider_check(next_part, orientTransform)
-							
-							if add_coll_check == False:
-							   missing_sup_check = self.missing_supports_check(next_part, orientTransform)
-					
-					elif self.mode == 2: ## onyl global constraints mode
-						if coll_check == False and len(self.global_constraints) > 0:
-							global_const_check = self.global_constraints_check(next_part, orientTransform)
-					
-					elif self.mode == 3: ## local+global constraints mode
-						if coll_check == False:
-							if len(self.global_constraints) > 0:
-								global_const_check = self.global_constraints_check(next_part, orientTransform)
-							if global_const_check == False and next_part.is_constrained:
-								add_coll_check = self.additional_collider_check(next_part, orientTransform)
-								if add_coll_check == False:
-								   missing_sup_check = self.missing_supports_check(next_part, orientTransform)
-					
-					
-					if coll_check == False and add_coll_check == False and missing_sup_check == False and global_const_check == False:
+					if not global_check:
 						next_part_trans = next_part.transform(orientTransform)
 						next_part_trans.reset_part(self.rules)
 						for i in range(len(next_part_trans.active_connections)):
@@ -522,38 +538,9 @@ class Aggregation(object):
 				next_center = Point3d(next_part.center)
 				orientTransform = next_data[2]
 				
-				## boolean checks for all constraints
-				coll_check = False
-				add_coll_check = False
-				missing_sup_check = False
-				global_const_check = False
-				
-				## collision check
-				self.possible_collisions = []
-				coll_check = self.collision_check(next_part, orientTransform)
-				
-				## constraints check
-				if self.mode == 1: ## only local constraints mode
-					if coll_check == False and next_part.is_constrained:
-						add_coll_check = self.additional_collider_check(next_part, orientTransform)
-						if add_coll_check == False:
-						   missing_sup_check = self.missing_supports_check(next_part, orientTransform)
-				
-				elif self.mode == 2: ## onyl global constraints mode
-					if coll_check == False and len(self.global_constraints) > 0:
-						global_const_check = self.global_constraints_check(next_part, orientTransform)
-				
-				elif self.mode == 3: ## local+global constraints mode
-					if coll_check == False:
-						if len(self.global_constraints) > 0:
-							global_const_check = self.global_constraints_check(next_part, orientTransform)
-						if global_const_check == False and next_part.is_constrained:
-							add_coll_check = self.additional_collider_check(next_part, orientTransform)
-							if add_coll_check == False:
-							   missing_sup_check = self.missing_supports_check(next_part, orientTransform)
-				
-				
-				if coll_check == False and add_coll_check == False and missing_sup_check == False and global_const_check == False:
+				global_check, coll_check, add_coll_check, missing_sup_check, global_const_check = self.check_all_constraints(next_part, orientTransform)
+					
+				if not global_check:
 					next_part_trans = next_part.transform(orientTransform)
 					next_part_trans.reset_part(self.rules)
 					
@@ -569,6 +556,7 @@ class Aggregation(object):
 					self.compute_next_w_field(next_part_trans)
 					added += 1
 				
+				## TO FIX --> do not remove rules when only caused by missing supports
 				self.aggregation_queue.pop()
 				self.queue_values.pop()
 				self.queue_count -=1
