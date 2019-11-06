@@ -46,7 +46,7 @@ Provided by Wasp 0.3
         
 ghenv.Component.Name = "Wasp_Graph-Grammar Aggregation"
 ghenv.Component.NickName = 'GraphAggr'
-ghenv.Component.Message = 'VER 0.3.001'
+ghenv.Component.Message = 'VER 0.3.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

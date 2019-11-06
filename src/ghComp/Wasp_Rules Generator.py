@@ -46,7 +46,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Rules Generator"
 ghenv.Component.NickName = 'RuleGen'
-ghenv.Component.Message = 'VER 0.3.001'
+ghenv.Component.Message = 'VER 0.3.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"
