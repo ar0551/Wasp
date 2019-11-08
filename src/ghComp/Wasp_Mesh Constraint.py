@@ -82,7 +82,7 @@ def main(geometry, inside, soft_constraint):
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if inside is None:
-        inside == True
+        inside = True
     
     if soft_constraint is None:
         soft_constraint = True
