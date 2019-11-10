@@ -11,7 +11,7 @@ GhPython installation
 +++++++++++++++ Wasp installation +++++++++++++++
 - Download Wasp latest release from Food4Rhino: www.food4rhino.com/app/wasp
 - Unzip the file
-- Copy the folder "Wasp" in the Grasshopper Libraries folder (File -> Special Folder -> Components)
+- Copy the folder "wasp" in the Grasshopper Libraries folder (File -> Special Folder -> Components)
 - Copy the CONTENT of the UserObjects folder into Grasshopper user objects folder (File -> Special folders -> User Objects)
 - Restart Rhino
 +++++++++++++++
