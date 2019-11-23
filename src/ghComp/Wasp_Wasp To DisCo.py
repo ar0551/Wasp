@@ -51,7 +51,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Wasp To DisCo"
 ghenv.Component.NickName = 'Wasp2DisCo'
-ghenv.Component.Message = 'VER 0.3.002'
+ghenv.Component.Message = 'VER 0.3.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | DisCo VR"
@@ -78,7 +78,7 @@ except:
 
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
-    pass
+    from wasp import Collider
 
 
 def MeshToString(mesh, name):
@@ -116,7 +116,7 @@ def MeshToString(mesh, name):
     return ''.join(mesh_text)
 
 
-def main(parts, rules, rule_groups, colliders, probabilities, additional_geometry, filepath, filename, save):
+def main(parts, rules, rule_groups, colliders, probabilities, spawn_number, additional_geometry, filepath, filename, save):
     
     check_data = True
     
@@ -131,10 +131,25 @@ def main(parts, rules, rule_groups, colliders, probabilities, additional_geometr
         msg = "No parts provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
+    if len(colliders) == 0:
+        msg = "No collider provided. Using the part collider. Be aware that DisCo does not support concave mesh colliders."
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
     if len(colliders) != 0 and len(colliders) != len(parts):
         check_data = False
         msg = "Different count of parts and colliders. Please provide one collider for each part"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if len(probabilities) != 0 and len(probabilities) != len(parts):
+        msg = "Different count of parts and probabilities. Will assign equal probability to all parts."
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+        probabilities = []
+    
+    if len(spawn_number) != 0 and len(spawn_number) != len(parts):
+        msg = "Different count of parts and spawn numbers. Spawn numbers will be ignored"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+        spawn_number = []
+    
     
     if filepath is None:
         check_data = False
@@ -151,130 +166,144 @@ def main(parts, rules, rule_groups, colliders, probabilities, additional_geometr
     
     if check_data:
         
-        data_dict = {}
-        
-        probability_total = 0
-        for prob in probabilities:
-            probability_total += prob
-        
-        
-        parts_data = []
-        part_count = 0
-        for part in parts:
-            part_dict = {}
-            
-            center_vector = rg.Vector3d.Subtract(rg.Vector3d(0,0,0), rg.Vector3d(part.center))
-            center_transform = rg.Transform.Translation(center_vector)
-            
-            part = part.transform(center_transform)
-            
-            part_dict["Name"] = part.name
-            part_dict["Geometry"] = MeshToString(part.geo, "Geo_" + part.name)
-            
-            connections_data = []
-            for conn in part.connections:
-                conn_dict = {}
-                
-                conn_dict["ConID"] = conn.id
-                conn_dict["Part"] = part.name
-                conn_dict["ConType"] = conn.type
-                
-                conn_dict["PlaneOriginX"] = conn.pln.Origin.X
-                conn_dict["PlaneOriginY"] = conn.pln.Origin.Y
-                conn_dict["PlaneOriginZ"] = conn.pln.Origin.Z
-                conn_dict["PlaneXVecX"] = conn.pln.XAxis.X
-                conn_dict["PlaneXVecY"] = conn.pln.XAxis.Y
-                conn_dict["PlaneXVecZ"] = conn.pln.XAxis.Z
-                conn_dict["PlaneYVecX"] = conn.pln.YAxis.X
-                conn_dict["PlaneYVecY"] = conn.pln.YAxis.Y
-                conn_dict["PlaneYVecZ"] = conn.pln.YAxis.Z
-                
-                connections_data.append(conn_dict)
-            
-            part_dict["Connections"] = connections_data
-            
-            ## probabilities
-            part_dict["Probability"] = 0
-            if probability_total == 1:
-                part_dict["Probability"] = probabilities[part_count]
-            elif probability_total == 0:
-                part_dict["Probability"] = 1.0/len(parts)
-            else:
-                part_dict["Probability"] = probabilities[part_count]/probability_total
-            
-            ## collider
-            if len(colliders) == 0:
-                part_dict["Collider"] = MeshToString(part.geo, "Col_" + part.name + "_0")
-            else:
-                current_collider = colliders[part_count]
-                if type(current_collider) == wasp.Collider:
-                    current_collider = current_collider.transform(center_transform)
-                    if len(current_collider.geometry) == 1:
-                        part_dict["Collider"] = MeshToString(current_collider.geometry[0], "Col_" + part.name + "_0")
-                    else:
-                        collider_data = ""
-                        coll_count = 0
-                        for coll_geo in current_collider.geometry:
-                            collider_data += MeshToString(current_collider.geometry[coll_count], "Col_" + part.name + "_" + str(coll_count))
-                            coll_count += 1
-                        part_dict["Collider"] = collider_data
-                else:
-                    current_collider.Transform(center_transform)
-                    part_dict["Collider"] = MeshToString(current_collider, "Col_" + part.name + "_0")
-            
-            part_dict["TemplateID"] = part_count
-            part_count += 1
-            
-            parts_data.append(part_dict)
-        
-        data_dict["PartData"] = parts_data
-        
-        rules_data = []
-        for rule in rules:
-            rule_dict = {}
-            
-            rule_dict["Part1"] = rule.part1
-            rule_dict["Conn1"] = rule.conn1
-            rule_dict["Part2"] = rule.part2
-            rule_dict["Conn2"] = rule.conn2
-            
-            rules_data.append(rule_dict)
-        
-        data_dict["RuleData"] = rules_data
-        
-        groups_data = []
-        for group in rule_groups:
-            group_dict = json.loads(group)
-            groups_data.append(group_dict)
-            
-        data_dict["RuleGroupsData"] = groups_data
-        
-        
-        add_geo_data = []
-        add_geo_count = 0
-        for add_geo in additional_geometry:
-            add_geo_dict = {}
-            
-            add_geo_dict["Geometry"] = MeshToString(add_geo, "Additional_" + str(add_geo_count))
-            add_geo_count += 1
-            
-            add_geo_data.append(add_geo_dict)
-        
-        data_dict["AdditionalGeometry"] = add_geo_data
-        
-        
         full_path = filepath + "\\" + filename + ".json"
         
         if save:
+            data_dict = {}
+            
+            probability_total = 0
+            for prob in probabilities:
+                probability_total += prob
+            
+            
+            parts_data = []
+            part_count = 0
+            for part in parts:
+                part_dict = {}
+                
+                center_vector = rg.Vector3d.Subtract(rg.Vector3d(0,0,0), rg.Vector3d(part.center))
+                center_transform = rg.Transform.Translation(center_vector)
+                
+                part = part.transform(center_transform)
+                
+                part_dict["Name"] = part.name
+                part_dict["Geometry"] = MeshToString(part.geo, "Geo_" + part.name)
+                
+                connections_data = []
+                for conn in part.connections:
+                    conn_dict = {}
+                    
+                    conn_dict["ConID"] = conn.id
+                    conn_dict["Part"] = part.name
+                    conn_dict["ConType"] = conn.type
+                    
+                    conn_dict["PlaneOriginX"] = conn.pln.Origin.X
+                    conn_dict["PlaneOriginY"] = conn.pln.Origin.Y
+                    conn_dict["PlaneOriginZ"] = conn.pln.Origin.Z
+                    conn_dict["PlaneXVecX"] = conn.pln.XAxis.X
+                    conn_dict["PlaneXVecY"] = conn.pln.XAxis.Y
+                    conn_dict["PlaneXVecZ"] = conn.pln.XAxis.Z
+                    conn_dict["PlaneYVecX"] = conn.pln.YAxis.X
+                    conn_dict["PlaneYVecY"] = conn.pln.YAxis.Y
+                    conn_dict["PlaneYVecZ"] = conn.pln.YAxis.Z
+                    
+                    connections_data.append(conn_dict)
+                
+                part_dict["Connections"] = connections_data
+                
+                ## probabilities
+                part_dict["Probability"] = 0
+                if probability_total == 1:
+                    part_dict["Probability"] = probabilities[part_count]
+                elif probability_total == 0:
+                    part_dict["Probability"] = 1.0/len(parts)
+                else:
+                    part_dict["Probability"] = probabilities[part_count]/probability_total
+                
+                if len(spawn_number) == 0:
+                    part_dict["SpawnNumber"] = 0
+                else:
+                    part_dict["SpawnNumber"] = int(spawn_number[part_count])
+                
+                
+                ## collider
+                ## if no collider is provided, generate the collider from the collider geometry
+                if len(colliders) == 0:
+                    collider_data = ""
+                    coll_count = 0
+                    for coll_geo in part.collider.geometry:
+                        collider_data += MeshToString(coll_geo, "Col_" + part.name + "_" + str(coll_count))
+                        coll_count += 1
+                    part_dict["Collider"] = collider_data
+                    
+                else:
+                    current_collider = colliders[part_count]
+                    if type(current_collider) == Collider:
+                        current_collider = current_collider.transform(center_transform)
+                        if len(current_collider.geometry) == 1:
+                            part_dict["Collider"] = MeshToString(current_collider.geometry[0], "Col_" + part.name + "_0")
+                        else:
+                            collider_data = ""
+                            coll_count = 0
+                            for coll_geo in current_collider.geometry:
+                                collider_data += MeshToString(current_collider.geometry[coll_count], "Col_" + part.name + "_" + str(coll_count))
+                                coll_count += 1
+                            part_dict["Collider"] = collider_data
+                    else:
+                        current_collider.Transform(center_transform)
+                        part_dict["Collider"] = MeshToString(current_collider, "Col_" + part.name + "_0")
+                
+                part_dict["TemplateID"] = part_count
+                part_count += 1
+                
+                parts_data.append(part_dict)
+            
+            data_dict["PartData"] = parts_data
+            
+            rules_data = []
+            for rule in rules:
+                rule_dict = {}
+                
+                rule_dict["Part1"] = rule.part1
+                rule_dict["Conn1"] = rule.conn1
+                rule_dict["Part2"] = rule.part2
+                rule_dict["Conn2"] = rule.conn2
+                
+                rules_data.append(rule_dict)
+            
+            data_dict["RuleData"] = rules_data
+            
+            groups_data = []
+            for group in rule_groups:
+                group_dict = json.loads(group)
+                groups_data.append(group_dict)
+                
+            data_dict["RuleGroupsData"] = groups_data
+            
+            
+            add_geo_data = []
+            add_geo_count = 0
+            for add_geo in additional_geometry:
+                add_geo_dict = {}
+                
+                add_geo_dict["Geometry"] = MeshToString(add_geo, "Additional_" + str(add_geo_count))
+                add_geo_count += 1
+                
+                add_geo_data.append(add_geo_dict)
+            
+            data_dict["AdditionalGeometry"] = add_geo_data
+            
             with open(full_path, "w") as outF:
                 json.dump(data_dict, outF)
         
-        return json.dumps(data_dict), full_path
+            return json.dumps(data_dict), full_path
+        else:
+            return "Set SAVE to True to generate the json file and save it to the choosen location", full_path
     else:
         return -1
 
 
-result = main(PART, RULES, RULE_G, COLL, PROB, ADD_GEO, PATH, NAME, SAVE)
+result = main(PART, RULES, RULE_G, COLL, PROB, SPAWN_N, ADD_GEO, PATH, NAME, SAVE)
 
 if result != -1:
     TXT = result[0]
