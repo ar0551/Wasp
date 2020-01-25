@@ -282,17 +282,28 @@ class Aggregation(object):
 	
 	## global constraints check
 	def global_constraints_check(self, part, trans, part_center=None, part_collider=None):
+		valid_constraints = len(self.global_constraints)
 		for constraint in self.global_constraints:
 			if part_center is None:
 				part_center = part.transform_center(trans)
 			if constraint.soft:
 				if constraint.check(pt = part_center) == False:
-					return True
+					if constraint.required:
+						return True
+					else:
+						valid_constraints -= 1
 			else:
 				if part_collider is None:
 					part_collider = part.transform_collider(trans)
 				if constraint.check(pt = part_center, collider = part_collider) == False:
-					return True
+					if constraint.required:
+						return True
+					else:
+						valid_constraints -= 1
+		
+		if valid_constraints == 0:
+			return True
+		
 		return False
 	
 	

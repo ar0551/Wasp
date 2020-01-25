@@ -36,13 +36,14 @@ Provided by Wasp 0.3
         GEOMETRY: Geometry of the collision shape
         IN: OPTIONAL // False to allow only parts outside the constraint geometry, True to allow parts only inside (True by default)
         SOFT: OPTIONAL // True to check only the part center point, False to check also for geometry intersection (True by default)
+        REQ: OPTIONAL // True to make the constrains necessary for the aggregation to happen, False to make it optional (True by default)
     Returns:
         GC: Mesh constraint
 """
 
 ghenv.Component.Name = "Wasp_Mesh Constraint"
 ghenv.Component.NickName = 'MeshConst'
-ghenv.Component.Message = "VER 0.3.002"
+ghenv.Component.Message = "VER 0.3.003"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -72,7 +73,7 @@ if wasp_loaded:
 
 
 ## Main code execution
-def main(geometry, inside, soft_constraint):
+def main(geometry, inside, soft_constraint, is_required):
     
     check_data = True
     ##check inputs
@@ -87,6 +88,9 @@ def main(geometry, inside, soft_constraint):
     if soft_constraint is None:
         soft_constraint = True
     
+    if is_required is None:
+        is_required = True
+    
     if inside == True:
         naked_edges = geometry.GetNakedEdges()
         if naked_edges is not None:
@@ -96,13 +100,13 @@ def main(geometry, inside, soft_constraint):
     
     
     if check_data:
-        geo_constraint = Mesh_Constraint(geometry, _inside = inside, _soft = soft_constraint)
+        geo_constraint = Mesh_Constraint(geometry, _inside = inside, _soft = soft_constraint, _required = is_required)
         return geo_constraint
     else:
         return -1
 
 
-result = main(GEO, IN, SOFT)
+result = main(GEO, IN, SOFT, REQ)
 
 if result != -1:
     GC = result

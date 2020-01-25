@@ -6,15 +6,16 @@ from wasp import global_tolerance
 class Plane_Constraint(object):
 	
 	## constructor
-	def __init__(self, _plane, _positive = True, _soft = True):
+	def __init__(self, _plane, _positive = True, _soft = True, _required = True):
 		self.type = 'plane'
 		self.plane = _plane
 		self.positive = _positive
 		self.soft = _soft
+		self.required = _required
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspPlaneConst [+: %s, soft: %s]" % (self.positive, self.soft)
+		return "WaspPlaneConst [+: %s, soft: %s, required: %s]" % (self.positive, self.soft, self.required)
 	
 	## constraint check method
 	def check(self, pt = None, collider = None):
@@ -48,15 +49,16 @@ class Plane_Constraint(object):
 class Mesh_Constraint(object):
 	
 	## constructor
-	def __init__(self, _geo, _inside = True, _soft = True):
+	def __init__(self, _geo, _inside = True, _soft = True, _required = True):
 		self.type = 'mesh_collider'
 		self.geo = _geo
 		self.inside = _inside
 		self.soft = _soft
+		self.required = _required
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspMeshConst [in: %s, soft: %s]" % (self.inside, self.soft)
+		return "WaspMeshConst [in: %s, soft: %s, required: %s]" % (self.inside, self.soft, self.required)
 	
 	## constraint check method
 	def check(self, pt = None, collider = None):
