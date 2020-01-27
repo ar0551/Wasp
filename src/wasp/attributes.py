@@ -21,6 +21,7 @@ class Attribute(object):
 			values_trans = []
 			for val in self.values:
 				val_trans = None
+				## !!!! add try..except.. block for other geometry types (?)
 				if type(val) == Point3d:
 					val_trans = Point3d(val)
 				elif type(val) == Plane:

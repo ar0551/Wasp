@@ -96,6 +96,8 @@ class Part(object):
 				attributes_trans.append(attr.transform(trans))
 		
 		part_trans = Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, dim=self.dim, id=self.id, field=self.field)
+		
+		## !!!! change from transformation assigment to transformation add (Tranform.Multiply(self.trans, trans))
 		part_trans.transformation = trans
 		return part_trans
 	
