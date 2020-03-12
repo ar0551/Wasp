@@ -4,8 +4,8 @@
 
 Discrete Design with Grasshopper plug-in (GPL) initiated by Andrea Rossi
 
-[![Stable](https://img.shields.io/github/v/release/ar0551/Wasp?label=stable%20release&style=flat-square)]()
-[![Wip](https://img.shields.io/github/v/release/ar0551/Wasp?include_prereleases&label=wip%20release&style=flat-square)]()
+[![Stable](https://img.shields.io/github/v/release/ar0551/Wasp?label=stable&style=flat-square)]()
+[![Wip](https://img.shields.io/github/v/release/ar0551/Wasp?include_prereleases&label=wip&style=flat-square)]()
 [![Last Commit](https://img.shields.io/github/last-commit/ar0551/Wasp?style=flat-square)]()
 [![Downloads](https://img.shields.io/github/downloads/ar0551/Wasp/total?style=flat-square)]()
 [![License](https://img.shields.io/github/license/ar0551/Wasp?style=flat-square)]()
