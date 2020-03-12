@@ -4,6 +4,11 @@
 
 Discrete Design with Grasshopper plug-in (GPL) initiated by Andrea Rossi
 
+[![Release version](https://img.shields.io/github/v/release/ar0551/Wasp?style=flat-square)]()
+[![Release date](https://img.shields.io/github/release-date/ar0551/Wasp?style=flat-square)]()
+[![Downloads](https://img.shields.io/github/downloads/ar0551/Wasp/total?style=flat-square)]()
+[![License](https://img.shields.io/github/license/ar0551/Wasp?style=flat-square)]()
+
 Wasp is a set of Grasshopper components, developed in Python, directed at representing and designing with discrete elements (Rossi and Tessmann 2017). This is achieved by combining geometric representation and abstract graph information (Klavins et al. 2004) of individual modules, as well as providing different procedures for modular aggregation.
 The description of each individual part includes basic information necessary for the aggregation process (part geometry, connections location and orientation). The set of connections define the topological graph of the part, which is then used to define the possibilities of aggregation with other parts.
 
