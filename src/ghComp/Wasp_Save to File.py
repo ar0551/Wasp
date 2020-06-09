@@ -21,7 +21,7 @@
 # Significant parts of Wasp have been developed by Andrea Rossi
 # as part of research on digital materials and discrete design at:
 # DDU Digital Design Unit - Prof. Oliver Tessmann
-# Technische Universitt Darmstadt
+# Technische Universität Darmstadt
 
 
 #########################################################################
@@ -31,7 +31,7 @@
 """
 Saves current status of an aggregation to a .json file.
 -
-Provided by Wasp 0.3
+Provided by Wasp 0.2
     Args:
         AGGR: Aggregation to save
         PATH: Path where to save the aggregation
@@ -43,7 +43,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Save to File"
 ghenv.Component.NickName = 'WaspSave'
-ghenv.Component.Message = 'VER 0.3.002'
+ghenv.Component.Message = 'VER 0.2.08'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -52,26 +52,21 @@ except: pass
 
 
 import sys
+import os
 import Rhino.Geometry as rg
 import Grasshopper as gh
 import json
 
-
 ## add Wasp install directory to system path
-wasp_loaded = False
 ghcompfolder = gh.Folders.DefaultAssemblyFolder
-if ghcompfolder not in sys.path:
-    sys.path.append(ghcompfolder)
+wasp_path = ghcompfolder + "Wasp"
+if wasp_path not in sys.path:
+    sys.path.append(wasp_path)
 try:
-    from wasp import __version__
-    wasp_loaded = True
+    import wasp
 except:
-    msg = "Cannot import Wasp. Is the wasp folder available in " + ghcompfolder + "?"
+    msg = "Cannot import Wasp. Is the wasp.py module installed in " + wasp_path + "?"
     ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
-
-## if Wasp is installed correctly, load the classes required by the component
-if wasp_loaded:
-    pass
 
 
 def main(aggregation, path, filename, save):
@@ -139,7 +134,7 @@ def main(aggregation, path, filename, save):
             aggr_dict['parts'][part.id] = part_dict
         
         
-        full_path = path + "\\" + filename + ".json"
+        full_path = os.path.join(path, filename + ".json")
         
         if save:
             with open(full_path, "w") as outF:
