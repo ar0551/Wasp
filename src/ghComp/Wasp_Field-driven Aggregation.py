@@ -52,7 +52,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Field-driven Aggregation"
 ghenv.Component.NickName = 'FieldAggregation'
-ghenv.Component.Message = "VER 0.3.002"
+ghenv.Component.Message = "VER 0.4.001"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -79,7 +79,7 @@ except:
 
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
-    from wasp import Aggregation
+    from wasp.core import Aggregation
 
 
 ## Main code execution

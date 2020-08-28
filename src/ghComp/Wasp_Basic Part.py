@@ -44,7 +44,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Basic Part"
 ghenv.Component.NickName = 'Part'
-ghenv.Component.Message = 'VER 0.3.002'
+ghenv.Component.Message = 'VER 0.4.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -70,8 +70,8 @@ except:
 
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
-    from wasp import Part
-    from wasp import Collider
+    from wasp.core import Part
+    from wasp.core import Collider
     from wasp import global_tolerance
 
 

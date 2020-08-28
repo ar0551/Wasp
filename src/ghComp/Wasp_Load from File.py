@@ -41,7 +41,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Load from File"
 ghenv.Component.NickName = 'WaspLoad'
-ghenv.Component.Message = 'VER 0.3.002'
+ghenv.Component.Message = 'VER 0.4.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -160,6 +160,7 @@ def main(parts, file_path):
                     break
             
             if new_part is not None:
+                new_part.id = id
                 new_part.active_connections = active_conn
                 new_part.parent = parent
                 new_part.children = children

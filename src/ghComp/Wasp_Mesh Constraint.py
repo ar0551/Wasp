@@ -43,7 +43,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Mesh Constraint"
 ghenv.Component.NickName = 'MeshConst'
-ghenv.Component.Message = "VER 0.3.003"
+ghenv.Component.Message = "VER 0.4.001"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -69,7 +69,7 @@ except:
 
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
-    from wasp import Mesh_Constraint
+    from wasp.core import Mesh_Constraint
 
 
 ## Main code execution

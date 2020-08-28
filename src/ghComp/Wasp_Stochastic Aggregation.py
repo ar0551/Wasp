@@ -49,7 +49,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Stochastic Aggregation"
 ghenv.Component.NickName = 'StochasticAggregation'
-ghenv.Component.Message = 'VER 0.3.002'
+ghenv.Component.Message = 'VER 0.4.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -75,7 +75,7 @@ except:
 
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
-    from wasp import Aggregation
+    from wasp.core import Aggregation
 
 
 def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_constraints, aggregation_id, reset, aggregation):

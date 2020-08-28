@@ -48,16 +48,6 @@ from Rhino.RhinoDoc import ActiveDoc
 global_tolerance = ActiveDoc.ModelAbsoluteTolerance*2
 
 
-from .connection import *
-from .parts import *
-from .rules import *
-from .field import *
-from .attributes import *
-from .aggregation import *
-from .constraints import *
-from .colliders import *
-
-
 __author__ = ['ar0551 <a.rossi.andrea@gmail.com>']
 __copyright__ = 'Copyright 2017-2019 - Andrea Rossi'
 __license__ = 'GPLv3.0'

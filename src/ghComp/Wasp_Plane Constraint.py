@@ -43,7 +43,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Plane Constraint"
 ghenv.Component.NickName = 'PlaneConst'
-ghenv.Component.Message = "VER 0.3.003"
+ghenv.Component.Message = "VER 0.4.001"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -68,7 +68,7 @@ except:
 
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
-    from wasp import Plane_Constraint
+    from wasp.core import Plane_Constraint
 
 
 ## Main code execution
