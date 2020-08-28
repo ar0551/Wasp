@@ -16,7 +16,7 @@ This is a Code of Conduct for the Wasp community. This is [largely based on the 
 * **Be respectful.** Disagreement is not an opportunity to attack someone else's thoughts or opinions. Although views may differ, remember to approach every situation with patience and care. 
 * **Be considerate.** Think about how your contribution will affect others in the community. 
 * **Be open minded.** Embrace new people and new ideas. Our community is continually evolving and we welcome positive change.
-* **Be supportive.** No question is too stupid to be asked. Respect people that know less than you, and use your knowledge to help, rather than shame them.
+* **Be supportive.** There is no such thing as a stupid question. Respect people that know less than you, and use your knowledge to help, rather than shame them.
 
 If you believe someone is violating the code of conduct, we ask that you report it by emailing [ghwasp@gmail.com](mailto:ghwasp@gmail.com). Please include your name and a description of the incident, and we will get back to you ASAP.
 
