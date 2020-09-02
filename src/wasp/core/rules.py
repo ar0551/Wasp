@@ -1,4 +1,14 @@
-#################################################################### Rule ####################################################################
+"""
+(C) 2017-2020 Andrea Rossi <ghwasp@gmail.com>
+
+This file is part of Wasp. https://github.com/ar0551/Wasp
+@license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
+
+@version 0.4.001
+
+Rule class and (WIP) rules generation utilities
+"""
+
 class Rule(object):
 	
 	def __init__(self, _part1, _conn1, _part2, _conn2, _active = True):
