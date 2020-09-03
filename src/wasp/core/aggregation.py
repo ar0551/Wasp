@@ -11,6 +11,7 @@ Aggregation class and functions
 
 import random
 import bisect
+import time
 
 from Rhino.Geometry import Transform
 from Rhino.Geometry import Point3d
@@ -22,7 +23,7 @@ from wasp import global_tolerance
 class Aggregation(object):
 	
 	## class constructor
-	def __init__(self, _name, _parts, _rules, _mode, _prev = [], _coll_check = True, _field = [], _global_constraints = []):
+	def __init__(self, _name, _parts, _rules, _mode, _prev = [], _coll_check = True, _field = [], _global_constraints = [], rnd_seed = None):
 		
 		## basic parameters
 		self.name = _name
@@ -76,6 +77,13 @@ class Aggregation(object):
 		## global constraints applied to the aggregation
 		self.global_constraints = _global_constraints
 		
+		## random seed
+		if rnd_seed is None:
+			random.seed(int(time.time()))
+		else:
+			random.seed(rnd_seed)
+
+
 		#### WIP ####
 		self.collision_shapes = []
 		self.graph = None

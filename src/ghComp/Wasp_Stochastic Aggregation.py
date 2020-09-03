@@ -32,12 +32,13 @@
 Aggregate the given parts in a stochastic process, selecting parts and rules randomly at every step.
 The component works additively, hence increasing the number of parts in an aggregation just adds new parts on the existing ones, without triggering recomputing of the previous element.
 -
-Provided by Wasp 0.3
+Provided by Wasp 0.4
     Args:
         PART: Parts to be aggregated (can be more than one)
         PREV: OPTIONAL // Previous aggregated parts. It is possible to input the results of a previous aggregation, or parts transformed with the TransformPart component
         N: Number of parts to be aggregated (does not count parts provided in PREV)
         RULES: Rules for the aggregation
+        SEED: OPTIONAL // Random seed. Set this to a fixed number to allow recreating the same aggregation every time you reset.
         COLL: OPTIONAL // Collision detection. By default is active and checks for collisions between the aggregated parts
         MODE: OPTIONAL // Switches between aggregation modes: 0 = no constraints, 1 = local constraints, 2 = global constraints, 3 = local + global constraints
         GC: OPTIONAL // Global constraints to apply to aggregation
@@ -49,7 +50,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Stochastic Aggregation"
 ghenv.Component.NickName = 'StochasticAggregation'
-ghenv.Component.Message = 'VER 0.4.001'
+ghenv.Component.Message = 'VER 0.4.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -78,7 +79,7 @@ if wasp_loaded:
     from wasp.core import Aggregation
 
 
-def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_constraints, aggregation_id, reset, aggregation):
+def main(parts, previous_parts, num_parts, rules, seed, aggregation_mode, global_constraints, aggregation_id, reset, aggregation):
     
     check_data = True
     
@@ -120,7 +121,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
             for part in parts:
                 parts_copy.append(part.copy())
             
-            aggregation = Aggregation(aggregation_id, parts_copy, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints)
+            aggregation = Aggregation(aggregation_id, parts_copy, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, rnd_seed = seed)
         
         ## handle parameters changes
         #### parts
@@ -171,7 +172,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
 if 'aggregation_container' not in globals():
     aggregation_container = None
 
-result = main(PART, PREV, N, RULES, MODE, GC, ID, RESET, aggregation_container)
+result = main(PART, PREV, N, RULES, SEED, MODE, GC, ID, RESET, aggregation_container)
 
 if result != -1:
     aggregation_container = result

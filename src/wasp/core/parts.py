@@ -231,7 +231,6 @@ class AdvancedPart(Part):
 			return part_trans
 	
 	
-	
 	## return a copy of the part		
 	def copy(self):
 		geo_copy = self.geo.Duplicate()

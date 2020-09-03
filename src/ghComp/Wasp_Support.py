@@ -32,7 +32,7 @@
 Support definition for constrained parts.
 Each set of lines defining support locations can be set
 -
-Provided by Wasp 0.3
+Provided by Wasp 0.4
     Args:
         DIR: Directions of the support locations as lines
         GEO: OPTIONAL // Geometry of the part the support belongs to (useful for checking if the supports are correctly placed)
@@ -42,7 +42,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Support"
 ghenv.Component.NickName = 'Support'
-ghenv.Component.Message = 'VER 0.4.001'
+ghenv.Component.Message = 'VER 0.4.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

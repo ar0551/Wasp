@@ -31,7 +31,7 @@
 """
 Mesh collision global constraint
 -
-Provided by Wasp 0.3
+Provided by Wasp 0.4
     Args:
         GEOMETRY: Geometry of the collision shape
         IN: OPTIONAL // False to allow only parts outside the constraint geometry, True to allow parts only inside (True by default)
@@ -43,7 +43,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Mesh Constraint"
 ghenv.Component.NickName = 'MeshConst'
-ghenv.Component.Message = "VER 0.4.001"
+ghenv.Component.Message = "VER 0.4.002"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"

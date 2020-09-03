@@ -31,7 +31,7 @@
 """
 Extract information from a Connection.
 -
-Provided by Wasp 0.3
+Provided by Wasp 0.4
     Args:
         CONN: Connection to deconstruct
     Returns:
@@ -43,7 +43,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Deconstruct Connection"
 ghenv.Component.NickName = 'DeConn'
-ghenv.Component.Message = 'VER 0.4.001'
+ghenv.Component.Message = 'VER 0.4.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

@@ -34,7 +34,7 @@ DisCo (Discrete Choreography) is developed by Jan Philipp Drude at dMA Hannover 
 Project DisCo is available at: http://www.project-disco.com/
 --> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.3
+Provided by Wasp 0.4
     Args:
         PART: Parts to be aggregated in DisCo
         RULES: Aggregation rules
@@ -51,7 +51,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_DisCo Rule Group"
 ghenv.Component.NickName = 'RuleG'
-ghenv.Component.Message = 'VER 0.4.001'
+ghenv.Component.Message = 'VER 0.4.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | DisCo VR"

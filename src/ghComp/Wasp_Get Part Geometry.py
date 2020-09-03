@@ -31,7 +31,7 @@
 """
 Extract the geometry of one part (for visualization or further processing).
 -
-Provided by Wasp 0.3
+Provided by Wasp 0.4
     Args:
         PART: Part from where to extract the geometry
     Returns:
@@ -40,7 +40,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Get Part Geometry"
 ghenv.Component.NickName = 'PartGeo'
-ghenv.Component.Message = 'VER 0.4.001'
+ghenv.Component.Message = 'VER 0.4.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"

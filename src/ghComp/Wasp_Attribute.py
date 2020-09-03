@@ -33,7 +33,7 @@ Attribute to be attached to a part.
 Could be geometry or any other kind of data (eg. text, numeric variables, color).
 If Geometry, Transformable must be set to True to mantain the geometry attached to the part during aggregation.
 -
-Provided by Wasp 0.3
+Provided by Wasp 0.4
     Args:
         ID: Name of the attribute
         VAL: Value of the attribute (any type of Gh-compatible data possible)
@@ -44,7 +44,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Attribute"
 ghenv.Component.NickName = 'Attribute'
-ghenv.Component.Message = 'VER 0.4.001'
+ghenv.Component.Message = 'VER 0.4.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

@@ -32,7 +32,7 @@
 Add specific parts to an aggregation.
 --> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.3
+Provided by Wasp 0.4
     Args:
         AGGR: Aggregation to edit
         PID: ID of the parent part
@@ -51,7 +51,7 @@ Provided by Wasp 0.3
 
 ghenv.Component.Name = "Wasp_Add Parts"
 ghenv.Component.NickName = 'AddPart'
-ghenv.Component.Message = 'VER 0.4.001'
+ghenv.Component.Message = 'VER 0.4.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
