@@ -14,6 +14,25 @@ from Rhino.Geometry import Vector3d
 
 #################################################################### Connection ####################################################################
 class Connection(object):
+    '''
+	Connection class. Stores the connection plane as well as information about types and rules.
+
+	Args:
+		_plane (Plane): Connection plane
+		_type (str): Connection type (for automated rules generation)
+		_part (str): Name of the part the connection belongs to
+		_id (int): Connection ID (unique within each part)
+
+	Attributes:
+		pln (Plane): Connection plane
+		flip_pln (Plane): Connection plane with Y-axis flipped (in order to connect to another connection)
+		type (str): Connection type (for automated rules generation)
+		part (str): Name of the part the connection belongs to
+		id (int): Connection ID (unique within each part)
+		rule_table ([]): List of Wasp rules compatible with this connection
+		active_rules ([int]): Indexes of still active rules in the rule_table list
+	'''
+
 	
 	## constructor
 	def __init__(self, _plane, _type, _part, _id):
@@ -38,6 +57,15 @@ class Connection(object):
 	
 	## return a transformed copy of the connection
 	def transform(self, trans):
+		'''
+		Returns a transformed connection
+
+		Args:
+			trans (Transformation): Transformation to apply to the Connection
+
+		Returns:
+			conn_trans (Connection): Transformed copy of the Connection
+		'''
 		pln_trans = Plane(self.pln.Origin, self.pln.XAxis, self.pln.YAxis)
 		conn_trans = Connection(pln_trans, self.type, self.part, self.id)
 		conn_trans.pln.Transform(trans)
@@ -46,12 +74,24 @@ class Connection(object):
 	
 	## return a copy of the connection
 	def copy(self):
+		'''
+		Returns a copy of the Connection
+
+		Returns:
+			conn_copy (Connection): Connection copy
+		'''
 		pln_copy = Plane(self.pln.Origin, self.pln.XAxis, self.pln.YAxis)
 		conn_copy = Connection(pln_copy, self.type, self.part, self.id)
 		return conn_copy
 	
 	## generate the rules-table for the connection
 	def generate_rules_table(self, rules):
+		'''
+		Generates the Connection rule_table, given a set of rules
+
+		Args:
+			rules ([]): list of available rules
+		'''
 		count = 0
 		self.rules_table = []
 		self.active_rules = []
