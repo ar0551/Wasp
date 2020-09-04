@@ -38,14 +38,14 @@ Provided by Wasp 0.4
 Code is adapted from Ladybug file updater (https://github.com/mostaphaRoudsari/ladybug)
     
     Args:
-        UP: Set to "True" if you want this component to search through the current Grasshopper file and update Wasp components.
+        UPDATE: Set to "True" if you want this component to search through the current Grasshopper file and update all Wasp components.
     Returns:
         LOG: List of updated files.
 """
 
 ghenv.Component.Name = "Wasp_Update File"
 ghenv.Component.NickName = 'UpdateFile'
-ghenv.Component.Message = 'VER 0.4.002'
+ghenv.Component.Message = 'VER 0.4.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

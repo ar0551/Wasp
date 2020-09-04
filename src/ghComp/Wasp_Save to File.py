@@ -43,7 +43,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Save to File"
 ghenv.Component.NickName = 'WaspSave'
-ghenv.Component.Message = 'VER 0.4.002'
+ghenv.Component.Message = 'VER 0.4.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -52,6 +52,7 @@ except: pass
 
 
 import sys
+import os
 import Rhino.Geometry as rg
 import Grasshopper as gh
 import json
@@ -138,8 +139,7 @@ def main(aggregation, path, filename, save):
             
             aggr_dict['parts'][part.id] = part_dict
         
-        
-        full_path = path + "\\" + filename + ".json"
+        full_path = os.path.join(path, filename + ".json")
         
         if save:
             with open(full_path, "w") as outF:

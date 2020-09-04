@@ -41,7 +41,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Load from File"
 ghenv.Component.NickName = 'WaspLoad'
-ghenv.Component.Message = 'VER 0.4.002'
+ghenv.Component.Message = 'VER 0.4.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -95,7 +95,7 @@ def main(parts, file_path):
         aggr_dict = {}
         
         ## load json data
-        with open(FILE, "r") as inF:
+        with open(file_path, "r") as inF:
             txt_data = inF.read()
             aggr_dict = json.loads(txt_data)
         
