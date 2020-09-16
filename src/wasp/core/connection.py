@@ -14,7 +14,7 @@ from Rhino.Geometry import Vector3d
 
 #################################################################### Connection ####################################################################
 class Connection(object):
-    '''
+	'''
 	Connection class. Stores the connection plane as well as information about types and rules.
 
 	Args:
