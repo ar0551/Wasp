@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.001
+@version 0.4.003
 
 Aggregation class and functions
 """
@@ -197,7 +197,7 @@ class Aggregation(object):
 			if self.aggregated_parts[part_id].active_connections[i] == conn_id:
 				self.aggregated_parts[part_id].active_connections.pop(i)
 				break
-	
+
 	
 	#### constraints checks ####
 	
@@ -245,7 +245,6 @@ class Aggregation(object):
 		global_check = coll_check or add_coll_check or missing_sup_check or global_const_check
 
 		return global_check, coll_check, add_coll_check, missing_sup_check, global_const_check
-
 
 	## overlap // part-part collision check
 	def collision_check(self, part, trans, part_center=None, part_collider=None):
@@ -325,6 +324,24 @@ class Aggregation(object):
 		
 		return False
 	
+	## check all connections for validity against the give constraints
+	def check_all_connections(self):
+		for part in self.aggregated_parts:
+			if len(part.active_connections) > 0:
+				for conn_id in part.active_connections:
+					conn = part.connections[conn_id]
+					if len(conn.active_rules) > 0:
+						for rule_id in conn.active_rules:
+							next_rule = conn.rules_table[rule_id]
+
+							next_part = self.parts[next_rule.part2]
+							orientTransform = Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn.pln)
+							_, coll_check, _, _, _ = self.check_all_constraints(next_part, orientTransform)
+							if coll_check:
+								conn.active_rules.remove(rule_id)
+								if len(conn.active_rules) == 0: 
+									part.active_connections.remove(conn_id)
+	
 	
 	#### aggregation methods ####
 	
@@ -394,8 +411,7 @@ class Aggregation(object):
 					self.aggregated_parts.append(next_part_trans)
 				else:
 					pass ## implement error handling
-	
-	
+
 	## stochastic aggregation
 	def aggregate_rnd(self, num):
 		added = 0
