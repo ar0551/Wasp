@@ -383,7 +383,7 @@ class Aggregation(object):
 				
 				first_part_trans.children.append(next_part_trans)
 			
-			else:
+			elif len(self.aggregated_parts) < len(graph_rules) + 1:
 				aggr_rule = rule.split(">")[0]
 				rule_parts = aggr_rule.split("_")
 				part1_id = str(rule_parts[0].split("|")[0])
