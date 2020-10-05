@@ -29,31 +29,29 @@
 #########################################################################
 
 """
-Generate a 3d point grid to be fed to the field component
+Loads an aggregation from a previously saved .txt file
 -
 Provided by Wasp 0.4
     Args:
-        BOU: List of geometries defining the boundaries of the field. Geometries must be closed breps or meshes.
-        RES: Resolution (Dimension of each cell)
+        FILE: File where the field is saved (.json)
+        UPDATE: True to reload the saved file
     Returns:
-        E_FIELD: Empty field. Assign values with the "Wasp_Field" component
-        PTS: Field points
+        FIELD: Imported field
 """
 
-ghenv.Component.Name = "Wasp_Field Points"
-ghenv.Component.NickName = 'FieldPts'
+ghenv.Component.Name = "Wasp_Load Field from File"
+ghenv.Component.NickName = 'LoadField'
 ghenv.Component.Message = 'VER 0.4.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "5"
 except: pass
 
 
 import sys
-import Rhino.Geometry as rg
 import Grasshopper as gh
-import math
+import json
 
 
 ## add Wasp install directory to system path
@@ -73,69 +71,39 @@ if wasp_loaded:
     from wasp.field import Field
 
 
-def main(boundaries, resolution):
-    
+def main(file_path, update, field):
+        
     check_data = True
     
-    ##check inputs
-    if len(boundaries) == 0:
+    ## check inputs
+    if file_path is None:
         check_data = False
-        msg = "No boundary geometry provided"
+        msg = "No path provided for the file to load"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
-    if resolution is None and len(boundaries) != 0:
-        global_bbox = None
-        for geo in boundaries:
-            bbox = geo.GetBoundingBox(True)
-            
-            if global_bbox is None:
-                global_bbox = bbox
-            else:
-                global_bbox.Union(bbox)
-        
-        x_size = global_bbox.Max.X - global_bbox.Min.X
-        resolution = x_size / 10
-        
-        msg = "No resolution provided. Default resolution set to %d units"%(resolution)
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-        
+    ## execute main code if all needed inputs are available
     if check_data:
-        global_bbox = None
-        for geo in boundaries:
-            bbox = geo.GetBoundingBox(True)
+        
+        if field is None or field == -1 or update:
+            field_dict = {}
             
-            if global_bbox is None:
-                global_bbox = bbox
-            else:
-                global_bbox.Union(bbox)
+            ## load json data
+            with open(file_path, "r") as inF:
+                txt_data = inF.read()
+                field_dict = json.loads(txt_data)
+            
+            field = Field.from_data(field_dict)
         
-        x_size = global_bbox.Max.X - global_bbox.Min.X
-        x_count = int(math.ceil(x_size / resolution)) + 1
-        y_size = global_bbox.Max.Y - global_bbox.Min.Y
-        y_count = int(math.ceil(y_size / resolution)) + 1
-        z_size = global_bbox.Max.Z - global_bbox.Min.Z
-        z_count = int(math.ceil(z_size / resolution)) + 1
-        
-        count = [x_count, y_count, z_count]
-        
-        pts = []
-        s_pt = global_bbox.Min
-        
-        for z in range(z_count):
-            for y in range(y_count):
-                for x in range(x_count):
-                    pt = rg.Point3d(s_pt.X + x*resolution, s_pt.Y + y*resolution, s_pt.Z + z*resolution)
-                    pts.append(pt)
-        
-        empty_field = Field(None, pts, count, resolution, boundaries = boundaries)
-        return pts, empty_field
-        
+        return field
     else:
         return -1
 
+## create field container in global variables dict
+if 'field_container' not in globals():
+    field_container = None
 
-result = main(BOU, RES)
+result = main(FILE, UPDATE, field_container)
 
 if result != -1:
-    PTS = result[0]
-    E_FIELD = result[1]
+    field_container = result
+    FIELD = field_container

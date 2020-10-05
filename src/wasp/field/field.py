@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.001
+@version 0.4.003
 
 Classes and utilities for voxel fields generation
 """
@@ -15,6 +15,7 @@ import math
 from Rhino.Geometry import BoundingBox
 from Rhino.Geometry import Vector3d
 from Rhino.Geometry import Point3d
+from Rhino.Geometry import Mesh
 
 from wasp import global_tolerance
 
@@ -23,28 +24,93 @@ from wasp import global_tolerance
 class Field(object):
 	
 	## constructor
-	def __init__(self, name, boundaries, pts, count_vec, resolution, values = []):
+	def __init__(self, name, pts, count, resolution, values = [], boundaries = []):
 		
 		self.name = name
 		self.resolution = resolution
 		
-		self.boundaries = boundaries
 		self.pts = pts
 		self.bbox = BoundingBox(pts)
 		
-		self.x_count = int(count_vec.X)
-		self.y_count = int(count_vec.Y)
-		self.z_count = int(count_vec.Z)
+		self.x_count = count[0]
+		self.y_count = count[1]
+		self.z_count = count[2]
 		
 		self.vals = []
-		pts_count = 0
-		
+		self.boundaries = boundaries
+
 		self.is_tensor_field = False
+
+		if len(values) > 0:
+			self.set_values(values, self.boundaries)
+		
+	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "WaspField [name: %s, res: %s, count: %s]" % (self.name, self.resolution, len(self.pts))
+	
+	
+	@classmethod
+	def from_data(cls, data):
+		## recreate empty field
+		pts_in = []
+		for pl in data["pts"]:
+			pts_in.append(Point3d(pl[0], pl[1], pl[2]))
+		
+		boundaries_in = []
+		for bl in data["boundaries"]:
+			boundaries_in.append(mesh_from_dict(bl))
+		
+		field = cls(data["name"], pts_in, data["count"], data["resolution"], boundaries = boundaries_in)
+
+		## set values
+		field.set_values(data["values"])
+
+		return field
+		
+
+	def to_data(self):
+		data = {}
+		data["name"] = self.name
+		data["pts"] = self.return_pts_list()
+		data["count"] = self.return_count_vec()
+		data["resolution"] = self.resolution
+		data["values"] = self.return_values_list()
+		data["boundaries"] = []
+		for bou in self.boundaries:
+			data["boundaries"].append(mesh_to_dict(bou))
+		return data			
+	
+
+	## return values as flattened list
+	def return_values_list(self):
+		values_list = []
+		for z in range(0, self.z_count):
+			for y in range(0, self.y_count):
+				for x in range(0, self.x_count):
+					values_list.append(self.vals[z][y][x])
+		return values_list
+	
+
+	## return xyz counts vector
+	def return_count_vec(self):
+		return [self.x_count, self.y_count, self.z_count]
+	
+
+	## return points as python list of lists
+	def return_pts_list(self):
+		return [[pt.X, pt.Y, pt.Z] for pt in self.pts]
+	
+
+	## set values in an empty field
+	def set_values(self, values, boundaries = []):
 		try:
 			v = values[0][2]
 			self.is_tensor_field = True
 		except:
-			pass
+			self.is_tensor_field = False
+		
+		pts_count = 0
 		
 		if len(values) > 0:
 			for z in range(0, self.z_count):
@@ -52,9 +118,9 @@ class Field(object):
 				for y in range(0, self.y_count):
 					self.vals[z].append([])
 					for x in range(0, self.x_count):
-						if len(self.boundaries) > 0:
+						if len(boundaries) > 0:
 							inside = False
-							for bou in self.boundaries:
+							for bou in boundaries:
 								if bou.IsPointInside(self.pts[pts_count], global_tolerance, True) == True:
 									self.vals[z][y].append(values[pts_count])
 									inside = True
@@ -67,20 +133,7 @@ class Field(object):
 						else:
 							self.vals[z][y].append(values[pts_count])
 						pts_count += 1
-	
-	## override Rhino .ToString() method (display name of the class in Gh)
-	def ToString(self):
-		return "WaspField [name: %s, res: %s, count: %s]" % (self.name, self.resolution, len(self.pts))
-	
-	def return_values_list(self):
-		values_list = []
-		for z in range(0, self.z_count):
-			for y in range(0, self.y_count):
-				for x in range(0, self.x_count):
-					values_list.append(self.vals[z][y][x])
-		return values_list
-						
-	
+
 	## return value associated to the closest point of the field to the given point
 	def return_pt_val(self, pt):
 		pt_trans = pt - self.bbox.Min
@@ -138,3 +191,49 @@ class Field(object):
 		highest_pt = highest_pt + self.bbox.Min
 		
 		return highest_pt
+
+
+#################################################################### Utilities ####################################################################
+def mesh_to_dict(mesh):
+    data = {}
+    
+    vertices = []
+    for v in mesh.Vertices:
+        vl = []
+        vl.append(float(v.X))
+        vl.append(float(v.Y))
+        vl.append(float(v.Z))
+        vertices.append(vl)
+    
+    data["vertices"] = vertices
+    
+    faces = []
+    for f in mesh.Faces:
+        fl =[]
+        fl.append(f.A)
+        fl.append(f.B)
+        fl.append(f.C)
+        if f.IsQuad:
+            fl.append(f.D)
+        faces.append(fl)
+    
+    data["faces"] = faces
+    
+    return data
+
+
+def mesh_from_dict(data):
+    mesh = Mesh()
+    
+    for vl in data["vertices"]:
+        mesh.Vertices.Add(vl[0], vl[1], vl[2])
+    
+    for fl in data["faces"]:
+        if len(fl) == 3:
+            mesh.Faces.AddFace(fl[0], fl[1], fl[2])
+        else:
+            mesh.Faces.AddFace(fl[0], fl[1], fl[2], fl[3])
+    
+    mesh.RebuildNormals()
+    
+    return mesh

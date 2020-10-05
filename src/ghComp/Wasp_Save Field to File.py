@@ -29,31 +29,33 @@
 #########################################################################
 
 """
-Generate a 3d point grid to be fed to the field component
+Saves current status of an aggregation to a .json file.
 -
 Provided by Wasp 0.4
     Args:
-        BOU: List of geometries defining the boundaries of the field. Geometries must be closed breps or meshes.
-        RES: Resolution (Dimension of each cell)
+        FIELD: Field to save
+        PATH: Path where to save the aggregation
+        NAME: Name of the exported file
+        SAVE: True to export
     Returns:
-        E_FIELD: Empty field. Assign values with the "Wasp_Field" component
-        PTS: Field points
+        TXT: Text representation of the aggregation
 """
 
-ghenv.Component.Name = "Wasp_Field Points"
-ghenv.Component.NickName = 'FieldPts'
+ghenv.Component.Name = "Wasp_Save Field to File"
+ghenv.Component.NickName = 'SaveField'
 ghenv.Component.Message = 'VER 0.4.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "5"
 except: pass
 
 
 import sys
+import os
 import Rhino.Geometry as rg
 import Grasshopper as gh
-import math
+import json
 
 
 ## add Wasp install directory to system path
@@ -73,69 +75,45 @@ if wasp_loaded:
     from wasp.field import Field
 
 
-def main(boundaries, resolution):
-    
+def main(field, path, filename, save):
+        
     check_data = True
     
-    ##check inputs
-    if len(boundaries) == 0:
+    ## check inputs
+    if field is None:
         check_data = False
-        msg = "No boundary geometry provided"
+        msg = "No field provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
-    if resolution is None and len(boundaries) != 0:
-        global_bbox = None
-        for geo in boundaries:
-            bbox = geo.GetBoundingBox(True)
-            
-            if global_bbox is None:
-                global_bbox = bbox
-            else:
-                global_bbox.Union(bbox)
-        
-        x_size = global_bbox.Max.X - global_bbox.Min.X
-        resolution = x_size / 10
-        
-        msg = "No resolution provided. Default resolution set to %d units"%(resolution)
+    if path is None:
+        check_data = False
+        msg = "No path provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-        
+    
+    if filename is None:
+        check_data = False
+        msg = "No filename provided"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if save is None:
+        save = False
+    
+    ## execute main code if all needed inputs are available
     if check_data:
-        global_bbox = None
-        for geo in boundaries:
-            bbox = geo.GetBoundingBox(True)
-            
-            if global_bbox is None:
-                global_bbox = bbox
-            else:
-                global_bbox.Union(bbox)
         
-        x_size = global_bbox.Max.X - global_bbox.Min.X
-        x_count = int(math.ceil(x_size / resolution)) + 1
-        y_size = global_bbox.Max.Y - global_bbox.Min.Y
-        y_count = int(math.ceil(y_size / resolution)) + 1
-        z_size = global_bbox.Max.Z - global_bbox.Min.Z
-        z_count = int(math.ceil(z_size / resolution)) + 1
+        field_dict = field.to_data()
+        full_path = os.path.join(path, filename + ".json")
         
-        count = [x_count, y_count, z_count]
+        if save:
+            with open(full_path, "w") as outF:
+                json.dump(field_dict, outF)
         
-        pts = []
-        s_pt = global_bbox.Min
-        
-        for z in range(z_count):
-            for y in range(y_count):
-                for x in range(x_count):
-                    pt = rg.Point3d(s_pt.X + x*resolution, s_pt.Y + y*resolution, s_pt.Z + z*resolution)
-                    pts.append(pt)
-        
-        empty_field = Field(None, pts, count, resolution, boundaries = boundaries)
-        return pts, empty_field
-        
+        return json.dumps(field_dict), full_path
     else:
         return -1
 
-
-result = main(BOU, RES)
+result = main(FIELD, PATH, NAME, SAVE)
 
 if result != -1:
-    PTS = result[0]
-    E_FIELD = result[1]
+    TXT = result[0]
+    FILE = result[1]
