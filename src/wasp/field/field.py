@@ -15,9 +15,9 @@ import math
 from Rhino.Geometry import BoundingBox
 from Rhino.Geometry import Vector3d
 from Rhino.Geometry import Point3d
-from Rhino.Geometry import Mesh
 
 from wasp import global_tolerance
+from wasp.utilities import mesh_from_dict, mesh_to_dict
 
 
 #################################################################### Field ####################################################################
@@ -50,6 +50,7 @@ class Field(object):
 		return "WaspField [name: %s, res: %s, count: %s]" % (self.name, self.resolution, len(self.pts))
 	
 	
+	## create class from data dictionary
 	@classmethod
 	def from_data(cls, data):
 		## recreate empty field
@@ -68,7 +69,7 @@ class Field(object):
 
 		return field
 		
-
+	## return the data dictionary representing the field
 	def to_data(self):
 		data = {}
 		data["name"] = self.name
@@ -191,49 +192,3 @@ class Field(object):
 		highest_pt = highest_pt + self.bbox.Min
 		
 		return highest_pt
-
-
-#################################################################### Utilities ####################################################################
-def mesh_to_dict(mesh):
-    data = {}
-    
-    vertices = []
-    for v in mesh.Vertices:
-        vl = []
-        vl.append(float(v.X))
-        vl.append(float(v.Y))
-        vl.append(float(v.Z))
-        vertices.append(vl)
-    
-    data["vertices"] = vertices
-    
-    faces = []
-    for f in mesh.Faces:
-        fl =[]
-        fl.append(f.A)
-        fl.append(f.B)
-        fl.append(f.C)
-        if f.IsQuad:
-            fl.append(f.D)
-        faces.append(fl)
-    
-    data["faces"] = faces
-    
-    return data
-
-
-def mesh_from_dict(data):
-    mesh = Mesh()
-    
-    for vl in data["vertices"]:
-        mesh.Vertices.Add(vl[0], vl[1], vl[2])
-    
-    for fl in data["faces"]:
-        if len(fl) == 3:
-            mesh.Faces.AddFace(fl[0], fl[1], fl[2])
-        else:
-            mesh.Faces.AddFace(fl[0], fl[1], fl[2], fl[3])
-    
-    mesh.RebuildNormals()
-    
-    return mesh

@@ -6,7 +6,7 @@ This file is part of Wasp. https://github.com/ar0551/Wasp
 
 @version 0.4.003
 
-Voxel fields generation modules
+Utilities
 """
 
-from .field import *
+from .utilities import *
