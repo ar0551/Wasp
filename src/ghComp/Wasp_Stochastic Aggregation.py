@@ -50,7 +50,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Stochastic Aggregation"
 ghenv.Component.NickName = 'StochasticAggregation'
-ghenv.Component.Message = 'VER 0.4.002'
+ghenv.Component.Message = 'VER 0.4.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -79,7 +79,7 @@ if wasp_loaded:
     from wasp.core import Aggregation
 
 
-def main(parts, previous_parts, num_parts, rules, seed, aggregation_mode, global_constraints, aggregation_id, reset, aggregation):
+def main(parts, previous_parts, num_parts, rules, seed, catalog, aggregation_mode, global_constraints, aggregation_id, reset, aggregation):
     
     check_data = True
     
@@ -102,6 +102,10 @@ def main(parts, previous_parts, num_parts, rules, seed, aggregation_mode, global
         msg = "No rules provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
+    use_catalog = False
+    if catalog is not None:
+        use_catalog = True
+    
     if aggregation_mode is None:
         aggregation_mode = 0
     
@@ -120,9 +124,10 @@ def main(parts, previous_parts, num_parts, rules, seed, aggregation_mode, global
             parts_copy = []
             for part in parts:
                 parts_copy.append(part.copy())
-            
-            aggregation = Aggregation(aggregation_id, parts_copy, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, rnd_seed = seed)
-        
+            if use_catalog:
+                aggregation = Aggregation(aggregation_id, parts_copy, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _rnd_seed = seed, _catalog = catalog.copy())
+            else:
+                aggregation = Aggregation(aggregation_id, parts_copy, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _rnd_seed = seed)
         ## handle parameters changes
         #### parts
         if parts != aggregation.parts.values():
@@ -153,7 +158,7 @@ def main(parts, previous_parts, num_parts, rules, seed, aggregation_mode, global
         
         ## add parts to aggregation
         if num_parts > len(aggregation.aggregated_parts):
-            error_msg = aggregation.aggregate_rnd(num_parts-len(aggregation.aggregated_parts))
+            error_msg = aggregation.aggregate_rnd(num_parts-len(aggregation.aggregated_parts), use_catalog)
             if error_msg is not None:
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, error_msg)
         
@@ -172,7 +177,7 @@ def main(parts, previous_parts, num_parts, rules, seed, aggregation_mode, global
 if 'aggregation_container' not in globals():
     aggregation_container = None
 
-result = main(PART, PREV, N, RULES, SEED, MODE, GC, ID, RESET, aggregation_container)
+result = main(PART, PREV, N, RULES, SEED, CAT, MODE, GC, ID, RESET, aggregation_container)
 
 if result != -1:
     aggregation_container = result

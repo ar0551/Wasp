@@ -23,7 +23,7 @@ from wasp import global_tolerance
 class Aggregation(object):
 	
 	## class constructor
-	def __init__(self, _name, _parts, _rules, _mode, _prev = [], _coll_check = True, _field = [], _global_constraints = [], rnd_seed = None):
+	def __init__(self, _name, _parts, _rules, _mode, _prev = [], _coll_check = True, _field = [], _global_constraints = [], _rnd_seed = None, _catalog = None):
 		
 		## basic parameters
 		self.name = _name
@@ -78,10 +78,13 @@ class Aggregation(object):
 		self.global_constraints = _global_constraints
 		
 		## random seed
-		if rnd_seed is None:
+		if _rnd_seed is None:
 			random.seed(int(time.time()))
 		else:
-			random.seed(rnd_seed)
+			random.seed(_rnd_seed)
+		
+		## parts catalog
+		self.catalog = _catalog
 
 
 		#### WIP ####
@@ -413,7 +416,7 @@ class Aggregation(object):
 					pass ## implement error handling
 
 	## stochastic aggregation
-	def aggregate_rnd(self, num):
+	def aggregate_rnd(self, num, use_catalog = False):
 		added = 0
 		loops = 0
 		while added < num:
@@ -422,13 +425,23 @@ class Aggregation(object):
 				break
 			## if no part is present in the aggregation, add first random part
 			if len(self.aggregated_parts) == 0:
-				first_part = self.parts[random.choice(self.parts.keys())]
-				first_part_trans = first_part.transform(Transform.Identity)
-				for conn in first_part_trans.connections:
-					conn.generate_rules_table(self.rules)
-				first_part_trans.id = 0
-				self.aggregated_parts.append(first_part_trans)
-				added += 1
+				
+				## choose first part
+				first_part = None
+				if use_catalog:
+					first_part = self.parts[self.catalog.return_weighted_part()]
+				else:
+					first_part = self.parts[random.choice(self.parts.keys())]		
+
+				if first_part is not None:
+					first_part_trans = first_part.transform(Transform.Identity)
+					for conn in first_part_trans.connections:
+						conn.generate_rules_table(self.rules)
+					first_part_trans.id = 0
+					self.aggregated_parts.append(first_part_trans)
+					added += 1
+					if use_catalog:
+						self.catalog.update(first_part_trans.name, -1)
 			## otherwise add new random part
 			else:
 				next_rule = None
@@ -439,15 +452,32 @@ class Aggregation(object):
 				
 				while new_rule_attempts < 10000:
 					new_rule_attempts += 1
-					part_01_id = random.randint(0,len(self.aggregated_parts)-1)
-					part_01 = self.aggregated_parts[part_01_id]
-					if len(part_01.active_connections) > 0:
-						conn_01_id = part_01.active_connections[random.randint(0, len(part_01.active_connections)-1)]
-						conn_01 = part_01.connections[conn_01_id]
-						if len(conn_01.active_rules) > 0:
-							next_rule_id = conn_01.active_rules[random.randint(0, len(conn_01.active_rules)-1)]
-							next_rule = conn_01.rules_table[next_rule_id]
+					next_rule = None
+					if use_catalog:
+						if self.catalog.is_empty:
 							break
+						next_part = self.parts[self.catalog.return_weighted_part()]
+						if next_part is not None:
+							part_01_id = random.randint(0,len(self.aggregated_parts)-1)
+							part_01 = self.aggregated_parts[part_01_id]
+							if len(part_01.active_connections) > 0:
+								conn_01_id = part_01.active_connections[random.randint(0, len(part_01.active_connections)-1)]
+								conn_01 = part_01.connections[conn_01_id]
+								if len(conn_01.active_rules) > 0:
+									next_rule_id = conn_01.active_rules[random.randint(0, len(conn_01.active_rules)-1)]
+									next_rule = conn_01.rules_table[next_rule_id]
+									if next_rule.part2 == next_part.name:
+										break
+					else:
+						part_01_id = random.randint(0,len(self.aggregated_parts)-1)
+						part_01 = self.aggregated_parts[part_01_id]
+						if len(part_01.active_connections) > 0:
+							conn_01_id = part_01.active_connections[random.randint(0, len(part_01.active_connections)-1)]
+							conn_01 = part_01.connections[conn_01_id]
+							if len(conn_01.active_rules) > 0:
+								next_rule_id = conn_01.active_rules[random.randint(0, len(conn_01.active_rules)-1)]
+								next_rule = conn_01.rules_table[next_rule_id]
+								break
 				
 				if next_rule is not None:
 					next_part = self.parts[next_rule.part2]
@@ -468,6 +498,10 @@ class Aggregation(object):
 						self.aggregated_parts[part_01_id].children.append(next_part_trans.id)
 						next_part_trans.parent = self.aggregated_parts[part_01_id].id
 						self.aggregated_parts.append(next_part_trans)
+
+						## update catalog if using one
+						if use_catalog:
+							self.catalog.update(next_part_trans.name, -1)
 						
 						for i in range(len(self.aggregated_parts[part_01_id].active_connections)):
 							if self.aggregated_parts[part_01_id].active_connections[i] == conn_01_id:

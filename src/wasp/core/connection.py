@@ -6,7 +6,7 @@ This file is part of Wasp. https://github.com/ar0551/Wasp
 
 @version 0.4.001
 
-Connection classes
+Connection class
 """
 
 from Rhino.Geometry import Plane

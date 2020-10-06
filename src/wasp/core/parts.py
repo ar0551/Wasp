@@ -4,13 +4,15 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.001
+@version 0.4.003
 
 Part classes and utilities
 """
 
 from Rhino.Geometry import Transform
 from Rhino.Geometry import Point3d
+
+import random
 
 
 #################################################################### Base Part ####################################################################
@@ -271,3 +273,55 @@ class AdvancedPart(Part):
 			part_copy.transformation = self.transformation
 			part_copy.is_constrained = True
 			return part_copy
+
+
+################################################################# Parts Catalog ##################################################################
+class PartCatalog(object):
+	##constructor
+	def __init__(self, _parts, _amounts):
+		
+		self.parts = _parts
+		self.amounts = _amounts
+		
+		self.dict = {}
+		for i in xrange(len(self.parts)):
+			self.dict[self.parts[i].name] = _amounts[i]
+		
+		self.is_empty = False
+		self.parts_total = sum(self.dict.values())
+	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "WaspPartCatalog [%s]" % (self.dict)
+
+	## return a random part type
+	def return_random_part(self):
+		choices = [key for key in self.dict.keys() if self.dict[key] > 0]
+		if len(choices) > 0:
+			return random.choice(choices)
+		else:
+			self.is_empty = True
+			return None
+	
+	## return a weighted-choice between the available parts, give the available parts amounts
+	def return_weighted_part(self):
+		if self.parts_total == 0:
+			self.is_empty = True
+			return None
+		n = random.uniform(0, self.parts_total)
+		for key in self.dict:
+			if n < self.dict[key]:
+				return key
+			n = n - self.dict[key]
+		return None
+		
+	def update(self, part_name, difference):
+		self.dict[part_name] += difference
+		
+		self.parts_total = sum(self.dict.values())
+		if self.parts_total == 0:
+			self.is_empty = True
+	
+	def copy(self):
+		amounts = [self.dict[part.name] for part in self.parts]
+		return PartCatalog(self.parts, amounts)
