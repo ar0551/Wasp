@@ -375,7 +375,7 @@ class Aggregation(object):
 				next_part_trans.id = rule_ids[1]
 				
 				## check additional collider (for fabrication constraints)
-				self.additional_collider_check(next_part, orientTransform)
+				## self.additional_collider_check(next_part, orientTransform)
 				
 				## parent-child tracking
 				first_part_trans.children.append(next_part_trans)

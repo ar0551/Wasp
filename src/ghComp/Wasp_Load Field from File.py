@@ -81,6 +81,9 @@ def main(file_path, load_file):
         msg = "No path provided for the file to load"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
+    if load_file is None:
+        lad_file = False
+    
     ## execute main code if all needed inputs are available
     if check_data:
         
