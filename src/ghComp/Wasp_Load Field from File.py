@@ -41,7 +41,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Load Field from File"
 ghenv.Component.NickName = 'LoadField'
-ghenv.Component.Message = 'VER 0.4.003'
+ghenv.Component.Message = 'VER 0.4.004'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -71,7 +71,7 @@ if wasp_loaded:
     from wasp.field import Field
 
 
-def main(file_path, update, field):
+def main(file_path, load_file):
         
     check_data = True
     
@@ -84,7 +84,7 @@ def main(file_path, update, field):
     ## execute main code if all needed inputs are available
     if check_data:
         
-        if field is None or field == -1 or update:
+        if load_file:
             field_dict = {}
             
             ## load json data
@@ -93,17 +93,15 @@ def main(file_path, update, field):
                 field_dict = json.loads(txt_data)
             
             field = Field.from_data(field_dict)
+            return field
+        else:
+            return -1
         
-        return field
     else:
         return -1
 
-## create field container in global variables dict
-if 'field_container' not in globals():
-    field_container = None
 
-result = main(FILE, UPDATE, field_container)
+result = main(FILE, LOAD)
 
 if result != -1:
-    field_container = result
-    FIELD = field_container
+    FIELD = result

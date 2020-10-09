@@ -49,7 +49,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Deconstruct Part"
 ghenv.Component.NickName = 'DePart'
-ghenv.Component.Message = 'VER 0.4.003'
+ghenv.Component.Message = 'VER 0.4.004'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -109,6 +109,7 @@ def main(part):
         geometry = data_dict['geo']
         connections = data_dict['connections']
         collider = data_dict['collider']
+        center = data_dict['center']
         
         transform = None
         if "transform" in data_dict.keys():
@@ -130,7 +131,7 @@ def main(part):
         if "attributes" in data_dict.keys():
             attributes = data_dict['attributes']
         
-        return name, id, geometry, connections, collider, transform, parent, children, add_collider, attributes
+        return name, id, geometry, connections, collider, center, transform, parents, children, add_collider, attributes
     else:
         return -1
 
@@ -143,8 +144,9 @@ if result != -1:
     GEO = result[2]
     CONN = result[3]
     COLL = result[4]
-    TR = result[5]
-    PARENT = result[6]
-    CHILD = result[7]
-    ADD_COLL = result[8]
-    ATTR = result[9]
+    CENTER = result[5]
+    TR = result[6]
+    PARENT = result[7]
+    CHILD = result[8]
+    ADD_COLL = result[9]
+    ATTR = result[10]
