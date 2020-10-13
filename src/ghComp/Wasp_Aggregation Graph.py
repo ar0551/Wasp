@@ -36,18 +36,20 @@ Provided by Wasp 0.4
         AGGR: Aggregation from which to extract the graph
         FG: [NOT WORKING] OPTIONAL // True to compute the full graph (including edges on overlapping connections), False to create only the aggregation sequence graph (True by default)
         HE: [NOT WORKING] OPTIONAL // True to calculate an half-edge graph (each connection represented twice), False to create only edges from earlier parts to further ones (True by default)
+        F: OPTIONAL // True to flatten the edges list, False to maintain edges grouped by node (True by default).
     Returns:
+        G: Aggregation graph
         N: Graph nodes (each placed at a part's center)
         E: Graph edges as lines
         ES_ID: part ID at edge start
         EE_ID: part ID at edge end
         CS_ID: connection ID at edge start
-        CE_ID connection ID at edge end
+        CE_ID: connection ID at edge end
 """
 
 ghenv.Component.Name = "Wasp_Aggregation Graph"
 ghenv.Component.NickName = 'AggregationGraph'
-ghenv.Component.Message = 'VER 0.4.004'
+ghenv.Component.Message = 'VER 0.4.005'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -73,7 +75,7 @@ except:
 
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
-    from wasp.core import Aggregation
+    from wasp.core import Aggregation, Graph
 
 ## from http://www.chenjingcheng.com/grasshopper-python-datatree-list-conversion/
 def listToDataTree(list):
@@ -88,7 +90,7 @@ def listToDataTree(list):
     return result
 
 
-def main(aggregation, full_graph, half_edge):
+def main(aggregation, full_graph, half_edge, flatten_edges):
     
     check_data = True
     
@@ -104,15 +106,48 @@ def main(aggregation, full_graph, half_edge):
     if half_edge is None:
         half_edge = True
     
+    if flatten_edges is None:
+        flatten_edges = True
+    
     if check_data:
-        nodes = []
-        edges = []
         
+        ## compute aggregation graph
+        g = Graph.from_aggregation(aggregation)
+        
+        ## extract graph data
+        nodes = g.get_nodes()
+        edges = g.get_edges(flatten = flatten_edges)
+        edges_attributes = g.get_edges_attributes(flatten = flatten_edges)
+        
+        ## generate geometric representation
+        nodes_pts = [aggregation.aggregated_parts[i].center for i in nodes]
+        
+        edges_lines = []
+        if flatten_edges:
+            for edge in edges:
+                start = aggregation.aggregated_parts[edge[0]].center
+                end = aggregation.aggregated_parts[edge[1]].center
+                edges_lines.append(rg.Line(start, end))
+        else:
+            pass
+        
+        ## format data for GH outputs
         edge_start_ids = []
         edge_end_ids =[]
         conn_start_ids =[]
         conn_end_ids =[]
         
+        if flatten_edges:
+            for edge_attr in edges_attributes:
+                edge_start_ids.append(edge_attr['start'])
+                edge_end_ids.append(edge_attr['end'])
+                conn_start_ids.append(edge_attr['conn_start'])
+                conn_end_ids.append(edge_attr['conn_end'])
+        else:
+            pass
+        
+        
+        """
         for i in range(len(aggregation.aggregated_parts)):
             p = aggregation.aggregated_parts[i]
             
@@ -147,20 +182,21 @@ def main(aggregation, full_graph, half_edge):
                                 
                                 conn_start_ids[i].append(i2)
                                 conn_end_ids[i].append(i4)
-            
-        return nodes, edges, edge_start_ids, edge_end_ids, conn_start_ids, conn_end_ids
+        """
+        return g, nodes_pts, edges_lines, edge_start_ids, edge_end_ids, conn_start_ids, conn_end_ids
     else:
         return -1
 
 
-result = main(AGGR, FG, HE)
+result = main(AGGR, FG, HE, F)
 
 if result != -1:
-    N = result[0]
-    E = listToDataTree(result[1])
+    G = result[0]
+    N = result[1]
+    E = result[2]
     
-    ES_ID = listToDataTree(result[2])
-    EE_ID = listToDataTree(result[3])
-    CS_ID = listToDataTree(result[4])
-    CE_ID = listToDataTree(result[5])
+    ES_ID = result[3]
+    EE_ID = result[4]
+    CS_ID = result[5]
+    CE_ID = result[6]
 
