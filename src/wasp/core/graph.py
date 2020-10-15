@@ -19,7 +19,7 @@ class Graph(object):
 	def __init__(self):
 		self.graph_dict = {}
 
-		## CURRENTLY NOT IN USE
+		## CURRENTLY NOT IMPLEMENTED
 		self.nodes_attributes = {}
 		self.edges_attributes = {}
 
@@ -60,15 +60,10 @@ class Graph(object):
 		conn_end_ids =[]
 		
 		for i in range(len(aggr.aggregated_parts)):
-			#p = aggregation.aggregated_parts[i]
 			
 			if aggr.aggregated_parts[i].id not in g.graph_dict:
 				nodes.append(aggr.aggregated_parts[i].id)
 				g.graph_dict[aggr.aggregated_parts[i].id] = {}
-			#edges.append([])
-			
-			#edge_start_ids.append([])
-			#edge_end_ids.append([])
 			
 			conn_start_ids.append([])
 			conn_end_ids.append([])
@@ -108,10 +103,12 @@ class Graph(object):
 				count+=1
 		return count
 	
+
 	## get a list of all nodes
 	def get_nodes(self):
 		return self.graph_dict.keys()
 	
+
 	## get a list of all edge pairs
 	def get_edges(self, flatten = True):
 		edges = []
@@ -128,6 +125,7 @@ class Graph(object):
 				n_count +=1
 
 		return edges
+	
 	
 	## get a list of all edge attributes
 	def get_edges_attributes(self, flatten = True):
