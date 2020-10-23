@@ -10,6 +10,8 @@ Constraints classes
 """
 
 from Rhino.Geometry.Intersect import Intersection
+from Rhino.Geometry import Line
+
 from wasp import global_tolerance
 
 #################################################################### Plane Constraint ####################################################################
@@ -116,12 +118,11 @@ class Adjacency_Constraint(object):
 
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspAdjacencyConst [len: %s, type: %s]" % (len(self.directions), "adjacency" if self.is_adjacency else "exclusion")
+		return "WaspAdjacencyConst [size: %s, type: %s]" % (len(self.directions), "Adjacency" if self.is_adjacency else "Exclusion")
 	
 
 	## return a transformed copy of the support
-	@classmethod
-	def transform(cls, trans):
+	def transform(self, trans):
 		directions_trans = []
 		for d in self.directions:
 			d = d.ToNurbsCurve()
@@ -131,13 +132,12 @@ class Adjacency_Constraint(object):
 			end_trans.Transform(trans)
 			d_trans = Line(start_trans, end_trans)
 			directions_trans.append(d_trans)
-		adj_constraint_trans = cls(directions_trans, self.names)
+		adj_constraint_trans = Adjacency_Constraint(directions_trans, self.is_adjacency, self.names)
 		return adj_constraint_trans
 	
 
 	## return a copy of the support
-	@classmethod
-	def copy(cls):
+	def copy(self):
 		directions_copy = []
 		for d in self.directions:
 			d = d.ToNurbsCurve()
@@ -145,7 +145,7 @@ class Adjacency_Constraint(object):
 			end_copy = d.PointAtEnd
 			d_copy = Line(start_copy, end_copy)
 			directions_copy.append(d_copy)
-		adj_constraint_copy = cls(directions_copy, self.names)
+		adj_constraint_copy = Adjacency_Constraint(directions_copy, self.is_adjacency, self.names)
 		return adj_constraint_copy
 	
 

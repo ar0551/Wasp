@@ -229,6 +229,7 @@ class Aggregation(object):
 		coll_check = False
 		add_coll_check = False
 		missing_sup_check = False
+		adjacencies_check = False
 		global_const_check = False
 
 		## variables to store already computed colliders
@@ -247,6 +248,10 @@ class Aggregation(object):
 					
 					if add_coll_check == False:
 						missing_sup_check = self.missing_supports_check(part, trans)
+
+						if missing_sup_check == False:
+							adjacencies_check = self.adjacencies_check(part, trans)
+
 			
 			## onyl global constraints mode
 			elif self.mode == 2:
@@ -261,9 +266,11 @@ class Aggregation(object):
 					add_coll_check = self.additional_collider_check(part, trans)
 					if add_coll_check == False:
 						missing_sup_check = self.missing_supports_check(part, trans)
+						if missing_sup_check == False:
+							adjacencies_check = self.adjacencies_check(part, trans)
 
 		## combine all constraints check result
-		global_check = coll_check or add_coll_check or missing_sup_check or global_const_check
+		global_check = coll_check or add_coll_check or missing_sup_check or global_const_check or adjacencies_check
 
 		return global_check, coll_check, add_coll_check, missing_sup_check, global_const_check
 
@@ -322,7 +329,19 @@ class Aggregation(object):
 		else:
 			return False
 	
+
+	## adjacencies/exclusions check
+	def adjacencies_check(self, part, trans):
+		if len(part.adjacency_const) > 0:
+			for aec in part.adjacency_const:
+				aec_trans = aec.transform(trans)
+				if not aec_trans.check(self.aggregated_parts, self.possible_collisions):
+					return True
+			return False
+		else:
+			return False
 	
+
 	## global constraints check
 	def global_constraints_check(self, part, trans, part_center=None, part_collider=None):
 		valid_constraints = len(self.global_constraints)
