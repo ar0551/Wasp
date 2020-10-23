@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.003
+@version 0.4.005
 
 Part classes and utilities
 """
@@ -278,10 +278,11 @@ class AdvancedPart(Part):
 ################################################################# Parts Catalog ##################################################################
 class PartCatalog(object):
 	##constructor
-	def __init__(self, _parts, _amounts):
+	def __init__(self, _parts, _amounts, _is_limited=True):
 		
 		self.parts = _parts
 		self.amounts = _amounts
+		self.is_limited = _is_limited
 		
 		self.dict = {}
 		for i in xrange(len(self.parts)):
@@ -324,4 +325,4 @@ class PartCatalog(object):
 	
 	def copy(self):
 		amounts = [self.dict[part.name] for part in self.parts]
-		return PartCatalog(self.parts, amounts)
+		return PartCatalog(self.parts, amounts, _is_limited=self.is_limited)

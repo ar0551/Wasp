@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.004
+@version 0.4.005
 
 Aggregation class and functions
 """
@@ -440,7 +440,7 @@ class Aggregation(object):
 					first_part_trans.id = 0
 					self.aggregated_parts.append(first_part_trans)
 					added += 1
-					if use_catalog:
+					if use_catalog and self.catalog.is_limited:
 						self.catalog.update(first_part_trans.name, -1)
 			## otherwise add new random part
 			else:
@@ -454,7 +454,7 @@ class Aggregation(object):
 					new_rule_attempts += 1
 					next_rule = None
 					if use_catalog:
-						if self.catalog.is_empty:
+						if self.catalog.is_limited and self.catalog.is_empty:
 							break
 						next_part = self.parts[self.catalog.return_weighted_part()]
 						if next_part is not None:
@@ -500,7 +500,7 @@ class Aggregation(object):
 						self.aggregated_parts.append(next_part_trans)
 
 						## update catalog if using one
-						if use_catalog:
+						if use_catalog and self.catalog.is_limited:
 							self.catalog.update(next_part_trans.name, -1)
 						
 						for i in range(len(self.aggregated_parts[part_01_id].active_connections)):

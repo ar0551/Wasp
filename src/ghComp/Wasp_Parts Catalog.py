@@ -41,7 +41,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Parts Catalog"
 ghenv.Component.NickName = 'PartCat'
-ghenv.Component.Message = 'VER 0.4.003'
+ghenv.Component.Message = 'VER 0.4.005'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -68,7 +68,7 @@ except:
 if wasp_loaded:
     from wasp.core import PartCatalog
 
-def main(parts, amounts):
+def main(parts, amounts, limited):
     
     check_data = True
     
@@ -94,14 +94,17 @@ def main(parts, amounts):
         msg = "Different amount of parts and part amounts"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
     
+    if limited is None:
+        limited = True
+    
     if check_data:
-        parts_catalog = PartCatalog(parts, amounts)
+        parts_catalog = PartCatalog(parts, amounts, _is_limited = limited)
         return parts_catalog
     else:
         return -1
 
 
-result = main(PART, NUM)
+result = main(PART, NUM, LIM)
 
 if result != -1:
     CAT = result
