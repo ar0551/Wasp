@@ -50,7 +50,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Stochastic Aggregation"
 ghenv.Component.NickName = 'StochasticAggregation'
-ghenv.Component.Message = 'VER 0.4.003'
+ghenv.Component.Message = 'VER 0.4.005'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Aggregation"
@@ -116,7 +116,6 @@ def main(parts, previous_parts, num_parts, rules, seed, catalog, aggregation_mod
         reset = False
     
     if check_data:
-        
         ## create aggregation in sticky dict
         if aggregation is None or aggregation == -1 or reset:
             

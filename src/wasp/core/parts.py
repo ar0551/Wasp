@@ -322,6 +322,8 @@ class PartCatalog(object):
 		self.parts_total = sum(self.dict.values())
 		if self.parts_total == 0:
 			self.is_empty = True
+		else:
+			self.is_empty = False
 	
 	def copy(self):
 		amounts = [self.dict[part.name] for part in self.parts]

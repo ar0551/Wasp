@@ -19,9 +19,11 @@ from Rhino.Geometry import Vector3d
 
 from wasp import global_tolerance
 
+
 #################################################################### Aggregation ####################################################################
 class Aggregation(object):
 	
+
 	## class constructor
 	def __init__(self, _name, _parts, _rules, _mode, _prev = [], _coll_check = True, _field = [], _global_constraints = [], _rnd_seed = None, _catalog = None):
 		
@@ -91,10 +93,12 @@ class Aggregation(object):
 		self.collision_shapes = []
 		self.graph = None
 	
+
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspAggregation [name: %s, size: %s]" % (self.name, len(self.aggregated_parts))
 	
+
 	## reset base parts
 	def reset_base_parts(self, new_parts = None):
 		if new_parts != None:
@@ -104,7 +108,8 @@ class Aggregation(object):
 		
 		for p_key in self.parts:
 			self.parts[p_key].reset_part(self.rules)
-			
+
+
 	## reset rules and regenerate rule tables for each part
 	def reset_rules(self, rules):
 		if rules != self.rules:
@@ -114,6 +119,7 @@ class Aggregation(object):
 			for part in self.aggregated_parts:
 				part.reset_part(rules)
 	
+
 	## recompute aggregation queue
 	def recompute_aggregation_queue(self):
 		self.aggregation_queue = []
@@ -122,15 +128,28 @@ class Aggregation(object):
 		for part in self.aggregated_parts:
 			self.compute_next_w_field(part)
 	
+
 	## trim aggregated parts list to a specific length
 	def remove_elements(self, num):
+		## if using and limited, update the catalog by adding back the removed parts
+		if self.catalog is not None:
+			if self.catalog.is_limited:
+				self.removed_parts = self.aggregated_parts[num:]
+				for p in self.removed_parts:
+					self.catalog.update(p.name, 1)
+
+		## trim the list to the desired length
 		self.aggregated_parts = self.aggregated_parts[:num]
+
+		## reset the remaining parts (reactivate all connections, who might have been blocked by removed parts)
 		for part in self.aggregated_parts:
 			part.reset_part(self.rules)
 		
+		## if using a field, recompute the whole aggregation queue
 		if self.field is not None:
 			self.recompute_aggregation_queue()
 	
+
 	## compute all possible parts which can be placed given an existing part and connection
 	def compute_possible_children(self, part_id, conn_id, check_constraints = False):
 		
@@ -203,7 +222,6 @@ class Aggregation(object):
 
 	
 	#### constraints checks ####
-	
 	## function grouping all collsion and constraints checks
 	def check_all_constraints(self, part, trans):
 		
@@ -249,6 +267,7 @@ class Aggregation(object):
 
 		return global_check, coll_check, add_coll_check, missing_sup_check, global_const_check
 
+	
 	## overlap // part-part collision check
 	def collision_check(self, part, trans, part_center=None, part_collider=None):
 
@@ -274,6 +293,7 @@ class Aggregation(object):
 				return True, None, None
 		return False, part_center, part_collider
 	
+	
 	## additional collider check
 	def additional_collider_check(self, part, trans):
 		if part.add_collider != None:
@@ -283,6 +303,7 @@ class Aggregation(object):
 			## assign computed valid connections according to collider location
 			part.add_collider.valid_connections = list(add_collider.valid_connections)
 		return False
+	
 	
 	## support check
 	def missing_supports_check(self, part, trans):
@@ -300,6 +321,7 @@ class Aggregation(object):
 			return True
 		else:
 			return False
+	
 	
 	## global constraints check
 	def global_constraints_check(self, part, trans, part_center=None, part_collider=None):
@@ -327,6 +349,7 @@ class Aggregation(object):
 		
 		return False
 	
+	
 	## check all connections for validity against the give constraints
 	def check_all_connections(self):
 		for part in self.aggregated_parts:
@@ -347,7 +370,6 @@ class Aggregation(object):
 	
 	
 	#### aggregation methods ####
-	
 	## sequential aggregation with Graph Grammar
 	def aggregate_sequence(self, graph_rules):
 		
@@ -415,6 +437,7 @@ class Aggregation(object):
 				else:
 					pass ## implement error handling
 
+	
 	## stochastic aggregation
 	def aggregate_rnd(self, num, use_catalog = False):
 		added = 0
@@ -525,6 +548,7 @@ class Aggregation(object):
 					## if no part is available, exit the aggregation routine and return an error message
 					msg = "Could not place " + str(num-added) + " parts"
 					return msg
+	
 	
 	## compute all possibilities for child-parts of the given part, and store them in the aggregation queue
 	def compute_next_w_field(self, part):
