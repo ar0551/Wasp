@@ -44,10 +44,10 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Field"
 ghenv.Component.NickName = 'Field'
-ghenv.Component.Message = 'VER 0.4.003'
+ghenv.Component.Message = 'VER 0.4.005'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "4 | Aggregation"
+ghenv.Component.SubCategory = "5 | Fields"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 

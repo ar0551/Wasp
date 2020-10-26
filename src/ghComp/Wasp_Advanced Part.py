@@ -42,13 +42,14 @@ Provided by Wasp 0.4
         ATTR: OPTIONAL // Part attributes
         E_COLL: OPTIONAL // Additional collider geometry (e.g. assembly tool), to be checked in Constrained mode
         SUP: OPTIONAL // Required supports for part placement, to be checked in Constrained mode
+        AEC: OPTIONAL // Adjacency/Exclusion constraints, to be checked in Local Constraints mode
     Returns:
         PART: Part instance
 """
 
 ghenv.Component.Name = "Wasp_Advanced Part"
 ghenv.Component.NickName = 'AdvPart'
-ghenv.Component.Message = 'VER 0.4.003'
+ghenv.Component.Message = 'VER 0.4.005'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -79,7 +80,7 @@ if wasp_loaded:
     from wasp import global_tolerance
 
 
-def main(part_name, part_geo, connections, collider, field_name, sub_parts, attributes, add_collider, supports):
+def main(part_name, part_geo, connections, collider, field_name, sub_parts, attributes, add_collider, supports, adj_constraints):
     
     check_data = True
     
@@ -136,7 +137,7 @@ def main(part_name, part_geo, connections, collider, field_name, sub_parts, attr
             add_collider = Collider([add_collider])
         
         ## create part instance
-        new_part = AdvancedPart(part_name, part_geo, connections, collider, attributes, add_collider, supports, field=field_name, sub_parts=sub_parts)
+        new_part = AdvancedPart(part_name, part_geo, connections, collider, attributes, add_collider, supports, field=field_name, sub_parts=sub_parts, adjacency_const=adj_constraints)
         
         if new_part.dim < global_tolerance*10:
             msg = "The parts you created are very small. You might consider scaling them or decreasing the tolerance of your Rhino file."
@@ -147,7 +148,7 @@ def main(part_name, part_geo, connections, collider, field_name, sub_parts, attr
         return -1
 
 
-result = main(NAME, GEO, CONN, COLL, FIELD, HI, ATTR, E_COLL, SUP)
+result = main(NAME, GEO, CONN, COLL, FIELD, HI, ATTR, E_COLL, SUP, AEC)
 
 if result != -1:
     PART = result

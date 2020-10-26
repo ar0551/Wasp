@@ -272,7 +272,7 @@ class Aggregation(object):
 		## combine all constraints check result
 		global_check = coll_check or add_coll_check or missing_sup_check or global_const_check or adjacencies_check
 
-		return global_check, coll_check, add_coll_check, missing_sup_check, global_const_check
+		return global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check
 
 	
 	## overlap // part-part collision check
@@ -381,7 +381,7 @@ class Aggregation(object):
 
 							next_part = self.parts[next_rule.part2]
 							orientTransform = Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn.pln)
-							_, coll_check, _, _, _ = self.check_all_constraints(next_part, orientTransform)
+							_, coll_check, _, _, _, _ = self.check_all_constraints(next_part, orientTransform)
 							if coll_check:
 								conn.active_rules.remove(rule_id)
 								if len(conn.active_rules) == 0: 
@@ -525,7 +525,7 @@ class Aggregation(object):
 					next_part = self.parts[next_rule.part2]
 					orientTransform = Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn_01.pln)
 					
-					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check = self.check_all_constraints(next_part, orientTransform)
+					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check = self.check_all_constraints(next_part, orientTransform)
 					
 					if not global_check:
 						next_part_trans = next_part.transform(orientTransform)
@@ -661,7 +661,7 @@ class Aggregation(object):
 				next_center = Point3d(next_part.center)
 				orientTransform = next_data[2]
 				
-				global_check, coll_check, add_coll_check, missing_sup_check, global_const_check = self.check_all_constraints(next_part, orientTransform)
+				global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check = self.check_all_constraints(next_part, orientTransform)
 					
 				if not global_check:
 					next_part_trans = next_part.transform(orientTransform)

@@ -53,8 +53,8 @@ ghenv.Component.NickName = 'StochasticAggregation'
 ghenv.Component.Message = 'VER 0.4.005'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "4 | Aggregation"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.SubCategory = "6 | Aggregation"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 import sys

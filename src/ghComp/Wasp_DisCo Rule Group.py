@@ -51,10 +51,10 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_DisCo Rule Group"
 ghenv.Component.NickName = 'RuleG'
-ghenv.Component.Message = 'VER 0.4.003'
+ghenv.Component.Message = 'VER 0.4.005'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "5 | DisCo VR"
+ghenv.Component.SubCategory = "7 | DisCo VR"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 
