@@ -12,6 +12,10 @@ Part classes and utilities
 from Rhino.Geometry import Transform
 from Rhino.Geometry import Point3d
 
+from wasp.utilities import mesh_from_data, mesh_to_data
+from wasp.core import Connection
+from wasp.core.colliders import Collider
+
 import random
 
 
@@ -29,6 +33,7 @@ class Part(object):
 		
 		self.connections = []
 		self.active_connections = []
+
 		count = 0
 		for conn in connections:
 			conn.part = self.name
@@ -63,10 +68,45 @@ class Part(object):
 		
 		self.is_constrained = False
 	
+
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspPart [name: %s, id: %s]" % (self.name, self.id)
 	
+
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		p_name = data['name']
+		p_geometry = mesh_from_data(data['geometry'])
+		p_connections = [Connection.from_data(c_data) for c_data in data['connections']]
+		p_collider = Collider.from_data(data['collider'])
+		p_attributes = [] #### ATTRIBUTES NOT IMPLEMENTED
+		p_dim = float(data['dim'])
+		p_id = None
+		try:
+			p_id = int(data['id'])
+		except:
+			p_id = data['id']
+		p_field = data['field']
+		return cls(p_name, p_geometry, p_connections, p_collider, p_attributes, dim=p_dim, id=p_id, field=p_field)
+
+		
+	## return the data dictionary representing the part
+	def to_data(self):
+		data = {}
+		data['name'] = self.name
+		data['id'] = self.id
+		data['geometry'] = mesh_to_data(self.geo)
+		data['field'] = self.field
+		data['connections'] = [conn.to_data() for conn in self.connections]
+		data['active_connections'] = self.active_connections
+		data['collider'] = self.collider.to_data()
+		data['dim'] = self.dim
+		#### data generated during aggregation NOT IMPLEMENTED
+		return data	
+
+
 	## reset the part and connections according to new provided aggregation rules
 	def reset_part(self, rules):
 		count = 0

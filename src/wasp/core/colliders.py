@@ -10,6 +10,9 @@ Collider classes and utilities
 """
 
 from Rhino.Geometry.Intersect import Intersection
+from wasp.core import Connection
+from wasp.utilities import mesh_from_data, mesh_to_data
+
 
 #################################################################### Collider ####################################################################
 class Collider(object):
@@ -35,6 +38,29 @@ class Collider(object):
 	def ToString(self):
 		return "WaspCollider"
 	
+
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		c_geo = [mesh_from_data(m) for m in data['geometry']]
+		c_multiple = bool(data['multiple'] == 'True')
+		c_check_all = bool(data['check_all'] == 'True')
+		c_connections = [Connection.from_data(c_data) for c_data in data['connections']]
+		c_valid_connections = [int(vc) for vc in data['valid_connections']]
+		return cls(c_geo, _multiple=c_multiple, _check_all=c_check_all, _connections=c_connections, _valid_connections=c_valid_connections)
+
+		
+	## return the data dictionary representing the collider
+	def to_data(self):
+		data = {}
+		data['geometry'] = [mesh_to_data(m) for m in self.geometry]
+		data['multiple'] = self.multiple
+		data['check_all'] = self.check_all
+		data['connections'] = [conn.to_data() for conn in self.connections]
+		data['valid_connections'] = self.valid_connections
+		return data
+
+
 	## return a transformed copy of the collider
 	########################################################################### check if valid connections need to be transformed or re-generated!!!
 	def transform(self, trans, transform_connections = False, maintain_valid = False):

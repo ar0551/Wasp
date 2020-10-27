@@ -10,10 +10,12 @@ Utilities
 """
 
 from Rhino.Geometry import Mesh
+from Rhino.Geometry import Plane
+from Rhino.Geometry import Vector3d, Point3d
 
 
 #################################################################### Utilities ####################################################################
-def mesh_to_dict(mesh):
+def mesh_to_data(mesh):
     data = {}
     
     vertices = []
@@ -41,7 +43,7 @@ def mesh_to_dict(mesh):
     return data
 
 
-def mesh_from_dict(data):
+def mesh_from_data(data):
     mesh = Mesh()
     
     for vl in data["vertices"]:
@@ -56,3 +58,26 @@ def mesh_from_dict(data):
     mesh.RebuildNormals()
     
     return mesh
+
+
+def plane_to_data(pln):
+    data = {}
+    data['origin'] = [pln.Origin.X,pln.Origin.Y, pln.Origin.Z]
+    data['xaxis'] = [pln.XAxis.X, pln.XAxis.Y, pln.XAxis.Z]
+    data['yaxis'] = [pln.YAxis.X, pln.YAxis.Y, pln.YAxis.Z]
+    return data
+
+
+def plane_from_data(data):
+    origin = Point3d(data['origin'][0], data['origin'][1], data['origin'][2])
+    x_axis = Vector3d(data['xaxis'][0], data['xaxis'][1], data['xaxis'][2])
+    y_axis = Vector3d(data['yaxis'][0], data['yaxis'][1], data['yaxis'][2])
+    return Plane(origin, x_axis, y_axis)
+
+
+def transform_to_data(trans):
+    pass
+
+
+def transform_from_data(data):
+    pass

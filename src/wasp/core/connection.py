@@ -12,6 +12,8 @@ Connection class
 from Rhino.Geometry import Plane
 from Rhino.Geometry import Vector3d
 
+from wasp.utilities import plane_from_data, plane_to_data
+
 #################################################################### Connection ####################################################################
 class Connection(object):
 	'''
@@ -50,10 +52,29 @@ class Connection(object):
 		self.rules_table = []
 		self.active_rules = []
 	
+
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspConnection [id: %s, type: %s]" % (self.id, self.type)
 	
+
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		c_pln = plane_from_data(data['plane'])
+		return cls(c_pln, data['type'], data['part'], int(data['id']))
+
+		
+	## return the data dictionary representing the connection
+	def to_data(self):
+		data = {}
+		data['plane'] = plane_to_data(self.pln)
+		data['type'] = self.type
+		data['part'] = self.part
+		data['id'] = self.id
+		#### rules_table and active_rules NOT IMPLEMENTED
+		return data	
+
 	
 	## return a transformed copy of the connection
 	def transform(self, trans):

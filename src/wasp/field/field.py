@@ -17,7 +17,7 @@ from Rhino.Geometry import Vector3d
 from Rhino.Geometry import Point3d
 
 from wasp import global_tolerance
-from wasp.utilities import mesh_from_dict, mesh_to_dict
+from wasp.utilities import mesh_from_data, mesh_to_data
 
 
 #################################################################### Field ####################################################################
@@ -60,7 +60,7 @@ class Field(object):
 		
 		boundaries_in = []
 		for bl in data["boundaries"]:
-			boundaries_in.append(mesh_from_dict(bl))
+			boundaries_in.append(mesh_from_data(bl))
 		
 		field = cls(data["name"], pts_in, data["count"], data["resolution"], boundaries = boundaries_in)
 
@@ -79,7 +79,7 @@ class Field(object):
 		data["values"] = self.return_values_list()
 		data["boundaries"] = []
 		for bou in self.boundaries:
-			data["boundaries"].append(mesh_to_dict(bou))
+			data["boundaries"].append(mesh_to_data(bou))
 		return data			
 	
 
