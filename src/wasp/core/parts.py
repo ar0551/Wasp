@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.005
+@version 0.4.006
 
 Part classes and utilities
 """
@@ -153,7 +153,7 @@ class Part(object):
 		data_dict['attributes'] = self.attributes
 		return data_dict
 	
-	
+
 	## return a transformed copy of the part
 	def transform(self, trans, transform_sub_parts=False):
 		geo_trans = self.geo.Duplicate()
@@ -251,7 +251,9 @@ class AdvancedPart(Part):
 		p_field = data['field']
 
 		#### AdvPart parameters
-		p_add_collider = Collider.from_data(data['add_collider'])
+		p_add_collider = None
+		if data['add_collider'] is not None:
+			p_add_collider = Collider.from_data(data['add_collider'])
 		p_supports = [] ## Supports not implemented (WILL BE REMOVED IN NEXT VERSION)
 		p_sub_parts = [AdvancedPart.from_data(sp_data) for sp_data in data['sub_parts']]
 		p_adjacency_const = [Adjacency_Constraint.from_data(adj_data) for adj_data in data['adjacency_const']]
@@ -289,7 +291,9 @@ class AdvancedPart(Part):
 		data['parent'] = self.parent
 		data['children'] = self.children
 		#### AdvPart parameters
-		data['add_collider'] = self.add_collider.to_data()
+		data['add_collider'] = None
+		if self.add_collider is not None:
+			data['add_collider'] = self.add_collider.to_data()
 		## Supports not implemented (WILL BE REMOVED IN NEXT VERSION)
 		data['adjacency_const'] = [const.to_data() for const in self.adjacency_const]
 		data['sub_parts'] = [sub_p.to_data() for sub_p in self.sub_parts]
@@ -423,7 +427,7 @@ class PartCatalog(object):
 		
 		self.dict = {}
 		for i in xrange(len(self.parts)):
-			self.dict[self.parts[i].name] = _amounts[i]
+			self.dict[self.parts[i]] = _amounts[i]
 		
 		self.is_empty = False
 		self.parts_total = sum(self.dict.values())
@@ -480,5 +484,5 @@ class PartCatalog(object):
 			self.is_empty = False
 	
 	def copy(self):
-		amounts = [self.dict[part.name] for part in self.parts]
+		amounts = [self.dict[part] for part in self.parts]
 		return PartCatalog(self.parts, amounts, _is_limited=self.is_limited)

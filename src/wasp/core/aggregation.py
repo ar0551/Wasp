@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.005
+@version 0.4.006
 
 Aggregation class and functions
 """
@@ -135,7 +135,7 @@ class Aggregation(object):
 		d_rnd_seed = data['rnd_seed']
 		d_catalog = None
 		if data['catalog'] is not None:
-			d_catalog = Catalog.from_data(data['catalog'])
+			d_catalog = PartCatalog.from_data(data['catalog'])
 		
 		aggregation = cls(d_name, d_parts, d_rules, d_mode, [], d_coll_check, _field = d_field, _global_constraints=d_global_constraints, _rnd_seed=d_rnd_seed, _catalog=d_catalog)
 
@@ -174,7 +174,7 @@ class Aggregation(object):
 		elif not self.multiple_fields:
 			data['field'] = [self.field.to_data()]
 		else:
-			data['field'] = [f.to_data() for f in self.fields.values()]
+			data['field'] = [f.to_data() for f in self.field.values()]
 		
 		data['global_constraints'] = [const.to_data() for const in self.global_constraints]
 
@@ -565,7 +565,8 @@ class Aggregation(object):
 				## choose first part
 				first_part = None
 				if use_catalog:
-					first_part = self.parts[self.catalog.return_weighted_part()]
+					first_part_name = self.parts[self.catalog.return_weighted_part()]
+					first_part = self.parts[first_part_name]
 				else:
 					first_part = self.parts[random.choice(self.parts.keys())]		
 

@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.005
+@version 0.4.006
 
 Constraints classes
 """
@@ -166,7 +166,7 @@ class Adjacency_Constraint(object):
 		for d_data in data['directions']:
 			d = Line(d_data['start'][0], d_data['start'][1], d_data['start'][2], d_data['end'][0], d_data['end'][1], d_data['end'][2])
 			d_directions.append(d)
-		return cls(d_directions, data['is_adiacency'], _names=data['names'])
+		return cls(d_directions, data['is_adjacency'], _names=data['names'])
 
 		
 	## return the data dictionary representing the constraint

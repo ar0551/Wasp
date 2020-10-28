@@ -41,7 +41,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Load Field from File"
 ghenv.Component.NickName = 'LoadField'
-ghenv.Component.Message = 'VER 0.4.005'
+ghenv.Component.Message = 'VER 0.4.006'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"

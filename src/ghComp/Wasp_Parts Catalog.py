@@ -41,7 +41,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Parts Catalog"
 ghenv.Component.NickName = 'PartCat'
-ghenv.Component.Message = 'VER 0.4.005'
+ghenv.Component.Message = 'VER 0.4.006'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -98,7 +98,8 @@ def main(parts, amounts, limited):
         limited = True
     
     if check_data:
-        parts_catalog = PartCatalog(parts, amounts, _is_limited = limited)
+        part_names = [part.name for part in parts]
+        parts_catalog = PartCatalog(part_names, amounts, _is_limited = limited)
         return parts_catalog
     else:
         return -1
