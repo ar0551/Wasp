@@ -18,6 +18,10 @@ from Rhino.Geometry import Point3d
 from Rhino.Geometry import Vector3d
 
 from wasp import global_tolerance
+from wasp.core.parts import Part, AdvancedPart, PartCatalog
+from wasp.core.rules import Rule
+from wasp.core.constraints import Plane_Constraint, Mesh_Constraint
+from wasp.field import Field
 
 
 #################################################################### Aggregation ####################################################################
@@ -43,7 +47,7 @@ class Aggregation(object):
 		
 		## fields
 		self.multiple_fields = False
-		if len(_field) == 0 or _field is None:
+		if len(_field) == 0:
 			self.field = None
 		elif len(_field) == 1:
 			self.field = _field[0]
@@ -80,14 +84,15 @@ class Aggregation(object):
 		self.global_constraints = _global_constraints
 		
 		## random seed
+		self.rnd_seed = None
 		if _rnd_seed is None:
-			random.seed(int(time.time()))
+			self.rnd_seed = int(time.time())	
 		else:
-			random.seed(_rnd_seed)
+			self.rnd_seed = _rnd_seed
+		random.seed(self.rnd_seed)
 		
 		## parts catalog
 		self.catalog = _catalog
-
 
 		#### WIP ####
 		self.collision_shapes = []
@@ -97,6 +102,95 @@ class Aggregation(object):
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspAggregation [name: %s, size: %s]" % (self.name, len(self.aggregated_parts))
+	
+
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		d_name = data['name']
+
+		d_parts = []
+		for part_data in data['parts']:
+			if part_data['class_type'] == 'Part':
+				d_parts.append(Part.from_data(part_data))
+			elif part_data['class_type'] == 'AdvancedPart':
+				d_parts.append(AdvancedPart.from_data(part_data))
+			else:
+				pass
+		
+		d_rules = [Rule.from_data(rule_data) for rule_data in data['rules']]
+		d_mode = int(data['mode'])
+		d_coll_check = data['coll_check']
+		d_field = []
+		if data['field'] is not None:
+			d_field = [Field.from_data(field_data) for field_data in data['field']]
+		
+		d_global_constraints = []
+		for const_data in data['global_constraints']:
+			if const_data['type'] == 'plane':
+				d_global_constraints.append(Plane_Constraint.from_data(const_data))
+			elif const_data['type'] == 'mesh_collider':
+				d_global_constraints.append(Mesh_Constraint.from_data(const_data))
+
+		d_rnd_seed = data['rnd_seed']
+		d_catalog = None
+		if data['catalog'] is not None:
+			d_catalog = Catalog.from_data(data['catalog'])
+		
+		aggregation = cls(d_name, d_parts, d_rules, d_mode, [], d_coll_check, _field = d_field, _global_constraints=d_global_constraints, _rnd_seed=d_rnd_seed, _catalog=d_catalog)
+
+		d_aggregated_parts = []
+		for p_id in data['aggregated_parts_sequence']:
+			aggr_part_data = data['aggregated_parts'][str(p_id)]
+			if aggr_part_data['class_type'] == 'Part':
+				d_aggregated_parts.append(Part.from_data(aggr_part_data))
+			elif aggr_part_data['class_type'] == 'AdvancedPart':
+				d_aggregated_parts.append(AdvancedPart.from_data(aggr_part_data))
+			else:
+				pass
+		
+		aggregation.aggregated_parts = d_aggregated_parts
+		aggregation.reset_rules(aggregation.rules)
+
+		## if using a field, recompute the whole aggregation queue
+		if aggregation.field is not None:
+			aggregation.recompute_aggregation_queue()
+
+		return aggregation
+
+
+		
+	## return the data dictionary representing the aggregation
+	def to_data(self):
+		data = {}
+		data['name'] = self.name
+		data['parts'] = [part.to_data() for part in self.parts.values()]
+		data['rules'] = [rule.to_data() for rule in self.rules]
+		data['mode'] = self.mode
+		data['coll_check'] = self.coll_check
+
+		if self.field is None:
+			data['field'] = None
+		elif not self.multiple_fields:
+			data['field'] = [self.field.to_data()]
+		else:
+			data['field'] = [f.to_data() for f in self.fields.values()]
+		
+		data['global_constraints'] = [const.to_data() for const in self.global_constraints]
+
+		data['rnd_seed'] = self.rnd_seed
+		data['catalog'] = None
+		if self.catalog is not None:
+			data['catalog'] = self.catalog.to_data()
+
+		#data['aggregated_parts'] = [part.to_data() for part in self.aggregated_parts]
+		data['aggregated_parts'] =  {}
+		data['aggregated_parts_sequence'] = []
+		for part in self.aggregated_parts:
+			data['aggregated_parts'][part.id] = part.to_data()
+			data['aggregated_parts_sequence'].append(part.id)
+
+		return data
 	
 
 	## reset base parts

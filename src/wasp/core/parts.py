@@ -16,6 +16,7 @@ from wasp.utilities import mesh_from_data, mesh_to_data
 from wasp.utilities import transform_from_data, transform_to_data
 from wasp.core import Connection
 from wasp.core.colliders import Collider
+from wasp.core.constraints import Adjacency_Constraint
 
 import random
 
@@ -110,6 +111,9 @@ class Part(object):
 	## return the data dictionary representing the part
 	def to_data(self):
 		data = {}
+		## class types
+		data['class_type'] = 'Part'
+		## shared parameters
 		data['name'] = self.name
 		data['id'] = self.id
 		data['geometry'] = mesh_to_data(self.geo)
@@ -148,6 +152,7 @@ class Part(object):
 		data_dict['children'] = self.children
 		data_dict['attributes'] = self.attributes
 		return data_dict
+	
 	
 	## return a transformed copy of the part
 	def transform(self, trans, transform_sub_parts=False):
@@ -222,10 +227,76 @@ class AdvancedPart(Part):
 		if len(self.sub_parts) > 0:
 			self.hierarchy_level = self.sub_parts[0].hierarchy_level + 1
 	
+
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspAdvPart [name: %s, id: %s]" % (self.name, self.id)
 	
+
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		p_name = data['name']
+		p_geometry = mesh_from_data(data['geometry'])
+		p_connections = [Connection.from_data(c_data) for c_data in data['connections']]
+		p_collider = Collider.from_data(data['collider'])
+		p_attributes = [] #### ATTRIBUTES NOT IMPLEMENTED
+		p_dim = float(data['dim'])
+
+		p_id = None
+		try:
+			p_id = int(data['id'])
+		except:
+			p_id = data['id']
+		p_field = data['field']
+
+		#### AdvPart parameters
+		p_add_collider = Collider.from_data(data['add_collider'])
+		p_supports = [] ## Supports not implemented (WILL BE REMOVED IN NEXT VERSION)
+		p_sub_parts = [AdvancedPart.from_data(sp_data) for sp_data in data['sub_parts']]
+		p_adjacency_const = [Adjacency_Constraint.from_data(adj_data) for adj_data in data['adjacency_const']]
+
+		adv_part = cls(p_name, p_geometry, p_connections, p_collider, p_attributes, p_add_collider, p_supports, dim=p_dim, id=p_id, field=p_field, sub_parts=p_sub_parts, adjacency_const=p_adjacency_const)
+
+		adv_part.transformation = transform_from_data(data['transform'])
+		adv_part.parent = data['parent']
+		
+		for child_data in data['children']:
+			child_id = None
+			try:
+				adv_part.children.append(int(child_data))
+			except:
+				adv_part.children.append(child_data)
+		
+		return adv_part
+
+		
+	## return the data dictionary representing the part
+	def to_data(self):
+		data = {}
+		## class types
+		data['class_type'] = 'AdvancedPart'
+		## shared parameters
+		data['name'] = self.name
+		data['id'] = self.id
+		data['geometry'] = mesh_to_data(self.geo)
+		data['field'] = self.field
+		data['connections'] = [conn.to_data() for conn in self.connections]
+		data['active_connections'] = self.active_connections
+		data['collider'] = self.collider.to_data()
+		data['transform'] = transform_to_data(self.transformation)
+		data['dim'] = self.dim
+		data['parent'] = self.parent
+		data['children'] = self.children
+		#### AdvPart parameters
+		data['add_collider'] = self.add_collider.to_data()
+		## Supports not implemented (WILL BE REMOVED IN NEXT VERSION)
+		data['adjacency_const'] = [const.to_data() for const in self.adjacency_const]
+		data['sub_parts'] = [sub_p.to_data() for sub_p in self.sub_parts]
+		return data
+
+
+
 	## return all part data
 	######################################## add returs for adjacency constraints
 	def return_part_data(self):
@@ -357,10 +428,27 @@ class PartCatalog(object):
 		self.is_empty = False
 		self.parts_total = sum(self.dict.values())
 	
+
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspPartCatalog [%s]" % (self.dict)
+	
+	
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		return cls(data['parts'], [int(a) for a in data['amounts']], _is_limited=data['is_limited'])
 
+		
+	## return the data dictionary representing the catalog
+	def to_data(self):
+		data = {}
+		data['parts'] = self.parts
+		data['amounts'] = self.amounts
+		data['is_limited'] = self.is_limited
+		return data	
+	
+	
 	## return a random part type
 	def return_random_part(self):
 		choices = [key for key in self.dict.keys() if self.dict[key] > 0]

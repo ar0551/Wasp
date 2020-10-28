@@ -10,9 +10,10 @@ Constraints classes
 """
 
 from Rhino.Geometry.Intersect import Intersection
-from Rhino.Geometry import Line
+from Rhino.Geometry import Point3d, Line
 
 from wasp import global_tolerance
+from wasp.utilities import plane_from_data, plane_to_data, mesh_from_data, mesh_to_data
 
 #################################################################### Plane Constraint ####################################################################
 class Plane_Constraint(object):
@@ -25,9 +26,28 @@ class Plane_Constraint(object):
 		self.soft = _soft
 		self.required = _required
 	
+
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspPlaneConst [+: %s, soft: %s, required: %s]" % (self.positive, self.soft, self.required)
+	
+
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		return cls(plane_from_data(data['plane']), _positive=data['positive'], _soft=data['soft'], _required=data['required'])
+
+		
+	## return the data dictionary representing the constraint
+	def to_data(self):
+		data = {}
+		data['type'] = self.type
+		data['plane'] = plane_to_data(self.plane)
+		data['positive'] = self.positive
+		data['soft'] = self.soft
+		data['required'] = self.required
+		return data	
+	
 	
 	## constraint check method
 	def check(self, pt = None, collider = None):
@@ -69,10 +89,28 @@ class Mesh_Constraint(object):
 		self.soft = _soft
 		self.required = _required
 	
+
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspMeshConst [in: %s, soft: %s, required: %s]" % (self.inside, self.soft, self.required)
 	
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		return cls(mesh_from_data(data['geometry']), inside=data['inside'], _soft=data['soft'], _required=data['required'])
+
+		
+	## return the data dictionary representing the constraint
+	def to_data(self):
+		data = {}
+		data['type'] = self.type
+		data['geometry'] = mesh_to_data(self.geo)
+		data['inside'] = self.inside
+		data['soft'] = self.soft
+		data['required'] = self.required
+		return data	
+
+
 	## constraint check method
 	def check(self, pt = None, collider = None):
 		if self.soft:
@@ -120,6 +158,29 @@ class Adjacency_Constraint(object):
 	def ToString(self):
 		return "WaspAdjacencyConst [size: %s, type: %s]" % (len(self.directions), "Adjacency" if self.is_adjacency else "Exclusion")
 	
+
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		d_directions = []
+		for d_data in data['directions']:
+			d = Line(d_data['start'][0], d_data['start'][1], d_data['start'][2], d_data['end'][0], d_data['end'][1], d_data['end'][2])
+			d_directions.append(d)
+		return cls(d_directions, data['is_adiacency'], _names=data['names'])
+
+		
+	## return the data dictionary representing the constraint
+	def to_data(self):
+		data = {}
+		data['directions'] = []
+		for d in self.directions:
+			d_data = {}
+			d_data['start'] = [d.FromX, d.FromY, d.FromZ]
+			d_data['end'] = [d.ToX, d.ToY, d.ToZ]
+			data['directions'].append(d_data)
+		data['is_adjacency'] = self.is_adjacency
+		data['names'] = self.names
+		return data	
 
 	## return a transformed copy of the support
 	def transform(self, trans):
