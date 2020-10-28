@@ -13,6 +13,7 @@ from Rhino.Geometry import Transform
 from Rhino.Geometry import Point3d
 
 from wasp.utilities import mesh_from_data, mesh_to_data
+from wasp.utilities import transform_from_data, transform_to_data
 from wasp.core import Connection
 from wasp.core.colliders import Collider
 
@@ -83,13 +84,27 @@ class Part(object):
 		p_collider = Collider.from_data(data['collider'])
 		p_attributes = [] #### ATTRIBUTES NOT IMPLEMENTED
 		p_dim = float(data['dim'])
+		
 		p_id = None
 		try:
 			p_id = int(data['id'])
 		except:
 			p_id = data['id']
 		p_field = data['field']
-		return cls(p_name, p_geometry, p_connections, p_collider, p_attributes, dim=p_dim, id=p_id, field=p_field)
+
+		part = cls(p_name, p_geometry, p_connections, p_collider, p_attributes, dim=p_dim, id=p_id, field=p_field)
+
+		part.transformation = transform_from_data(data['transform'])
+		part.parent = data['parent']
+		
+		for child_data in data['children']:
+			child_id = None
+			try:
+				part.children.append(int(child_data))
+			except:
+				part.children.append(child_data)
+		
+		return part
 
 		
 	## return the data dictionary representing the part
@@ -102,8 +117,10 @@ class Part(object):
 		data['connections'] = [conn.to_data() for conn in self.connections]
 		data['active_connections'] = self.active_connections
 		data['collider'] = self.collider.to_data()
+		data['transform'] = transform_to_data(self.transformation)
 		data['dim'] = self.dim
-		#### data generated during aggregation NOT IMPLEMENTED
+		data['parent'] = self.parent
+		data['children'] = self.children
 		return data	
 
 

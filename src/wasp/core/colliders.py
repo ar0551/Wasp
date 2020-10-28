@@ -43,8 +43,8 @@ class Collider(object):
 	@classmethod
 	def from_data(cls, data):
 		c_geo = [mesh_from_data(m) for m in data['geometry']]
-		c_multiple = bool(data['multiple'] == 'True')
-		c_check_all = bool(data['check_all'] == 'True')
+		c_multiple = data['multiple']
+		c_check_all = data['check_all']
 		c_connections = [Connection.from_data(c_data) for c_data in data['connections']]
 		c_valid_connections = [int(vc) for vc in data['valid_connections']]
 		return cls(c_geo, _multiple=c_multiple, _check_all=c_check_all, _connections=c_connections, _valid_connections=c_valid_connections)
