@@ -15,6 +15,8 @@ import math
 from Rhino.Geometry import BoundingBox
 from Rhino.Geometry import Vector3d
 from Rhino.Geometry import Point3d
+from Rhino.Geometry import Plane, Box
+from Rhino.Geometry import Transform
 
 from wasp import global_tolerance
 from wasp.utilities import mesh_from_data, mesh_to_data
@@ -24,7 +26,7 @@ from wasp.utilities import mesh_from_data, mesh_to_data
 class Field(object):
 	
 	## constructor
-	def __init__(self, name, pts, count, resolution, values = [], boundaries = []):
+	def __init__(self, name, pts, count, resolution, values = [], boundaries = [], plane = None):
 		
 		self.name = name
 		self.resolution = resolution
@@ -38,12 +40,82 @@ class Field(object):
 		
 		self.vals = []
 		self.boundaries = boundaries
+		self.plane = plane
 
 		self.is_tensor_field = False
 
 		if len(values) > 0:
 			self.set_values(values, self.boundaries)
+	
+
+	@classmethod
+	def from_boundaries(cls, _boundaries, _resolution, _plane = None):
+		empty_field = None
+		if _plane is None:
+			global_bbox = None
+			for geo in _boundaries:
+				bbox = geo.GetBoundingBox(True)
+				
+				if global_bbox is None:
+					global_bbox = bbox
+				else:
+					global_bbox.Union(bbox)
+			
+			x_size = global_bbox.Max.X - global_bbox.Min.X
+			x_count = int(math.ceil(x_size / _resolution)) + 1
+			y_size = global_bbox.Max.Y - global_bbox.Min.Y
+			y_count = int(math.ceil(y_size / _resolution)) + 1
+			z_size = global_bbox.Max.Z - global_bbox.Min.Z
+			z_count = int(math.ceil(z_size / _resolution)) + 1
+			
+			count = [x_count, y_count, z_count]
+			
+			pts = []
+			s_pt = global_bbox.Min
+			
+			for z in range(z_count):
+				for y in range(y_count):
+					for x in range(x_count):
+						pt = Point3d(s_pt.X + x*_resolution, s_pt.Y + y*_resolution, s_pt.Z + z*_resolution)
+						pts.append(pt)
+			
+			empty_field = cls(None, pts, count, _resolution, boundaries = _boundaries)
+
+		else:
+			global_bbox = None
+			for geo in _boundaries:
+				if global_bbox is None:
+					global_bbox = Box(_plane, geo)
+				else:
+					new_box = Box(_plane, geo)
+					for corner in new_box.GetCorners():
+						global_bbox.Union(corner)
+			
+			x_size = global_bbox.X.Max - global_bbox.X.Min
+			x_count = int(math.ceil(x_size / _resolution)) + 1
+			y_size = global_bbox.Y.Max - global_bbox.Y.Min
+			y_count = int(math.ceil(y_size / _resolution)) + 1
+			z_size = global_bbox.Z.Max - global_bbox.Z.Min
+			z_count = int(math.ceil(z_size / _resolution)) + 1
+			
+			count = [x_count, y_count, z_count]
+			
+			pts = []
+			s_pt = global_bbox.PointAt(0,0,0)
+			s_plane = Plane(s_pt, _plane.XAxis, _plane.YAxis)
+			orient_transform = Transform.PlaneToPlane(Plane.WorldXY, s_plane)
+			
+			for z in range(z_count):
+				for y in range(y_count):
+					for x in range(x_count):
+						pt = Point3d(x*_resolution, y*_resolution, z*_resolution)
+						pt.Transform(orient_transform)
+						pts.append(pt)
+			
+			empty_field = cls(None, pts, count, _resolution, boundaries = _boundaries, plane = _plane)
 		
+		return empty_field
+
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
