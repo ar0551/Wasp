@@ -112,7 +112,7 @@ class Field(object):
 						pt.Transform(orient_transform)
 						pts.append(pt)
 			
-			empty_field = cls(None, pts, count, _resolution, boundaries = _boundaries, plane = _plane)
+			empty_field = cls(None, pts, count, _resolution, boundaries = _boundaries, plane = s_plane)
 		
 		return empty_field
 
@@ -176,7 +176,7 @@ class Field(object):
 	
 
 	## set values in an empty field
-	def set_values(self, values, boundaries = []):
+	def set_values(self, values, use_boundaries = False):
 		try:
 			v = values[0][2]
 			self.is_tensor_field = True
@@ -191,9 +191,9 @@ class Field(object):
 				for y in range(0, self.y_count):
 					self.vals[z].append([])
 					for x in range(0, self.x_count):
-						if len(boundaries) > 0:
+						if use_boundaries and len(self.boundaries) > 0:
 							inside = False
-							for bou in boundaries:
+							for bou in self.boundaries:
 								if bou.IsPointInside(self.pts[pts_count], global_tolerance, True) == True:
 									self.vals[z][y].append(values[pts_count])
 									inside = True
@@ -209,7 +209,12 @@ class Field(object):
 
 	## return value associated to the closest point of the field to the given point
 	def return_pt_val(self, pt):
-		pt_trans = pt - self.bbox.Min
+		pt_trans = None
+		if self.plane is None:
+			pt_trans = pt - self.bbox.Min
+		else:
+			pt_trans = self.plane.RemapToPlaneSpace(pt)[1]
+		
 		x = int(math.floor(pt_trans.X/self.resolution))
 		y = int(math.floor(pt_trans.Y/self.resolution))
 		z = int(math.floor(pt_trans.Z/self.resolution))
@@ -217,10 +222,12 @@ class Field(object):
 		value = self.vals[z][y][x]
 		return value
 	
-	## find and return highest value in the field
+	## find and return highest value in the field ########################### TO FIX FOR ORIENTABLE FIELD!!!
 	def return_highest_pt(self, constraints = None):
 		max_val = -1
 		max_coords = None
+		max_count = -1
+		count = 0
 		
 		for z in range(0, self.z_count):
 			for y in range(0, self.y_count):
@@ -259,8 +266,12 @@ class Field(object):
 							else:
 								max_val = value
 								max_coords = (x,y,z)
+								max_count = count
+					count += 1
 		
-		highest_pt = Point3d(max_coords[0]*self.resolution, max_coords[1]*self.resolution, max_coords[2]*self.resolution)
-		highest_pt = highest_pt + self.bbox.Min
+		#highest_pt = Point3d(max_coords[0]*self.resolution, max_coords[1]*self.resolution, max_coords[2]*self.resolution)
+		#highest_pt = highest_pt + self.bbox.Min
 		
+		highest_pt = self.pts[max_count]
+
 		return highest_pt
