@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.006
+@version 0.4.007
 
 Classes and utilities for voxel fields generation
 """
@@ -19,20 +19,21 @@ from Rhino.Geometry import Plane, Box
 from Rhino.Geometry import Transform
 
 from wasp import global_tolerance
-from wasp.utilities import mesh_from_data, mesh_to_data
+from wasp.utilities import mesh_from_data, mesh_to_data, plane_from_data, plane_to_data
 
 
 #################################################################### Field ####################################################################
 class Field(object):
 	
 	## constructor
-	def __init__(self, name, pts, count, resolution, values = [], boundaries = [], plane = None):
+	def __init__(self, name, pts, count, resolution, plane, values = [], boundaries = []):
 		
 		self.name = name
-		self.resolution = resolution
-		
 		self.pts = pts
-		self.bbox = BoundingBox(pts)
+		self.resolution = resolution
+		self.plane = plane
+		
+		self.bbox = Box(self.plane, self.pts)
 		
 		self.x_count = count[0]
 		self.y_count = count[1]
@@ -40,8 +41,7 @@ class Field(object):
 		
 		self.vals = []
 		self.boundaries = boundaries
-		self.plane = plane
-
+		
 		self.is_tensor_field = False
 
 		if len(values) > 0:
@@ -49,70 +49,38 @@ class Field(object):
 	
 
 	@classmethod
-	def from_boundaries(cls, _boundaries, _resolution, _plane = None):
-		empty_field = None
-		if _plane is None:
-			global_bbox = None
-			for geo in _boundaries:
-				bbox = geo.GetBoundingBox(True)
-				
-				if global_bbox is None:
-					global_bbox = bbox
-				else:
-					global_bbox.Union(bbox)
-			
-			x_size = global_bbox.Max.X - global_bbox.Min.X
-			x_count = int(math.ceil(x_size / _resolution)) + 1
-			y_size = global_bbox.Max.Y - global_bbox.Min.Y
-			y_count = int(math.ceil(y_size / _resolution)) + 1
-			z_size = global_bbox.Max.Z - global_bbox.Min.Z
-			z_count = int(math.ceil(z_size / _resolution)) + 1
-			
-			count = [x_count, y_count, z_count]
-			
-			pts = []
-			s_pt = global_bbox.Min
-			
-			for z in range(z_count):
-				for y in range(y_count):
-					for x in range(x_count):
-						pt = Point3d(s_pt.X + x*_resolution, s_pt.Y + y*_resolution, s_pt.Z + z*_resolution)
-						pts.append(pt)
-			
-			empty_field = cls(None, pts, count, _resolution, boundaries = _boundaries)
-
-		else:
-			global_bbox = None
-			for geo in _boundaries:
-				if global_bbox is None:
-					global_bbox = Box(_plane, geo)
-				else:
-					new_box = Box(_plane, geo)
-					for corner in new_box.GetCorners():
-						global_bbox.Union(corner)
-			
-			x_size = global_bbox.X.Max - global_bbox.X.Min
-			x_count = int(math.ceil(x_size / _resolution)) + 1
-			y_size = global_bbox.Y.Max - global_bbox.Y.Min
-			y_count = int(math.ceil(y_size / _resolution)) + 1
-			z_size = global_bbox.Z.Max - global_bbox.Z.Min
-			z_count = int(math.ceil(z_size / _resolution)) + 1
-			
-			count = [x_count, y_count, z_count]
-			
-			pts = []
-			s_pt = global_bbox.PointAt(0,0,0)
-			s_plane = Plane(s_pt, _plane.XAxis, _plane.YAxis)
-			orient_transform = Transform.PlaneToPlane(Plane.WorldXY, s_plane)
-			
-			for z in range(z_count):
-				for y in range(y_count):
-					for x in range(x_count):
-						pt = Point3d(x*_resolution, y*_resolution, z*_resolution)
-						pt.Transform(orient_transform)
-						pts.append(pt)
-			
-			empty_field = cls(None, pts, count, _resolution, boundaries = _boundaries, plane = s_plane)
+	def from_boundaries(cls, _boundaries, _resolution, _plane):
+		global_bbox = None
+		for geo in _boundaries:
+			if global_bbox is None:
+				global_bbox = Box(_plane, geo)
+			else:
+				new_box = Box(_plane, geo)
+				for corner in new_box.GetCorners():
+					global_bbox.Union(corner)
+		
+		x_size = global_bbox.X.Max - global_bbox.X.Min
+		x_count = int(math.ceil(x_size / _resolution)) + 1
+		y_size = global_bbox.Y.Max - global_bbox.Y.Min
+		y_count = int(math.ceil(y_size / _resolution)) + 1
+		z_size = global_bbox.Z.Max - global_bbox.Z.Min
+		z_count = int(math.ceil(z_size / _resolution)) + 1
+		
+		count = [x_count, y_count, z_count]
+		
+		pts = []
+		s_pt = global_bbox.PointAt(0,0,0)
+		s_plane = Plane(s_pt, _plane.XAxis, _plane.YAxis)
+		orient_transform = Transform.PlaneToPlane(Plane.WorldXY, s_plane)
+		
+		for z in range(z_count):
+			for y in range(y_count):
+				for x in range(x_count):
+					pt = Point3d(x*_resolution, y*_resolution, z*_resolution)
+					pt.Transform(orient_transform)
+					pts.append(pt)
+		
+		empty_field = cls(None, pts, count, _resolution, s_plane, boundaries = _boundaries)
 		
 		return empty_field
 
@@ -129,12 +97,12 @@ class Field(object):
 		pts_in = []
 		for pl in data["pts"]:
 			pts_in.append(Point3d(pl[0], pl[1], pl[2]))
-		
+
 		boundaries_in = []
 		for bl in data["boundaries"]:
 			boundaries_in.append(mesh_from_data(bl))
 		
-		field = cls(data["name"], pts_in, data["count"], data["resolution"], boundaries = boundaries_in)
+		field = cls(data["name"], pts_in, data["count"], data["resolution"], plane_from_data(data['plane']), boundaries = boundaries_in)
 
 		## set values
 		field.set_values(data["values"])
@@ -144,14 +112,15 @@ class Field(object):
 	## return the data dictionary representing the field
 	def to_data(self):
 		data = {}
-		data["name"] = self.name
-		data["pts"] = self.return_pts_list()
-		data["count"] = self.return_count_vec()
-		data["resolution"] = self.resolution
-		data["values"] = self.return_values_list()
-		data["boundaries"] = []
+		data['name'] = self.name
+		data['pts'] = self.return_pts_list()
+		data['count'] = self.return_count_vec()
+		data['resolution'] = self.resolution
+		data['plane'] = plane_to_data(self.plane)
+		data['values'] = self.return_values_list()
+		data['boundaries'] = []
 		for bou in self.boundaries:
-			data["boundaries"].append(mesh_to_data(bou))
+			data['boundaries'].append(mesh_to_data(bou))
 		return data			
 	
 
@@ -209,11 +178,7 @@ class Field(object):
 
 	## return value associated to the closest point of the field to the given point
 	def return_pt_val(self, pt):
-		pt_trans = None
-		if self.plane is None:
-			pt_trans = pt - self.bbox.Min
-		else:
-			pt_trans = self.plane.RemapToPlaneSpace(pt)[1]
+		pt_trans = self.plane.RemapToPlaneSpace(pt)[1]
 		
 		x = int(math.floor(pt_trans.X/self.resolution))
 		y = int(math.floor(pt_trans.Y/self.resolution))
@@ -228,6 +193,7 @@ class Field(object):
 		max_coords = None
 		max_count = -1
 		count = 0
+		highest_pt = None
 		
 		for z in range(0, self.z_count):
 			for y in range(0, self.y_count):
@@ -268,10 +234,6 @@ class Field(object):
 								max_coords = (x,y,z)
 								max_count = count
 					count += 1
-		
-		#highest_pt = Point3d(max_coords[0]*self.resolution, max_coords[1]*self.resolution, max_coords[2]*self.resolution)
-		#highest_pt = highest_pt + self.bbox.Min
-		
-		highest_pt = self.pts[max_count]
 
+		highest_pt = Plane(self.pts[max_count], self.plane.XAxis, self.plane.YAxis)
 		return highest_pt

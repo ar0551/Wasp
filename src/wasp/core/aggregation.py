@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.006
+@version 0.4.007
 
 Aggregation class and functions
 """
@@ -14,8 +14,7 @@ import bisect
 import time
 
 from Rhino.Geometry import Transform
-from Rhino.Geometry import Point3d
-from Rhino.Geometry import Vector3d
+from Rhino.Geometry import Point3d, Vector3d, Plane
 
 from wasp import global_tolerance
 from wasp.core.parts import Part, AdvancedPart, PartCatalog
@@ -731,9 +730,11 @@ class Aggregation(object):
 					else:
 					   start_point = self.field.return_highest_pt()
 				
-				mov_vec = Vector3d.Subtract(Vector3d(start_point), Vector3d(first_part.center))
-				move_transform = Transform.Translation(mov_vec.X, mov_vec.Y, mov_vec.Z)
-				first_part_trans = first_part.transform(move_transform)
+				base_plane = Plane(first_part.center, Vector3d.XAxis, Vector3d.YAxis)
+				first_transform = Transform.PlaneToPlane(base_plane, start_point)
+				
+				#### maybe add possibility to choose if first part should be oriented in the field plane or not
+				first_part_trans = first_part.transform(first_transform)
 				
 				for conn in first_part_trans.connections:
 					conn.generate_rules_table(self.rules)
