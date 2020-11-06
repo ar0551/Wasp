@@ -13,10 +13,10 @@ Classes and utilities for voxel fields generation
 import math
 
 from Rhino.Geometry import BoundingBox
-from Rhino.Geometry import Vector3d
-from Rhino.Geometry import Point3d
+from Rhino.Geometry import Vector3d, Point3d
 from Rhino.Geometry import Plane, Box
 from Rhino.Geometry import Transform
+from Rhino.Geometry import Mesh
 
 from wasp import global_tolerance
 from wasp.utilities import mesh_from_data, mesh_to_data, plane_from_data, plane_to_data
@@ -237,3 +237,130 @@ class Field(object):
 
 		highest_pt = Plane(self.pts[max_count], self.plane.XAxis, self.plane.YAxis)
 		return highest_pt
+	
+	def compute_voxel_mesh(self, iso, cap = True):
+		voxel_mesh = Mesh()
+		for z in xrange(self.z_count):
+			for y in xrange(self.y_count):
+				for x in xrange(self.x_count):
+					if self.vals[z][y][x] < iso:
+						if x == 0:
+							if cap:
+								index = voxel_mesh.Vertices.Count
+								voxel_mesh.Vertices.Add(x,y,z)
+								voxel_mesh.Vertices.Add(x,y+1,z)
+								voxel_mesh.Vertices.Add(x,y+1,z+1)
+								voxel_mesh.Vertices.Add(x,y,z+1)
+								voxel_mesh.Faces.AddFace(index + 2, index + 1, index + 0)
+								voxel_mesh.Faces.AddFace(index + 3, index + 2, index + 0)
+						elif self.vals[z][y][x-1] > iso:
+							index = voxel_mesh.Vertices.Count
+							voxel_mesh.Vertices.Add(x,y,z)
+							voxel_mesh.Vertices.Add(x,y+1,z)
+							voxel_mesh.Vertices.Add(x,y+1,z+1)
+							voxel_mesh.Vertices.Add(x,y,z+1)
+							voxel_mesh.Faces.AddFace(index + 2, index + 1, index + 0)
+							voxel_mesh.Faces.AddFace(index + 3, index + 2, index + 0)
+							
+						if x == self.x_count-1:
+							if cap:
+								index = voxel_mesh.Vertices.Count
+								voxel_mesh.Vertices.Add(x+1,y,z)
+								voxel_mesh.Vertices.Add(x+1,y+1,z)
+								voxel_mesh.Vertices.Add(x+1,y+1,z+1)
+								voxel_mesh.Vertices.Add(x+1,y,z+1)
+								voxel_mesh.Faces.AddFace(index + 0, index + 1, index + 2)
+								voxel_mesh.Faces.AddFace(index + 0, index + 2, index + 3)
+						elif self.vals[z][y][x+1] > iso:
+							index = voxel_mesh.Vertices.Count
+							voxel_mesh.Vertices.Add(x+1,y,z)
+							voxel_mesh.Vertices.Add(x+1,y+1,z)
+							voxel_mesh.Vertices.Add(x+1,y+1,z+1)
+							voxel_mesh.Vertices.Add(x+1,y,z+1)
+							voxel_mesh.Faces.AddFace(index + 0, index + 1, index + 2)
+							voxel_mesh.Faces.AddFace(index + 0, index + 2, index + 3)
+							
+						if y == 0:
+							if cap:
+								index = voxel_mesh.Vertices.Count
+								voxel_mesh.Vertices.Add(x,y,z)
+								voxel_mesh.Vertices.Add(x+1,y,z)
+								voxel_mesh.Vertices.Add(x+1,y,z+1)
+								voxel_mesh.Vertices.Add(x,y,z+1)
+								voxel_mesh.Faces.AddFace(index + 0, index + 1, index + 2)
+								voxel_mesh.Faces.AddFace(index + 0, index + 2, index + 3)
+						elif self.vals[z][y-1][x] > iso:
+							index = voxel_mesh.Vertices.Count
+							voxel_mesh.Vertices.Add(x,y,z)
+							voxel_mesh.Vertices.Add(x+1,y,z)
+							voxel_mesh.Vertices.Add(x+1,y,z+1)
+							voxel_mesh.Vertices.Add(x,y,z+1)
+							voxel_mesh.Faces.AddFace(index + 0, index + 1, index + 2)
+							voxel_mesh.Faces.AddFace(index + 0, index + 2, index + 3)
+							
+						if y == self.y_count - 1:
+							if cap:
+								index = voxel_mesh.Vertices.Count
+								voxel_mesh.Vertices.Add(x,y+1,z)
+								voxel_mesh.Vertices.Add(x+1,y+1,z)
+								voxel_mesh.Vertices.Add(x+1,y+1,z+1)
+								voxel_mesh.Vertices.Add(x,y+1,z+1)
+								voxel_mesh.Faces.AddFace(index + 2, index + 1, index + 0)
+								voxel_mesh.Faces.AddFace(index + 3, index + 2, index + 0)
+						elif self.vals[z][y+1][x] > iso:
+							index = voxel_mesh.Vertices.Count
+							voxel_mesh.Vertices.Add(x,y+1,z)
+							voxel_mesh.Vertices.Add(x+1,y+1,z)
+							voxel_mesh.Vertices.Add(x+1,y+1,z+1)
+							voxel_mesh.Vertices.Add(x,y+1,z+1)
+							voxel_mesh.Faces.AddFace(index + 2, index + 1, index + 0)
+							voxel_mesh.Faces.AddFace(index + 3, index + 2, index + 0)
+							
+						if z == 0:
+							if cap:
+								index = voxel_mesh.Vertices.Count
+								voxel_mesh.Vertices.Add(x,y,z)
+								voxel_mesh.Vertices.Add(x+1,y,z)
+								voxel_mesh.Vertices.Add(x+1,y+1,z)
+								voxel_mesh.Vertices.Add(x,y+1,z)
+								voxel_mesh.Faces.AddFace(index + 2, index + 1, index + 0)
+								voxel_mesh.Faces.AddFace(index + 3, index + 2, index + 0)
+						elif self.vals[z-1][y][x] > iso:
+							index = voxel_mesh.Vertices.Count
+							voxel_mesh.Vertices.Add(x,y,z)
+							voxel_mesh.Vertices.Add(x+1,y,z)
+							voxel_mesh.Vertices.Add(x+1,y+1,z)
+							voxel_mesh.Vertices.Add(x,y+1,z)
+							voxel_mesh.Faces.AddFace(index + 2, index + 1, index + 0)
+							voxel_mesh.Faces.AddFace(index + 3, index + 2, index + 0)
+							
+						if z == self.z_count - 1:
+							if cap:
+								index = voxel_mesh.Vertices.Count
+								voxel_mesh.Vertices.Add(x,y,z+1)
+								voxel_mesh.Vertices.Add(x+1,y,z+1)
+								voxel_mesh.Vertices.Add(x+1,y+1,z+1)
+								voxel_mesh.Vertices.Add(x,y+1,z+1)
+								voxel_mesh.Faces.AddFace(index + 0, index + 1, index + 2)
+								voxel_mesh.Faces.AddFace(index + 0, index + 2, index + 3)
+						elif self.vals[z+1][y][x] > iso:
+							index = voxel_mesh.Vertices.Count
+							voxel_mesh.Vertices.Add(x,y,z+1)
+							voxel_mesh.Vertices.Add(x+1,y,z+1)
+							voxel_mesh.Vertices.Add(x+1,y+1,z+1)
+							voxel_mesh.Vertices.Add(x,y+1,z+1)
+							voxel_mesh.Faces.AddFace(index + 0, index + 1, index + 2)
+							voxel_mesh.Faces.AddFace(index + 0, index + 2, index + 3)
+							
+		voxel_mesh.Weld(math.pi)
+
+		scale_transform = Transform.Scale(Point3d(0,0,0), self.resolution) 
+		voxel_mesh.Transform(scale_transform)
+
+		s_pt = self.bbox.PointAt(0,0,0)
+		s_plane = Plane(s_pt, self.plane.XAxis, self.plane.YAxis)
+		orient_transform = Transform.PlaneToPlane(Plane.WorldXY, s_plane)
+		voxel_mesh.Transform(orient_transform)
+
+		voxel_mesh.RebuildNormals()
+		return voxel_mesh
