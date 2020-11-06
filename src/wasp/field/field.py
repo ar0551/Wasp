@@ -124,6 +124,20 @@ class Field(object):
 		return data			
 	
 
+	## return a transformed copy of the field
+	def transform(self, trans):
+		pts_trans = [Point3d(pt) for pt in self.pts]
+		for pt in pts_trans:
+			pt.Transform(trans)
+		plane_trans = Plane(self.plane)
+		plane_trans.Transform(trans)
+		boundaries_trans = [b.Duplicate() for b in self.boundaries]
+		for bt in boundaries_trans:
+			bt.Transform(trans)
+		
+		field_trans = Field(self.name, pts_trans, self.return_count_vec(), self.resolution, plane_trans, values=self.return_values_list(), boundaries = boundaries_trans)
+		return field_trans
+
 	## return values as flattened list
 	def return_values_list(self):
 		values_list = []
@@ -243,7 +257,7 @@ class Field(object):
 		for z in xrange(self.z_count):
 			for y in xrange(self.y_count):
 				for x in xrange(self.x_count):
-					if self.vals[z][y][x] < iso:
+					if self.vals[z][y][x] > iso:
 						if x == 0:
 							if cap:
 								index = voxel_mesh.Vertices.Count
@@ -253,7 +267,7 @@ class Field(object):
 								voxel_mesh.Vertices.Add(x,y,z+1)
 								voxel_mesh.Faces.AddFace(index + 2, index + 1, index + 0)
 								voxel_mesh.Faces.AddFace(index + 3, index + 2, index + 0)
-						elif self.vals[z][y][x-1] > iso:
+						elif self.vals[z][y][x-1] < iso:
 							index = voxel_mesh.Vertices.Count
 							voxel_mesh.Vertices.Add(x,y,z)
 							voxel_mesh.Vertices.Add(x,y+1,z)
@@ -271,7 +285,7 @@ class Field(object):
 								voxel_mesh.Vertices.Add(x+1,y,z+1)
 								voxel_mesh.Faces.AddFace(index + 0, index + 1, index + 2)
 								voxel_mesh.Faces.AddFace(index + 0, index + 2, index + 3)
-						elif self.vals[z][y][x+1] > iso:
+						elif self.vals[z][y][x+1] < iso:
 							index = voxel_mesh.Vertices.Count
 							voxel_mesh.Vertices.Add(x+1,y,z)
 							voxel_mesh.Vertices.Add(x+1,y+1,z)
@@ -289,7 +303,7 @@ class Field(object):
 								voxel_mesh.Vertices.Add(x,y,z+1)
 								voxel_mesh.Faces.AddFace(index + 0, index + 1, index + 2)
 								voxel_mesh.Faces.AddFace(index + 0, index + 2, index + 3)
-						elif self.vals[z][y-1][x] > iso:
+						elif self.vals[z][y-1][x] < iso:
 							index = voxel_mesh.Vertices.Count
 							voxel_mesh.Vertices.Add(x,y,z)
 							voxel_mesh.Vertices.Add(x+1,y,z)
@@ -307,7 +321,7 @@ class Field(object):
 								voxel_mesh.Vertices.Add(x,y+1,z+1)
 								voxel_mesh.Faces.AddFace(index + 2, index + 1, index + 0)
 								voxel_mesh.Faces.AddFace(index + 3, index + 2, index + 0)
-						elif self.vals[z][y+1][x] > iso:
+						elif self.vals[z][y+1][x] < iso:
 							index = voxel_mesh.Vertices.Count
 							voxel_mesh.Vertices.Add(x,y+1,z)
 							voxel_mesh.Vertices.Add(x+1,y+1,z)
@@ -325,7 +339,7 @@ class Field(object):
 								voxel_mesh.Vertices.Add(x,y+1,z)
 								voxel_mesh.Faces.AddFace(index + 2, index + 1, index + 0)
 								voxel_mesh.Faces.AddFace(index + 3, index + 2, index + 0)
-						elif self.vals[z-1][y][x] > iso:
+						elif self.vals[z-1][y][x] < iso:
 							index = voxel_mesh.Vertices.Count
 							voxel_mesh.Vertices.Add(x,y,z)
 							voxel_mesh.Vertices.Add(x+1,y,z)
@@ -343,7 +357,7 @@ class Field(object):
 								voxel_mesh.Vertices.Add(x,y+1,z+1)
 								voxel_mesh.Faces.AddFace(index + 0, index + 1, index + 2)
 								voxel_mesh.Faces.AddFace(index + 0, index + 2, index + 3)
-						elif self.vals[z+1][y][x] > iso:
+						elif self.vals[z+1][y][x] < iso:
 							index = voxel_mesh.Vertices.Count
 							voxel_mesh.Vertices.Add(x,y,z+1)
 							voxel_mesh.Vertices.Add(x+1,y,z+1)
