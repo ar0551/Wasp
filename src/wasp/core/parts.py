@@ -172,7 +172,7 @@ class Part(object):
 		
 		part_trans = Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, dim=self.dim, id=self.id, field=self.field)
 		
-		part_trans.transformation = Tranform.Multiply(self.transformation, trans)
+		part_trans.transformation = Transform.Multiply(self.transformation, trans)
 		return part_trans
 	
 	## return a copy of the part
@@ -355,13 +355,13 @@ class AdvancedPart(Part):
 				sp_trans = sp.transform(trans, transform_sub_parts = True, sub_level = sub_level - 1)
 				sub_parts_trans.append(sp_trans)
 			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_trans, adjacency_const = adjacency_const_trans)
-			part_trans.transformation = Tranform.Multiply(self.transformation, trans)
+			part_trans.transformation = Transform.Multiply(self.transformation, trans)
 			part_trans.is_constrained = True
 			return part_trans
 		
 		else:
 			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts, adjacency_const = adjacency_const_trans)
-			part_trans.transformation = Tranform.Multiply(self.transformation, trans)
+			part_trans.transformation = Transform.Multiply(self.transformation, trans)
 			part_trans.is_constrained = True
 			return part_trans
 	

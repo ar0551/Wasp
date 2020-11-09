@@ -380,6 +380,7 @@ class Field(object):
 		s_plane = Plane(s_pt, self.plane.XAxis, self.plane.YAxis)
 		orient_transform = Transform.PlaneToPlane(Plane.WorldXY, s_plane)
 		voxel_mesh.Transform(orient_transform)
+		voxel_mesh.Translate(-self.resolution/2, -self.resolution/2, -self.resolution/2)
 
 		voxel_mesh.RebuildNormals()
 		return voxel_mesh
