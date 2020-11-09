@@ -34,14 +34,14 @@ Loads an aggregation from a previously saved .txt file
 Provided by Wasp 0.4
     Args:
         FILE: File where the field is saved (.json)
-        UPDATE: True to reload the saved file
+        UPDATE: True to load the saved file
     Returns:
         FIELD: Imported field
 """
 
 ghenv.Component.Name = "Wasp_Load Field from File"
 ghenv.Component.NickName = 'LoadField'
-ghenv.Component.Message = 'VER 0.4.006'
+ghenv.Component.Message = 'VER 0.4.007'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"

@@ -34,16 +34,16 @@ Saves current status of an aggregation to a .json file.
 Provided by Wasp 0.4
     Args:
         FIELD: Field to save
-        PATH: Path where to save the aggregation
+        PATH: Path where to save the field
         NAME: Name of the exported file
         SAVE: True to export
     Returns:
-        TXT: Text representation of the aggregation
+        FILE: Path to the saved file
 """
 
 ghenv.Component.Name = "Wasp_Save Field to File"
 ghenv.Component.NickName = 'SaveField'
-ghenv.Component.Message = 'VER 0.4.006'
+ghenv.Component.Message = 'VER 0.4.007'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"

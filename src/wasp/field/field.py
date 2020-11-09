@@ -81,7 +81,7 @@ class Field(object):
 					pt.Transform(orient_transform)
 					pts.append(pt)
 		
-		empty_field = cls(None, pts, count, _resolution, s_plane, boundaries = _boundaries)
+		empty_field = cls(None, pts, count, _resolution, plane = s_plane, boundaries = _boundaries)
 		
 		return empty_field
 
@@ -103,7 +103,7 @@ class Field(object):
 		for bl in data["boundaries"]:
 			boundaries_in.append(mesh_from_data(bl))
 		
-		field = cls(data["name"], pts_in, data["count"], data["resolution"], plane_from_data(data['plane']), boundaries = boundaries_in)
+		field = cls(data["name"], pts_in, data["count"], data["resolution"], plane = plane_from_data(data['plane']), boundaries = boundaries_in)
 
 		## set values
 		field.set_values(data["values"])
@@ -136,7 +136,7 @@ class Field(object):
 		for bt in boundaries_trans:
 			bt.Transform(trans)
 		
-		field_trans = Field(self.name, pts_trans, self.return_count_vec(), self.resolution, plane_trans, values=self.return_values_list(), boundaries = boundaries_trans)
+		field_trans = Field(self.name, pts_trans, self.return_count_vec(), self.resolution, plane=plane_trans, values=self.return_values_list(), boundaries = boundaries_trans)
 		return field_trans
 	
 

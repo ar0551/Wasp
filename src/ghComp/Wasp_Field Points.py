@@ -35,6 +35,7 @@ Provided by Wasp 0.4
     Args:
         BOU: List of geometries defining the boundaries of the field. Geometries must be closed breps or meshes.
         RES: Resolution (Dimension of each cell)
+        PLN: OPTIONAL // Field base plane (WorldXY by default)
     Returns:
         E_FIELD: Empty field. Assign values with the "Wasp_Field" component
         PTS: Field points
@@ -42,7 +43,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Field Points"
 ghenv.Component.NickName = 'FieldPts'
-ghenv.Component.Message = 'VER 0.4.006'
+ghenv.Component.Message = 'VER 0.4.007'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"
@@ -73,7 +74,7 @@ if wasp_loaded:
     from wasp.field import Field
 
 
-def main(boundaries, resolution):
+def main(boundaries, resolution, base_plane):
     
     check_data = True
     
@@ -83,17 +84,21 @@ def main(boundaries, resolution):
         msg = "No boundary geometry provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
+    if base_plane is None:
+        base_plane = rg.Plane.WorldXY
+    
     if resolution is None and len(boundaries) != 0:
         global_bbox = None
         for geo in boundaries:
-            bbox = geo.GetBoundingBox(True)
-            
             if global_bbox is None:
-                global_bbox = bbox
+                global_bbox = rg.Box(base_plane, geo)
             else:
-                global_bbox.Union(bbox)
+                new_box = rg.Box(base_plane, geo)
+                for corner in new_box.GetCorners():
+                    global_bbox.Union(corner)
         
-        x_size = global_bbox.Max.X - global_bbox.Min.X
+        x_size = global_bbox.X.Max - global_bbox.X.Min
+        
         resolution = x_size / 10
         
         msg = "No resolution provided. Default resolution set to %d units"%(resolution)
@@ -127,14 +132,15 @@ def main(boundaries, resolution):
                     pt = rg.Point3d(s_pt.X + x*resolution, s_pt.Y + y*resolution, s_pt.Z + z*resolution)
                     pts.append(pt)
         
-        empty_field = Field(None, pts, count, resolution, boundaries = boundaries)
-        return pts, empty_field
+        #empty_field = Field(None, pts, count, resolution, boundaries = boundaries)
+        empty_field = Field.from_boundaries(boundaries, resolution, _plane = base_plane)
+        return empty_field.pts, empty_field
         
     else:
         return -1
 
 
-result = main(BOU, RES)
+result = main(BOU, RES, PLN)
 
 if result != -1:
     PTS = result[0]

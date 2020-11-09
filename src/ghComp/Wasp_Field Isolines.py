@@ -44,7 +44,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Field Isolines"
 ghenv.Component.NickName = 'FieldIso'
-ghenv.Component.Message = 'VER 0.4.006'
+ghenv.Component.Message = 'VER 0.4.007'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory =  "5 | Fields"
@@ -107,6 +107,9 @@ def main(field, plane, t, iso):
         binary_matrix = []
         contour_cases = []
         contours = []
+        base_plane = None
+        target_pt = field.bbox.PointAt(0,0,0)
+        target_plane = None
         
         #XY Plane contouring
         if plane == 0:
@@ -135,9 +138,9 @@ def main(field, plane, t, iso):
                     contour_cases[y].append(c_case)
             
             ## CONTOURS GENERATION
-            res = field.resolution
-            base_pt = rg.Point3d(field.bbox.Min.X, field.bbox.Min.Y, field.bbox.Min.Z + z*res)
-            
+            base_plane = rg.Plane.WorldXY
+            target_pt += field.plane.ZAxis*(z*field.resolution)
+            target_plane = rg.Plane(target_pt, field.plane.XAxis, field.plane.YAxis)
             
             for y in range(0, field.y_count-1):
                 for x in range(0, field.x_count-1):
@@ -145,8 +148,8 @@ def main(field, plane, t, iso):
                     c_shape = contour_lookup[c_case]
                     if c_shape != -1:
                         for shape in c_shape:
-                            c_start = rg.Point3d(base_pt.X + x*res + res*shape[0][0], base_pt.Y + y*res + res*shape[0][1], base_pt.Z)
-                            c_end = rg.Point3d(base_pt.X + x*res + res*shape[1][0], base_pt.Y + y*res + res*shape[1][1], base_pt.Z)
+                            c_start = rg.Point3d(x + shape[0][0], y + shape[0][1], 0)
+                            c_end = rg.Point3d(x + shape[1][0], y + shape[1][1], 0)
                             contour = rg.Line(c_start, c_end).ToNurbsCurve()
                             contours.append(contour)
         
@@ -177,8 +180,9 @@ def main(field, plane, t, iso):
                     contour_cases[z].append(c_case)
             
             ## CONTOURS GENERATION
-            res = field.resolution
-            base_pt = rg.Point3d(field.bbox.Min.X + x*res, field.bbox.Min.Y, field.bbox.Min.Z)
+            base_plane = rg.Plane.WorldYZ
+            target_pt += field.plane.XAxis*(x*field.resolution)
+            target_plane = rg.Plane(target_pt, field.plane.YAxis, field.plane.ZAxis)
             
             for z in range(0, field.z_count-1):
                 for y in range(0, field.y_count-1):
@@ -186,8 +190,8 @@ def main(field, plane, t, iso):
                     c_shape = contour_lookup[c_case]
                     if c_shape != -1:
                         for shape in c_shape:
-                            c_start = rg.Point3d(base_pt.X, base_pt.Y + y*res + res*shape[0][0], base_pt.Z + z*res + res*shape[0][1])
-                            c_end = rg.Point3d(base_pt.X, base_pt.Y + y*res + res*shape[1][0], base_pt.Z+ z*res + res*shape[1][1])
+                            c_start = rg.Point3d(0, y + shape[0][0], z + shape[0][1])
+                            c_end = rg.Point3d(0, y + shape[1][0], z + shape[1][1])
                             contour = rg.Line(c_start, c_end).ToNurbsCurve()
                             contours.append(contour)
         
@@ -218,8 +222,9 @@ def main(field, plane, t, iso):
                     contour_cases[z].append(c_case)
             
             ## CONTOURS GENERATION
-            res = field.resolution
-            base_pt = rg.Point3d(field.bbox.Min.X, field.bbox.Min.Y + y*res, field.bbox.Min.Z)
+            base_plane = rg.Plane.WorldZX
+            target_pt += field.plane.YAxis*(y*field.resolution)
+            target_plane = rg.Plane(target_pt, field.plane.ZAxis, field.plane.XAxis)
             
             for z in range(0, field.z_count-1):
                 for x in range(0, field.x_count-1):
@@ -227,12 +232,20 @@ def main(field, plane, t, iso):
                     c_shape = contour_lookup[c_case]
                     if c_shape != -1:
                         for shape in c_shape:
-                            c_start = rg.Point3d(base_pt.X + x*res + res*shape[0][0], base_pt.Y, base_pt.Z + z*res + res*shape[0][1])
-                            c_end = rg.Point3d(base_pt.X + x*res + res*shape[1][0], base_pt.Y, base_pt.Z  + z*res + res*shape[1][1])
+                            c_start = rg.Point3d(x + shape[0][0], 0, z + shape[0][1])
+                            c_end = rg.Point3d(x + shape[1][0], 0, z + shape[1][1])
                             contour = rg.Line(c_start, c_end).ToNurbsCurve()
                             contours.append(contour)
         
-        return rg.Curve.JoinCurves(contours)
+        contour_curves = rg.Curve.JoinCurves(contours)
+        scale_transform = rg.Transform.Scale(rg.Point3d(0,0,0), field.resolution)
+        
+        orient_transform = rg.Transform.PlaneToPlane(base_plane, target_plane)
+        for curve in contour_curves:
+            curve.Transform(scale_transform)
+            curve.Transform(orient_transform)
+        
+        return contour_curves
     else:
         return -1
 

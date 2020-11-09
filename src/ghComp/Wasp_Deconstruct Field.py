@@ -45,7 +45,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Deconstruct Field"
 ghenv.Component.NickName = 'DeField'
-ghenv.Component.Message = 'VER 0.4.006'
+ghenv.Component.Message = 'VER 0.4.007'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"
@@ -86,7 +86,8 @@ def main(field):
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if check_data:
-        return field.name, field.resolution, field.boundaries, field.pts, field.return_values_list(), rg.Vector3d(field.x_count, field.y_count, field.z_count)
+        count_vec = rg.Vector3d(field.x_count, field.y_count, field.z_count)
+        return field.name, field.pts, count_vec, field.resolution, field.plane, field.return_values_list(), field.boundaries
     else:
         return -1
 
@@ -95,8 +96,9 @@ result = main(FIELD)
 
 if result != -1:
     NAME = result[0]
-    RES = result[1]
-    BOU = result[2]
-    PTS = result[3]
-    VAL = result[4]
-    COUNT = result[5]
+    PTS = result[1]
+    COUNT = result[2]
+    RES = result[3]
+    PLN = result[4]
+    VAL = result[5]
+    BOU = result[6]

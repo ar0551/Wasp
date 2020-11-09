@@ -44,7 +44,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Field"
 ghenv.Component.NickName = 'Field'
-ghenv.Component.Message = 'VER 0.4.006'
+ghenv.Component.Message = 'VER 0.4.007'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"
@@ -101,8 +101,10 @@ def main(name, empty_field, values):
             ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
     
     if check_data:
-        count = empty_field.return_count_vec()
-        field = Field(name, empty_field.pts, count, empty_field.resolution, values, empty_field.boundaries)
+        #count = empty_field.return_count_vec()
+        points = [rg.Point3d(v[0], v[1], v[2]) for v in empty_field.return_pts_list()]
+        field = Field(name, points, empty_field.return_count_vec(), empty_field.resolution, boundaries = empty_field.boundaries, plane = empty_field.plane)
+        field.set_values(values, use_boundaries = True)
         return field
     else:
         return -1
