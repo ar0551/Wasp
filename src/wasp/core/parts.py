@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.006
+@version 0.4.007
 
 Part classes and utilities
 """
@@ -172,8 +172,7 @@ class Part(object):
 		
 		part_trans = Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, dim=self.dim, id=self.id, field=self.field)
 		
-		## !!!! change from transformation assigment to transformation add (Tranform.Multiply(self.trans, trans))
-		part_trans.transformation = trans
+		part_trans.transformation = Tranform.Multiply(self.transformation, trans)
 		return part_trans
 	
 	## return a copy of the part
@@ -300,7 +299,6 @@ class AdvancedPart(Part):
 		return data
 
 
-
 	## return all part data
 	######################################## add returs for adjacency constraints
 	def return_part_data(self):
@@ -318,6 +316,7 @@ class AdvancedPart(Part):
 		data_dict['add_collider'] = self.add_collider
 		return data_dict
 	
+
 	## return a transformed copy of the part
 	def transform(self, trans, transform_sub_parts=False, sub_level = 0):
 		geo_trans = self.geo.Duplicate()
@@ -349,7 +348,6 @@ class AdvancedPart(Part):
 			for ac in self.adjacency_const:
 				ac_trans = ac.transform(trans)
 				adjacency_const_trans.append(ac_trans)
-
 		
 		if transform_sub_parts and len(self.sub_parts) > 0 and sub_level > 0:
 			sub_parts_trans = []
@@ -357,13 +355,13 @@ class AdvancedPart(Part):
 				sp_trans = sp.transform(trans, transform_sub_parts = True, sub_level = sub_level - 1)
 				sub_parts_trans.append(sp_trans)
 			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_trans, adjacency_const = adjacency_const_trans)
-			part_trans.transformation = trans
+			part_trans.transformation = Tranform.Multiply(self.transformation, trans)
 			part_trans.is_constrained = True
 			return part_trans
 		
 		else:
 			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts, adjacency_const = adjacency_const_trans)
-			part_trans.transformation = trans
+			part_trans.transformation = Tranform.Multiply(self.transformation, trans)
 			part_trans.is_constrained = True
 			return part_trans
 	
@@ -452,7 +450,7 @@ class PartCatalog(object):
 		data['is_limited'] = self.is_limited
 		return data	
 	
-	
+
 	## return a random part type
 	def return_random_part(self):
 		choices = [key for key in self.dict.keys() if self.dict[key] > 0]
@@ -462,6 +460,7 @@ class PartCatalog(object):
 			self.is_empty = True
 			return None
 	
+
 	## return a weighted-choice between the available parts, give the available parts amounts
 	def return_weighted_part(self):
 		if self.parts_total == 0:
@@ -473,16 +472,17 @@ class PartCatalog(object):
 				return key
 			n = n - self.dict[key]
 		return None
-		
+
+	## add or remove parts from the catalog	
 	def update(self, part_name, difference):
 		self.dict[part_name] += difference
-		
 		self.parts_total = sum(self.dict.values())
 		if self.parts_total == 0:
 			self.is_empty = True
 		else:
 			self.is_empty = False
 	
+	## return a copy of the catalog
 	def copy(self):
 		amounts = [self.dict[part] for part in self.parts]
 		return PartCatalog(self.parts, amounts, _is_limited=self.is_limited)

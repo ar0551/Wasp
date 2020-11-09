@@ -137,6 +137,7 @@ class Field(object):
 		
 		field_trans = Field(self.name, pts_trans, self.return_count_vec(), self.resolution, plane_trans, values=self.return_values_list(), boundaries = boundaries_trans)
 		return field_trans
+	
 
 	## return values as flattened list
 	def return_values_list(self):
@@ -190,6 +191,7 @@ class Field(object):
 							self.vals[z][y].append(values[pts_count])
 						pts_count += 1
 
+
 	## return value associated to the closest point of the field to the given point
 	def return_pt_val(self, pt):
 		pt_trans = self.plane.RemapToPlaneSpace(pt)[1]
@@ -200,7 +202,8 @@ class Field(object):
 		
 		value = self.vals[z][y][x]
 		return value
-	
+
+
 	## find and return highest value in the field ########################### TO FIX FOR ORIENTABLE FIELD!!!
 	def return_highest_pt(self, constraints = None):
 		max_val = -1
@@ -251,6 +254,7 @@ class Field(object):
 
 		highest_pt = Plane(self.pts[max_count], self.plane.XAxis, self.plane.YAxis)
 		return highest_pt
+	
 	
 	def compute_voxel_mesh(self, iso, cap = True):
 		voxel_mesh = Mesh()
