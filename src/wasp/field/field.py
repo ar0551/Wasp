@@ -26,7 +26,7 @@ from wasp.utilities import mesh_from_data, mesh_to_data, plane_from_data, plane_
 class Field(object):
 	
 	## constructor
-	def __init__(self, name, pts, count, resolution, plane, values = [], boundaries = []):
+	def __init__(self, name, pts, count, resolution, plane = Plane.WorldXY, values = [], boundaries = []):
 		
 		self.name = name
 		self.pts = pts
@@ -48,8 +48,9 @@ class Field(object):
 			self.set_values(values, self.boundaries)
 	
 
+	## generate plane from a list of boundaries
 	@classmethod
-	def from_boundaries(cls, _boundaries, _resolution, _plane):
+	def from_boundaries(cls, _boundaries, _resolution, _plane = Plane.WorldXY):
 		global_bbox = None
 		for geo in _boundaries:
 			if global_bbox is None:
@@ -255,7 +256,7 @@ class Field(object):
 		highest_pt = Plane(self.pts[max_count], self.plane.XAxis, self.plane.YAxis)
 		return highest_pt
 	
-	
+
 	def compute_voxel_mesh(self, iso, cap = True):
 		voxel_mesh = Mesh()
 		for z in xrange(self.z_count):
