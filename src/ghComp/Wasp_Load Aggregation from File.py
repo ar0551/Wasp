@@ -34,14 +34,14 @@ Loads an aggregation from a previously saved .txt file
 Provided by Wasp 0.4
     Args:
         PART: Parts definition for the aggregation
-        FILE: File where the aggregation is saved (.txt)
+        FILE: File where the aggregation is saved (.json)
     Returns:
         PART_OUT: Imported aggregation parts
 """
 
 ghenv.Component.Name = "Wasp_Load Aggregation from File"
 ghenv.Component.NickName = 'LoadAggr'
-ghenv.Component.Message = 'VER 0.4.006'
+ghenv.Component.Message = 'VER 0.4.007'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "6 | Aggregation"
