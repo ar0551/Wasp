@@ -87,7 +87,7 @@ def main(field):
     
     if check_data:
         count_vec = rg.Vector3d(field.x_count, field.y_count, field.z_count)
-        return field.name, field.pts, count_vec, field.resolution, field.plane, field.return_values_list(), field.boundaries
+        return field.name, field.pts, count_vec, field.resolution, field.plane, field.return_values_list(), field.boundaries, field.bbox
     else:
         return -1
 
@@ -102,3 +102,4 @@ if result != -1:
     PLN = result[4]
     VAL = result[5]
     BOU = result[6]
+    BB = result[7]
