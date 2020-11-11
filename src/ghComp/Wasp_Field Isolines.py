@@ -48,7 +48,7 @@ ghenv.Component.Message = 'VER 0.4.007'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory =  "5 | Fields"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 
 
