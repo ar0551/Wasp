@@ -93,7 +93,7 @@ def main(object, filter, path, filename, save):
         check_save_data = False
     
     if filename is None:
-        check_save_data = True
+        check_save_data = False
     
     if save is None:
         save = False
