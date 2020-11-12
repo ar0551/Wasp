@@ -11,7 +11,7 @@
 
 <p align="center">
   <img src=https://img.shields.io/github/v/release/ar0551/Wasp?label=stable>
-  <img src=https://img.shields.io/github/v/release/ar0551/Wasp?include_prereleases&label=wip>
+  <img src=https://img.shields.io/github/v/release/ar0551/Wasp?include_prereleases&label=beta>
   <img src=https://img.shields.io/github/last-commit/ar0551/Wasp>
   <img src=https://img.shields.io/github/downloads/ar0551/Wasp/total>
   <img src=https://img.shields.io/github/license/ar0551/Wasp>
