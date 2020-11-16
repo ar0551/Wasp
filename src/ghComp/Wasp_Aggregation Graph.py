@@ -49,7 +49,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Aggregation Graph"
 ghenv.Component.NickName = 'AggregationGraph'
-ghenv.Component.Message = 'VER 0.4.007'
+ghenv.Component.Message = 'VER 0.4.008'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -115,21 +115,27 @@ def main(aggregation, full_graph, half_edge, flatten_edges):
         g = Graph.from_aggregation(aggregation)
         
         ## extract graph data
-        nodes = g.get_nodes()
+        nodes = [int(n) for n in g.get_nodes()]
         edges = g.get_edges(flatten = flatten_edges)
         edges_attributes = g.get_edges_attributes(flatten = flatten_edges)
         
         ## generate geometric representation
-        nodes_pts = [aggregation.aggregated_parts[i].center for i in nodes]
+        nodes_pts = [aggregation.aggregated_parts[int(i)].center for i in sorted(nodes)]
         
         edges_lines = []
         if flatten_edges:
             for edge in edges:
-                start = aggregation.aggregated_parts[edge[0]].center
-                end = aggregation.aggregated_parts[edge[1]].center
+                start = aggregation.aggregated_parts[int(edge[0])].center
+                end = aggregation.aggregated_parts[int(edge[1])].center
                 edges_lines.append(rg.Line(start, end))
         else:
-            pass
+            for i in range(len(edges)):
+                edges_lines.append([])
+                for edge in edges[i]:
+                    start = aggregation.aggregated_parts[int(edge[0])].center
+                    end = aggregation.aggregated_parts[int(edge[1])].center
+                    edges_lines[i].append(rg.Line(start, end))
+                
         
         ## format data for GH outputs
         edge_start_ids = []
@@ -144,7 +150,16 @@ def main(aggregation, full_graph, half_edge, flatten_edges):
                 conn_start_ids.append(edge_attr['conn_start'])
                 conn_end_ids.append(edge_attr['conn_end'])
         else:
-            pass
+            for i in range(len(edges_attributes)):
+                edge_start_ids.append([])
+                edge_end_ids.append([])
+                conn_start_ids.append([])
+                conn_end_ids.append([])
+                for edge_attr in edges_attributes[i]:
+                    edge_start_ids[i].append(edge_attr['start'])
+                    edge_end_ids[i].append(edge_attr['end'])
+                    conn_start_ids[i].append(edge_attr['conn_start'])
+                    conn_end_ids[i].append(edge_attr['conn_end'])
         
         
         """
@@ -183,7 +198,20 @@ def main(aggregation, full_graph, half_edge, flatten_edges):
                                 conn_start_ids[i].append(i2)
                                 conn_end_ids[i].append(i4)
         """
-        return g, nodes_pts, edges_lines, edge_start_ids, edge_end_ids, conn_start_ids, conn_end_ids
+        
+        if flatten_edges:
+            return g, nodes_pts, edges_lines, edge_start_ids, edge_end_ids, conn_start_ids, conn_end_ids
+        else:
+            
+            edges_lines_dt = listToDataTree(edges_lines)
+            
+            edge_start_ids_dt = listToDataTree(edge_start_ids)
+            edge_end_ids_dt = listToDataTree(edge_end_ids)
+            conn_start_ids_dt = listToDataTree(conn_start_ids)
+            conn_end_ids_dt = listToDataTree(conn_end_ids)
+            
+            return g, nodes_pts, edges_lines_dt, edge_start_ids_dt, edge_end_ids_dt, conn_start_ids_dt, conn_end_ids_dt
+        
     else:
         return -1
 
