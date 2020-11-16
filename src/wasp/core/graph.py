@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.006
+@version 0.4.008
 
 Graph class and utilities
 """
@@ -86,8 +86,8 @@ class Graph(object):
 							if c_dist < global_tolerance:
 
 								edge_dict = {}
-								edge_dict["start"] = i
-								edge_dict["end"] = i3
+								edge_dict["start"] = aggr.aggregated_parts[i].id
+								edge_dict["end"] = aggr.aggregated_parts[i3].id
 								edge_dict["conn_start"] = i2
 								edge_dict["conn_end"] = i4
 
