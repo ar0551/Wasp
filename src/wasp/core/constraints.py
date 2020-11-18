@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.006
+@version 0.4.008
 
 Constraints classes
 """
@@ -19,12 +19,13 @@ from wasp.utilities import plane_from_data, plane_to_data, mesh_from_data, mesh_
 class Plane_Constraint(object):
 	
 	## constructor
-	def __init__(self, _plane, _positive = True, _soft = True, _required = True):
+	def __init__(self, _plane, _positive = True, _soft = True, _required = True, _parts=[]):
 		self.type = 'plane'
 		self.plane = _plane
 		self.positive = _positive
 		self.soft = _soft
 		self.required = _required
+		self.parts = _parts
 	
 
 	## override Rhino .ToString() method (display name of the class in Gh)
@@ -35,7 +36,7 @@ class Plane_Constraint(object):
 	## create class from data dictionary
 	@classmethod
 	def from_data(cls, data):
-		return cls(plane_from_data(data['plane']), _positive=data['positive'], _soft=data['soft'], _required=data['required'])
+		return cls(plane_from_data(data['plane']), _positive=data['positive'], _soft=data['soft'], _required=data['required'], _parts=data['parts'])
 
 		
 	## return the data dictionary representing the constraint
@@ -46,16 +47,29 @@ class Plane_Constraint(object):
 		data['positive'] = self.positive
 		data['soft'] = self.soft
 		data['required'] = self.required
+		data['parts'] = self.parts
 		return data	
 	
 	
 	## constraint check method
-	def check(self, pt = None, collider = None):
-		if self.soft:
-			return self.check_soft(pt)
+	def check(self, pt = None, collider = None, p_name=None):
+		## check if the constraint is part-specific
+		if p_name is not None and len(self.parts) > 0:
+			## check if the constraint is assigned to this part
+			if p_name in self.parts:
+				if self.soft:
+					return self.check_soft(pt)
+				else:
+					return self.check_hard(pt, collider)
+			else:
+				return True
 		else:
-			return self.check_hard(pt, collider)
+			if self.soft:
+				return self.check_soft(pt)
+			else:
+				return self.check_hard(pt, collider)
 	
+
 	## hard constraint check method
 	def check_hard(self, pt, collider):
 		if self.check_soft(pt):
@@ -82,12 +96,13 @@ class Plane_Constraint(object):
 class Mesh_Constraint(object):
 	
 	## constructor
-	def __init__(self, _geo, _inside = True, _soft = True, _required = True):
+	def __init__(self, _geo, _inside = True, _soft = True, _required = True, _parts=[]):
 		self.type = 'mesh_collider'
 		self.geo = _geo
 		self.inside = _inside
 		self.soft = _soft
 		self.required = _required
+		self.parts = _parts
 	
 
 	## override Rhino .ToString() method (display name of the class in Gh)
@@ -97,7 +112,7 @@ class Mesh_Constraint(object):
 	## create class from data dictionary
 	@classmethod
 	def from_data(cls, data):
-		return cls(mesh_from_data(data['geometry']), inside=data['inside'], _soft=data['soft'], _required=data['required'])
+		return cls(mesh_from_data(data['geometry']), inside=data['inside'], _soft=data['soft'], _required=data['required'], _parts=data['parts'])
 
 		
 	## return the data dictionary representing the constraint
@@ -108,16 +123,29 @@ class Mesh_Constraint(object):
 		data['inside'] = self.inside
 		data['soft'] = self.soft
 		data['required'] = self.required
+		data['parts'] = self.parts
 		return data	
 
 
 	## constraint check method
-	def check(self, pt = None, collider = None):
-		if self.soft:
-			return self.check_soft(pt)
+	def check(self, pt = None, collider = None, p_name=None):
+		## check if the constraint is part-specific
+		if p_name is not None and len(self.parts) > 0:
+			## check if the constraint is assigned to this part
+			if p_name in self.parts:
+				if self.soft:
+					return self.check_soft(pt)
+				else:
+					return self.check_hard(pt, collider)
+			else:
+				return True
 		else:
-			return self.check_hard(pt, collider)
+			if self.soft:
+				return self.check_soft(pt)
+			else:
+				return self.check_hard(pt, collider)
 	
+
 	## hard constraint check method
 	def check_hard(self, pt, collider):
 		if self.check_soft(pt):

@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.007
+@version 0.4.008
 
 Aggregation class and functions
 """
@@ -442,7 +442,7 @@ class Aggregation(object):
 			if part_center is None:
 				part_center = part.transform_center(trans)
 			if constraint.soft:
-				if constraint.check(pt = part_center) == False:
+				if constraint.check(pt = part_center, p_name=part.name) == False:
 					if constraint.required:
 						return True
 					else:
@@ -450,7 +450,7 @@ class Aggregation(object):
 			else:
 				if part_collider is None:
 					part_collider = part.transform_collider(trans)
-				if constraint.check(pt = part_center, collider = part_collider) == False:
+				if constraint.check(pt = part_center, collider = part_collider, p_name=part.name) == False:
 					if constraint.required:
 						return True
 					else:
