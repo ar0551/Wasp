@@ -37,13 +37,14 @@ Provided by Wasp 0.4
         IN: OPTIONAL // False to allow only parts outside the constraint geometry, True to allow parts only inside (True by default)
         SOFT: OPTIONAL // True to check only the part center point, False to check also for geometry intersection (True by default)
         REQ: OPTIONAL // True to make the constrains necessary for the aggregation to happen, False to make it optional (True by default)
+        PART: OPTIONAL // Name of the parts to which the constraint is supposed to be applied on. If not specified, the constraint is applied to all parts
     Returns:
         GC: Mesh constraint
 """
 
 ghenv.Component.Name = "Wasp_Mesh Constraint"
 ghenv.Component.NickName = 'MeshConst'
-ghenv.Component.Message = "VER 0.4.007"
+ghenv.Component.Message = "VER 0.4.008"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Constraints"
@@ -73,7 +74,7 @@ if wasp_loaded:
 
 
 ## Main code execution
-def main(geometry, inside, soft_constraint, is_required):
+def main(geometry, inside, soft_constraint, is_required, parts):
     
     check_data = True
     ##check inputs
@@ -91,7 +92,7 @@ def main(geometry, inside, soft_constraint, is_required):
     if is_required is None:
         is_required = True
     
-    if inside == True:
+    if inside == True and check_data == True:
         naked_edges = geometry.GetNakedEdges()
         if naked_edges is not None:
             check_data = False
@@ -100,13 +101,13 @@ def main(geometry, inside, soft_constraint, is_required):
     
     
     if check_data:
-        geo_constraint = Mesh_Constraint(geometry, _inside = inside, _soft = soft_constraint, _required = is_required)
+        geo_constraint = Mesh_Constraint(geometry, _inside = inside, _soft = soft_constraint, _required = is_required, _parts=parts)
         return geo_constraint
     else:
         return -1
 
 
-result = main(GEO, IN, SOFT, REQ)
+result = main(GEO, IN, SOFT, REQ, PART)
 
 if result != -1:
     GC = result

@@ -37,13 +37,14 @@ Provided by Wasp 0.4
         POS: OPTIONAL // True to place parts on the positive direction of the Z axis, False for the negative direction (True by default)
         SOFT: OPTIONAL // True to check only the part center point, False to check also for geometry intersection (True by default)
         REQ: OPTIONAL // True to make the constrains necessary for the aggregation to happen, False to make it optional (True by default)
+        PART: OPTIONAL // Name of the parts to which the constraint is supposed to be applied on. If not specified, the constraint is applied to all parts
     Returns:
         PC: Plane constraint
 """
 
 ghenv.Component.Name = "Wasp_Plane Constraint"
 ghenv.Component.NickName = 'PlaneConst'
-ghenv.Component.Message = "VER 0.4.007"
+ghenv.Component.Message = "VER 0.4.008"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Constraints"
@@ -72,7 +73,7 @@ if wasp_loaded:
 
 
 ## Main code execution
-def main(plane, positive, soft_constraint, is_required):
+def main(plane, positive, soft_constraint, is_required, parts):
     
     check_data = True
     ##check inputs
@@ -91,14 +92,14 @@ def main(plane, positive, soft_constraint, is_required):
         is_required = True
     
     if check_data:
-        plane_constraint = Plane_Constraint(plane, _positive = positive, _soft = soft_constraint, _required = is_required)
+        plane_constraint = Plane_Constraint(plane, _positive = positive, _soft = soft_constraint, _required = is_required, _parts=parts)
         return plane_constraint
         
     else:
         return -1
 
 
-result = main(PLN, POS, SOFT, REQ)
+result = main(PLN, POS, SOFT, REQ, PART)
 
 if result != -1:
     PC = result
