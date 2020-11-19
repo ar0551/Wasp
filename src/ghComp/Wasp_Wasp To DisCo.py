@@ -51,7 +51,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Wasp To DisCo"
 ghenv.Component.NickName = 'Wasp2DisCo'
-ghenv.Component.Message = 'VER 0.4.007'
+ghenv.Component.Message = 'VER 0.4.008'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"

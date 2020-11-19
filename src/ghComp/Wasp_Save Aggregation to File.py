@@ -44,7 +44,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Save Aggregation to File"
 ghenv.Component.NickName = 'SaveAggr'
-ghenv.Component.Message = 'VER 0.4.007'
+ghenv.Component.Message = 'VER 0.4.008'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "6 | Aggregation"
