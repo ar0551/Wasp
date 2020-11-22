@@ -44,7 +44,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Basic Part"
 ghenv.Component.NickName = 'Part'
-ghenv.Component.Message = 'VER 0.4.008'
+ghenv.Component.Message = 'VER 0.4.009'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
