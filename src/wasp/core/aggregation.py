@@ -480,7 +480,25 @@ class Aggregation(object):
 								if len(conn.active_rules) == 0: 
 									part.active_connections.remove(conn_id)
 	
-	
+
+	## check all connections of a given part for occlusion from other parts
+	def check_blocked_connections(self, part):
+		connection_matrix = []
+		for i in range(len(part.connections)):
+			connection_matrix.append(i)
+
+		for i in range(len(part.connections)):
+			conn = part.connections[i]
+			for other_part in self.aggregated_parts:
+				if other_part.id != part.id:
+					conn_cp = other_part.geo.ClosestPoint(conn.pln.Origin)
+					if conn.pln.Origin.DistanceTo(conn_cp) < global_tolerance:
+						connection_matrix.remove(i)
+						break
+		
+		return connection_matrix
+
+
 	#### aggregation methods ####
 	## sequential aggregation with Graph Grammar
 	def aggregate_sequence(self, graph_rules):
