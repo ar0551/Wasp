@@ -35,13 +35,14 @@ Provided by Wasp 0.4
     Args:
         PART: Parts from which to generate a parts catalog
         NUM: Amounts of each part in the catalog
+        LIM: OPTIONAL // If True, the catalog will be limited, and aggregation will stop after using the given parts numbers. If False, the given numbers will be used as proportional (False by default)
     Returns:
         CAT: Parts catalog
 """
 
 ghenv.Component.Name = "Wasp_Parts Catalog"
 ghenv.Component.NickName = 'PartCat'
-ghenv.Component.Message = 'VER 0.4.009'
+ghenv.Component.Message = 'VER 0.4.010'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
