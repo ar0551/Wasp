@@ -42,7 +42,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Get Parts Hierarchy"
 ghenv.Component.NickName = 'GetHierarchy'
-ghenv.Component.Message = 'VER 0.4.009'
+ghenv.Component.Message = 'VER 0.4.010'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -53,6 +53,8 @@ except: pass
 import sys
 import Rhino.Geometry as rg
 import Grasshopper as gh
+import ghpythonlib.treehelpers as th
+
 
 ## add Wasp install directory to system path
 wasp_loaded = False
@@ -69,6 +71,16 @@ except:
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
     from wasp.core import Part
+
+
+def get_subparts_recursive(parts, level):
+    sub_parts = []
+    for part in parts:
+        if level > 0:
+            sub_parts.append(get_subparts_recursive(part.sub_parts, level-1))
+        else:
+            sub_parts.append(part.sub_parts)
+    return sub_parts
 
 
 def main(aggregation, hierarchy_level):
@@ -93,11 +105,15 @@ def main(aggregation, hierarchy_level):
                 part_trans = base_part.transform(part.transformation, transform_sub_parts = True, sub_level = hierarchy_level+1)
                 current_parts.append(part_trans)
             
-            sub_parts = []
+            sub_parts = get_subparts_recursive(current_parts, hierarchy_level-1)
+            
+            
+            """
             current_level = 0
             
             while current_level < hierarchy_level:
                 current_level += 1
+                
                 
                 for part in current_parts:
                     if len(part.sub_parts) > 0:
@@ -113,8 +129,9 @@ def main(aggregation, hierarchy_level):
                     current_parts.append(sp)
                 sub_parts = []
                 
-            
-            return current_parts
+            """
+            print sub_parts[0]
+            return th.list_to_tree(sub_parts)
     else:
         return -1
 
