@@ -49,7 +49,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Deconstruct Part"
 ghenv.Component.NickName = 'DePart'
-ghenv.Component.Message = 'VER 0.4.009'
+ghenv.Component.Message = 'VER 0.4.010'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -58,6 +58,7 @@ except: pass
 
 import sys
 import Grasshopper as gh
+import ghpythonlib.treehelpers as th
 
 
 ## add Wasp install directory to system path
@@ -75,19 +76,6 @@ except:
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
     from wasp.core import Aggregation
-
-
-## from http://www.chenjingcheng.com/grasshopper-python-datatree-list-conversion/
-def listToDataTree(list):
-    rl = list
-    result = gh.DataTree[object]()
-    for i in range(len(rl)):
-        temp = []
-        for j in range(len(rl[i])):
-            temp.append(rl[i][j])
-        path = gh.Kernel.Data.GH_Path(i)
-        result.AddRange(temp, path)
-    return result
 
 
 def main(part):

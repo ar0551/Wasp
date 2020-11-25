@@ -49,7 +49,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Aggregation Graph"
 ghenv.Component.NickName = 'AggregationGraph'
-ghenv.Component.Message = 'VER 0.4.009'
+ghenv.Component.Message = 'VER 0.4.010'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -59,6 +59,7 @@ except: pass
 import sys
 import Rhino.Geometry as rg
 import Grasshopper as gh
+import ghpythonlib.treehelpers as th
 
 
 ## add Wasp install directory to system path
@@ -76,18 +77,6 @@ except:
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
     from wasp.core import Aggregation, Graph
-
-## from http://www.chenjingcheng.com/grasshopper-python-datatree-list-conversion/
-def listToDataTree(list):
-    rl = list
-    result = gh.DataTree[object]()
-    for i in range(len(rl)):
-        temp = []
-        for j in range(len(rl[i])):
-            temp.append(rl[i][j])
-        path = gh.Kernel.Data.GH_Path(i)
-        result.AddRange(temp, path)
-    return result
 
 
 def main(aggregation, full_graph, half_edge, flatten_edges):
@@ -203,12 +192,12 @@ def main(aggregation, full_graph, half_edge, flatten_edges):
             return g, nodes_pts, edges_lines, edge_start_ids, edge_end_ids, conn_start_ids, conn_end_ids
         else:
             
-            edges_lines_dt = listToDataTree(edges_lines)
+            edges_lines_dt = th.list_to_tree(edges_lines)
             
-            edge_start_ids_dt = listToDataTree(edge_start_ids)
-            edge_end_ids_dt = listToDataTree(edge_end_ids)
-            conn_start_ids_dt = listToDataTree(conn_start_ids)
-            conn_end_ids_dt = listToDataTree(conn_end_ids)
+            edge_start_ids_dt = th.list_to_tree(edge_start_ids)
+            edge_end_ids_dt = th.list_to_tree(edge_end_ids)
+            conn_start_ids_dt = th.list_to_tree(conn_start_ids)
+            conn_end_ids_dt = th.list_to_tree(conn_end_ids)
             
             return g, nodes_pts, edges_lines_dt, edge_start_ids_dt, edge_end_ids_dt, conn_start_ids_dt, conn_end_ids_dt
         
