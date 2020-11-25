@@ -43,7 +43,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Save Field to File"
 ghenv.Component.NickName = 'SaveField'
-ghenv.Component.Message = 'VER 0.4.009'
+ghenv.Component.Message = 'VER 0.4.010'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"

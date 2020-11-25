@@ -72,7 +72,7 @@ except:
 if wasp_loaded:
     from wasp.core import Part
 
-
+## recursive function to access sub-parts stored at different hierarchy levels
 def get_subparts_recursive(parts, level):
     sub_parts = []
     for part in parts:
@@ -99,38 +99,15 @@ def main(aggregation, hierarchy_level):
             return aggregation.aggregated_parts
         else:
             
-            current_parts = []
+            ## re-transform each part, while transorming also the sub-parts
+            transformed_parts = []
             for part in aggregation.aggregated_parts:
                 base_part = aggregation.parts[part.name]
                 part_trans = base_part.transform(part.transformation, transform_sub_parts = True, sub_level = hierarchy_level+1)
-                current_parts.append(part_trans)
+                transformed_parts.append(part_trans)
             
-            sub_parts = get_subparts_recursive(current_parts, hierarchy_level-1)
+            sub_parts = get_subparts_recursive(transformed_parts, hierarchy_level-1)
             
-            
-            """
-            current_level = 0
-            
-            while current_level < hierarchy_level:
-                current_level += 1
-                
-                
-                for part in current_parts:
-                    if len(part.sub_parts) > 0:
-                        for sp in part.sub_parts:
-                            sub_parts.append(sp)
-                    else:
-                        msg = "The selected hierarchy level does not exist in the provided aggregation"
-                        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
-                        return aggregation.aggregated_parts
-                
-                current_parts = []
-                for sp in sub_parts:
-                    current_parts.append(sp)
-                sub_parts = []
-                
-            """
-            print sub_parts[0]
             return th.list_to_tree(sub_parts)
     else:
         return -1
