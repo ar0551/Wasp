@@ -17,9 +17,12 @@ from Rhino.Geometry import Transform
 from Rhino.Geometry import Point3d, Vector3d, Plane
 
 from wasp import global_tolerance
+
 from wasp.core.parts import Part, AdvancedPart, PartCatalog
 from wasp.core.rules import Rule
+from wasp.core.graph import Graph
 from wasp.core.constraints import Plane_Constraint, Mesh_Constraint
+
 from wasp.field import Field
 
 
@@ -43,6 +46,7 @@ class Aggregation(object):
 		self.coll_check = _coll_check
 		
 		self.aggregated_parts = []
+		self.graph = Graph()
 		
 		## fields
 		self.multiple_fields = False
@@ -76,6 +80,11 @@ class Aggregation(object):
 				prev_p_copy.reset_part(self.rules)
 				prev_p_copy.id = len(self.aggregated_parts)
 				self.aggregated_parts.append(prev_p_copy)
+
+				## add node to graph
+				self.graph.add_node(prev_p_copy.id)
+				## TO DO - Check if connections between the parts exist
+
 				if self.field is not None:
 					self.compute_next_w_field(prev_p_copy)
 		
@@ -95,7 +104,7 @@ class Aggregation(object):
 
 		#### WIP ####
 		self.collision_shapes = []
-		self.graph = None
+		
 	
 
 	## override Rhino .ToString() method (display name of the class in Gh)
@@ -149,6 +158,9 @@ class Aggregation(object):
 				pass
 		
 		aggregation.aggregated_parts = d_aggregated_parts
+
+		aggregation.graph = Graph.from_data(data['graph'])
+
 		aggregation.reset_rules(aggregation.rules)
 
 		## if using a field, recompute the whole aggregation queue
@@ -167,6 +179,7 @@ class Aggregation(object):
 		data['rules'] = [rule.to_data() for rule in self.rules]
 		data['mode'] = self.mode
 		data['coll_check'] = self.coll_check
+		data['graph'] = self.graph.to_data()
 
 		if self.field is None:
 			data['field'] = None

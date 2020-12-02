@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.010
+@version 0.4.011
 
 Graph class and utilities
 """
@@ -48,51 +48,54 @@ class Graph(object):
 
 	## create a graph from a given aggregation
 	@classmethod
-	def from_aggregation(cls, aggr):
+	def from_aggregation(cls, aggr, full_graph=True):
 		g = cls()
 
-		nodes = []
-		edges = []
+		#nodes = []
+		#edges = []
 		
-		edge_start_ids = []
-		edge_end_ids =[]
-		conn_start_ids =[]
-		conn_end_ids =[]
+		#edge_start_ids = []
+		#edge_end_ids =[]
+		#conn_start_ids =[]
+		#conn_end_ids =[]
 		
-		for i in range(len(aggr.aggregated_parts)):
-			
-			if aggr.aggregated_parts[i].id not in g.graph_dict:
-				nodes.append(aggr.aggregated_parts[i].id)
-				g.graph_dict[aggr.aggregated_parts[i].id] = {}
-			
-			conn_start_ids.append([])
-			conn_end_ids.append([])
-			
-			## check for neighbours
-			neighbours = []
-			## find all parts within a neghibouring range
-			for i2 in range(len(aggr.aggregated_parts)):
-				if aggr.aggregated_parts[i].id != aggr.aggregated_parts[i2].id:
-					p_dist = aggr.aggregated_parts[i].center.DistanceTo(aggr.aggregated_parts[i2].center)
-					if p_dist < (aggr.aggregated_parts[i].dim + aggr.aggregated_parts[i2].dim) + global_tolerance:
-						neighbours.append(i2)
-			## check all connections for neighbouring parts
-			for i2 in range(len(aggr.aggregated_parts[i].connections)):
-				for i3 in neighbours:
-					#other_p = aggregation.aggregated_parts[i3]
-					if aggr.aggregated_parts[i3].id != aggr.aggregated_parts[i].id:
-						for i4 in range(len(aggr.aggregated_parts[i3].connections)):
-							c_dist = aggr.aggregated_parts[i].connections[i2].pln.Origin.DistanceTo(aggr.aggregated_parts[i3].connections[i4].pln.Origin)
-							if c_dist < global_tolerance:
+		if full_graph:
+			for i in range(len(aggr.aggregated_parts)):
+				
+				if aggr.aggregated_parts[i].id not in g.graph_dict:
+					#nodes.append(aggr.aggregated_parts[i].id)
+					g.graph_dict[aggr.aggregated_parts[i].id] = {}
+				
+				#conn_start_ids.append([])
+				#conn_end_ids.append([])
+				
+				## check for neighbours
+				neighbours = []
+				## find all parts within a neghibouring range
+				for i2 in range(len(aggr.aggregated_parts)):
+					if aggr.aggregated_parts[i].id != aggr.aggregated_parts[i2].id:
+						p_dist = aggr.aggregated_parts[i].center.DistanceTo(aggr.aggregated_parts[i2].center)
+						if p_dist < (aggr.aggregated_parts[i].dim + aggr.aggregated_parts[i2].dim) + global_tolerance:
+							neighbours.append(i2)
+				## check all connections for neighbouring parts
+				for i2 in range(len(aggr.aggregated_parts[i].connections)):
+					for i3 in neighbours:
+						#other_p = aggregation.aggregated_parts[i3]
+						if aggr.aggregated_parts[i3].id != aggr.aggregated_parts[i].id:
+							for i4 in range(len(aggr.aggregated_parts[i3].connections)):
+								c_dist = aggr.aggregated_parts[i].connections[i2].pln.Origin.DistanceTo(aggr.aggregated_parts[i3].connections[i4].pln.Origin)
+								if c_dist < global_tolerance:
 
-								edge_dict = {}
-								edge_dict["start"] = aggr.aggregated_parts[i].id
-								edge_dict["end"] = aggr.aggregated_parts[i3].id
-								edge_dict["conn_start"] = i2
-								edge_dict["conn_end"] = i4
+									edge_dict = {}
+									edge_dict["start"] = aggr.aggregated_parts[i].id
+									edge_dict["end"] = aggr.aggregated_parts[i3].id
+									edge_dict["conn_start"] = i2
+									edge_dict["conn_end"] = i4
 
-								g.graph_dict[aggr.aggregated_parts[i].id][aggr.aggregated_parts[i3].id] = edge_dict
-	
+									g.graph_dict[aggr.aggregated_parts[i].id][aggr.aggregated_parts[i3].id] = edge_dict
+		else:
+			g = aggr.graph
+
 		return g
 
 	## count the number of edges (!!! add check for duplicates)
