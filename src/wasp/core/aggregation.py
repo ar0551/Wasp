@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.010
+@version 0.4.011
 
 Aggregation class and functions
 """
@@ -106,7 +106,6 @@ class Aggregation(object):
 		self.collision_shapes = []
 		
 	
-
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspAggregation [name: %s, size: %s]" % (self.name, len(self.aggregated_parts))
@@ -162,7 +161,6 @@ class Aggregation(object):
 		aggregation.graph = Graph.from_data(data['graph'])
 
 		aggregation.reset_rules(aggregation.rules)
-
 		## if using a field, recompute the whole aggregation queue
 		if aggregation.field is not None:
 			aggregation.recompute_aggregation_queue()
@@ -663,6 +661,8 @@ class Aggregation(object):
 						## parent-child tracking
 						self.aggregated_parts[part_01_id].children.append(next_part_trans.id)
 						next_part_trans.parent = self.aggregated_parts[part_01_id].id
+						
+						## add part to aggregated_parts list
 						self.aggregated_parts.append(next_part_trans)
 
 						## update catalog if using one
@@ -734,7 +734,7 @@ class Aggregation(object):
 	
 	
 	## field-driven aggregation
-	def aggregate_field(self, num):
+	def aggregate_field(self, num, use_catalog = False):
 		
 		added = 0
 		loops = 0
@@ -746,35 +746,47 @@ class Aggregation(object):
 			
 			## if no part is present in the aggregation, add first random part
 			if len(self.aggregated_parts) == 0 and self.prev_num == 0:
-				first_part = self.parts[random.choice(self.parts.keys())]
-				start_point = None
-				if self.multiple_fields:
-					f_name = first_part.field
-					if (self.mode == 2 or self.mode == 3) and len(self.global_constraints) > 0:
-						start_point = self.field[f_name].return_highest_pt(constraints=self.global_constraints)
-					else:
-					   start_point = self.field[f_name].return_highest_pt()
+
+				## choose first part
+				first_part = None
+				if use_catalog:
+					first_part = self.parts[self.catalog.return_weighted_part()]
 				else:
-					if (self.mode == 2 or self.mode == 3) and len(self.global_constraints) > 0:
-						start_point = self.field.return_highest_pt(constraints=self.global_constraints)
+					first_part = self.parts[random.choice(self.parts.keys())]
+				
+				if first_part is not None:
+					start_point = None
+					if self.multiple_fields:
+						f_name = first_part.field
+						if (self.mode == 2 or self.mode == 3) and len(self.global_constraints) > 0:
+							start_point = self.field[f_name].return_highest_pt(constraints=self.global_constraints)
+						else:
+							start_point = self.field[f_name].return_highest_pt()
 					else:
-					   start_point = self.field.return_highest_pt()
-				
-				base_plane = Plane(first_part.center, Vector3d.XAxis, Vector3d.YAxis)
-				first_transform = Transform.PlaneToPlane(base_plane, start_point)
-				
-				#### maybe add possibility to choose if first part should be oriented in the field plane or not
-				first_part_trans = first_part.transform(first_transform)
-				
-				for conn in first_part_trans.connections:
-					conn.generate_rules_table(self.rules)
-				
-				first_part_trans.id = 0
-				self.aggregated_parts.append(first_part_trans)
-				
-				## compute all possible next parts and append to list
-				self.compute_next_w_field(first_part_trans)
-				added += 1
+						if (self.mode == 2 or self.mode == 3) and len(self.global_constraints) > 0:
+							start_point = self.field.return_highest_pt(constraints=self.global_constraints)
+						else:
+							start_point = self.field.return_highest_pt()
+					
+					base_plane = Plane(first_part.center, Vector3d.XAxis, Vector3d.YAxis)
+					first_transform = Transform.PlaneToPlane(base_plane, start_point)
+					
+					#### maybe add possibility to choose if first part should be oriented in the field plane or not
+					first_part_trans = first_part.transform(first_transform)
+					
+					for conn in first_part_trans.connections:
+						conn.generate_rules_table(self.rules)
+					
+					first_part_trans.id = 0
+					self.aggregated_parts.append(first_part_trans)
+
+					## update catalog
+					if use_catalog and self.catalog.is_limited:
+						self.catalog.update(first_part_trans.name, -1)
+					
+					## compute all possible next parts and append to list
+					self.compute_next_w_field(first_part_trans)
+					added += 1
 			
 			else:
 				## if no part is available, exit the aggregation routine and return an error message
@@ -782,30 +794,77 @@ class Aggregation(object):
 					msg = "Could not place " + str(num-added) + " parts"
 					return msg
 				
-				next_data = self.aggregation_queue[self.queue_count-1]
-				next_part = self.parts[next_data[0]]
-				next_center = Point3d(next_part.center)
-				orientTransform = next_data[2]
+				next_data = None
+				next_data_id = -1
+				next_part = None
+				next_center = None
+				orientTransform = None
+
+				## choose next part
+				#### with catalog > best in queue of a give type
+				if use_catalog:
+					if self.catalog.is_limited and self.catalog.is_empty:
+						msg = "Could not place " + str(num-added) + " parts. Part Catalog is empty."
+						return msg
+					else:
+						next_part_id = None
+						next_part_attempts = 0
+						###### WIP, could be optimized using a set with all names of parts in the queue
+						while next_part_attempts < 1000:
+							next_part_attempts += 1
+							next_part_id = self.catalog.return_weighted_part()
+							for i in range(self.queue_count-1, -1, -1):
+								if self.aggregation_queue[i][0] == next_part_id:
+									next_data = self.aggregation_queue[i]
+									next_data_id = i
+									break
+							if next_data is not None:
+								break
 				
-				global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check = self.check_all_constraints(next_part, orientTransform)
+				#### without catalog > last item in the queue
+				else:
+					next_data = self.aggregation_queue[self.queue_count-1]
+
+				if next_data is not None:
+					next_part = self.parts[next_data[0]]
+					next_center = Point3d(next_part.center)
+					orientTransform = next_data[2]
 					
-				if not global_check:
-					next_part_trans = next_part.transform(orientTransform)
-					next_part_trans.reset_part(self.rules)
+					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check = self.check_all_constraints(next_part, orientTransform)
+						
+					if not global_check:
+						next_part_trans = next_part.transform(orientTransform)
+						next_part_trans.reset_part(self.rules)
+						
+						for conn in next_part_trans.connections:
+							conn.generate_rules_table(self.rules)
+						
+						next_part_trans.id = len(self.aggregated_parts)
+
+						## parent-child tracking
+						self.aggregated_parts[next_data[1]].children.append(next_part_trans.id)
+						next_part_trans.parent = self.aggregated_parts[next_data[1]].id
+						
+						## add part to aggregated_parts list
+						self.aggregated_parts.append(next_part_trans)
+
+						## update catalog if using one
+						if use_catalog and self.catalog.is_limited:
+							self.catalog.update(next_part_trans.name, -1)
+						
+						## compute all possible next parts and append to list
+						self.compute_next_w_field(next_part_trans)
+						added += 1
 					
-					for conn in next_part_trans.connections:
-						conn.generate_rules_table(self.rules)
+					## TO FIX --> do not remove rules when only caused by missing supports
+					if use_catalog:
+						self.aggregation_queue.pop(next_data_id)
+						self.queue_values.pop(next_data_id)
+					else:
+						self.aggregation_queue.pop()
+						self.queue_values.pop()
 					
-					next_part_trans.id = len(self.aggregated_parts)
-					self.aggregated_parts[next_data[1]].children.append(next_part_trans.id)
-					next_part_trans.parent = self.aggregated_parts[next_data[1]].id
-					self.aggregated_parts.append(next_part_trans)
-					
-					## compute all possible next parts and append to list
-					self.compute_next_w_field(next_part_trans)
-					added += 1
-				
-				## TO FIX --> do not remove rules when only caused by missing supports
-				self.aggregation_queue.pop()
-				self.queue_values.pop()
-				self.queue_count -=1
+					self.queue_count -=1
+				else:
+					msg = "Could not place " + str(num-added) + " parts"
+					return msg
