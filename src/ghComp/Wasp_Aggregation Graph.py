@@ -49,7 +49,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Aggregation Graph"
 ghenv.Component.NickName = 'AggregationGraph'
-ghenv.Component.Message = 'VER 0.4.010'
+ghenv.Component.Message = 'VER 0.4.011'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -101,7 +101,7 @@ def main(aggregation, full_graph, half_edge, flatten_edges):
     if check_data:
         
         ## compute aggregation graph
-        g = Graph.from_aggregation(aggregation)
+        g = Graph.from_aggregation(aggregation, full_graph)
         
         ## extract graph data
         nodes = [int(n) for n in g.get_nodes()]
