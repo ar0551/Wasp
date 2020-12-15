@@ -37,7 +37,7 @@ class Graph(object):
 
 
 	## return the data dictionary representing the field
-	def to_data(self, use_attributes = False):
+	def to_data(self, use_attributes=False):
 		data = {}
 		if use_attributes:
 			pass # NOT IMPLEMENTED
@@ -50,24 +50,12 @@ class Graph(object):
 	@classmethod
 	def from_aggregation(cls, aggr, full_graph=True):
 		g = cls()
-
-		#nodes = []
-		#edges = []
-		
-		#edge_start_ids = []
-		#edge_end_ids =[]
-		#conn_start_ids =[]
-		#conn_end_ids =[]
 		
 		if full_graph:
 			for i in range(len(aggr.aggregated_parts)):
 				
 				if aggr.aggregated_parts[i].id not in g.graph_dict:
-					#nodes.append(aggr.aggregated_parts[i].id)
 					g.graph_dict[aggr.aggregated_parts[i].id] = {}
-				
-				#conn_start_ids.append([])
-				#conn_end_ids.append([])
 				
 				## check for neighbours
 				neighbours = []
@@ -80,7 +68,6 @@ class Graph(object):
 				## check all connections for neighbouring parts
 				for i2 in range(len(aggr.aggregated_parts[i].connections)):
 					for i3 in neighbours:
-						#other_p = aggregation.aggregated_parts[i3]
 						if aggr.aggregated_parts[i3].id != aggr.aggregated_parts[i].id:
 							for i4 in range(len(aggr.aggregated_parts[i3].connections)):
 								c_dist = aggr.aggregated_parts[i].connections[i2].pln.Origin.DistanceTo(aggr.aggregated_parts[i3].connections[i4].pln.Origin)
@@ -97,6 +84,27 @@ class Graph(object):
 			g = aggr.graph
 
 		return g
+	
+
+	## add a new node
+	def add_node(self, id):
+		if id not in self.graph_dict:
+			self.graph_dict[id] = {}
+
+	
+	## add a new edges
+	def add_edge(self, start_id, end_id, start_conn, end_conn):
+		if start_id not in self.graph_dict:
+			self.graph_dict[start_id] = {}
+			
+		if end_id not in self.graph_dict[start_id]:
+			edge_dict = {}
+			edge_dict["start"] = start_id
+			edge_dict["end"] = end_id
+			edge_dict["conn_start"] = start_conn
+			edge_dict["conn_end"] = end_conn
+			self.graph_dict[start_id][end_id] = edge_dict		
+	
 
 	## count the number of edges (!!! add check for duplicates)
 	def count_edges(self):

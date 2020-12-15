@@ -40,6 +40,7 @@ Provided by Wasp 0.4
         RULES: Rules for the aggregation
         SEED: OPTIONAL // Random seed. Set this to a fixed number to allow recreating the same aggregation every time you reset.
         COLL: OPTIONAL // Collision detection. By default is active and checks for collisions between the aggregated parts
+        CAT: OPTIONAL // Part Catalog (to specify fixed numbers or proportions between part types
         MODE: OPTIONAL // Switches between aggregation modes: 0 = no constraints, 1 = local constraints, 2 = global constraints, 3 = local + global constraints
         GC: OPTIONAL // Global constraints to apply to aggregation
         ID: OPTIONAL // Aggregation ID
@@ -50,7 +51,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Stochastic Aggregation"
 ghenv.Component.NickName = 'StochasticAggregation'
-ghenv.Component.Message = 'VER 0.4.010'
+ghenv.Component.Message = 'VER 0.4.011'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "6 | Aggregation"

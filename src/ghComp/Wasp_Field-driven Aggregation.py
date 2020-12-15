@@ -41,6 +41,7 @@ Provided by Wasp 0.4
         FIELD: Scalar field to drive the aggregation (parts will be added following higher values in the field)
         THRES: OPTIONAL // If set, used to define a threshold value above which the placement of next part is accepted. If not set, aggregation will look for part with highest value in the whole field. Setting a low threshold helds less accurate results, but highly speeds up calculations
         COLL: OPTIONAL // Collision detection. By default is active and checks for collisions between the aggregated parts
+        CAT: OPTIONAL // Part Catalog (to specify fixed numbers or proportions between part types
         MODE: OPTIONAL // Switches between aggregation modes: 0 = no constraints, 1 = local constraints, 2 = global constraints, 3 = local + global constraints
         GC: OPTIONAL // Global constraints to apply to aggregation
         ID: OPTIONAL // Aggregation ID
@@ -52,7 +53,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Field-driven Aggregation"
 ghenv.Component.NickName = 'FieldAggregation'
-ghenv.Component.Message = "VER 0.4.010"
+ghenv.Component.Message = "VER 0.4.011"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "6 | Aggregation"
@@ -83,7 +84,7 @@ if wasp_loaded:
 
 
 ## Main code execution
-def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_constraints, aggregation_id, reset, fields, aggregation):
+def main(parts, previous_parts, num_parts, rules, catalog, aggregation_mode, global_constraints, aggregation_id, reset, fields, aggregation):
     
     check_data = True
     ##check inputs
@@ -104,6 +105,10 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
         check_data = False
         msg = "No rules provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    use_catalog = False
+    if catalog is not None:
+        use_catalog = True
     
     if aggregation_mode is None:
         aggregation_mode = 0
@@ -139,7 +144,10 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
             for part in parts:
                 parts_copy.append(part.copy())
             
-            aggregation = Aggregation(aggregation_id, parts_copy, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
+            if use_catalog:
+                aggregation = Aggregation(aggregation_id, parts_copy, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields, _catalog = catalog.copy())
+            else:
+                aggregation = Aggregation(aggregation_id, parts_copy, rules, aggregation_mode, _prev = previous_parts, _global_constraints = global_constraints, _field = fields)
         
         ## handle parameters changes
         part_rules_change = False
@@ -183,7 +191,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
         ## add parts to aggregation
         if num_parts > len(aggregation.aggregated_parts):
             #sc.sticky[aggregation_id].aggregate_field(num_parts-sc.sticky[aggregation_id].p_count, field, threshold)
-            error_msg = aggregation.aggregate_field(num_parts-len(aggregation.aggregated_parts))
+            error_msg = aggregation.aggregate_field(num_parts-len(aggregation.aggregated_parts), use_catalog)
             if error_msg is not None:
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, error_msg)
         
@@ -201,7 +209,7 @@ def main(parts, previous_parts, num_parts, rules, aggregation_mode, global_const
 if 'aggregation_container' not in globals():
     aggregation_container = None
 
-result = main(PART, PREV, N, RULES, MODE, GC, ID, RESET, FIELD, aggregation_container)
+result = main(PART, PREV, N, RULES, CAT, MODE, GC, ID, RESET, FIELD, aggregation_container)
 
 if result != -1:
     aggregation_container = result
