@@ -238,8 +238,9 @@ class Field(object):
 						if value > max_val:
 							if constraints is not None:
 								constraint_check = False
-								pt = Point3d(x*self.resolution, y*self.resolution, z*self.resolution)
-								pt += self.bbox.Min
+								#pt = Point3d(x*self.resolution, y*self.resolution, z*self.resolution)
+								#pt += self.bbox.Min
+								pt = self.pts[count]
 								for constraint in constraints:
 									if constraint.check_soft(pt) == False:
 										constraint_check = True
@@ -247,6 +248,7 @@ class Field(object):
 								if constraint_check == False:
 									max_val = value
 									max_coords = (x,y,z)
+									max_count = count
 							else:
 								max_val = value
 								max_coords = (x,y,z)
