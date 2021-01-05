@@ -43,7 +43,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Rule"
 ghenv.Component.NickName = 'Rule'
-ghenv.Component.Message = 'VER 0.4.011'
+ghenv.Component.Message = 'VER 0.4.012'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"
