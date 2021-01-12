@@ -42,7 +42,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Get Parts Hierarchy"
 ghenv.Component.NickName = 'GetHierarchy'
-ghenv.Component.Message = 'VER 0.4.012'
+ghenv.Component.Message = 'VER 0.4.013'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -76,10 +76,15 @@ if wasp_loaded:
 def get_subparts_recursive(parts, level):
     sub_parts = []
     for part in parts:
-        if level > 0:
-            sub_parts.append(get_subparts_recursive(part.sub_parts, level-1))
-        else:
-            sub_parts.append(part.sub_parts)
+        try:
+            if level > 0:
+                sub_parts.append(get_subparts_recursive(part.sub_parts, level-1))
+            else:
+                sub_parts.append(part.sub_parts)
+        except:
+            sub_parts.append([part])
+            msg = "Part " + str(part.id) + " does not have any hierarchy level."
+            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     return sub_parts
 
 
@@ -103,8 +108,11 @@ def main(aggregation, hierarchy_level):
             transformed_parts = []
             for part in aggregation.aggregated_parts:
                 base_part = aggregation.parts[part.name]
-                part_trans = base_part.transform(part.transformation, transform_sub_parts = True, sub_level = hierarchy_level+1)
-                transformed_parts.append(part_trans)
+                try:
+                    part_trans = base_part.transform(part.transformation, transform_sub_parts = True, sub_level = hierarchy_level+1)
+                    transformed_parts.append(part_trans)
+                except:
+                    transformed_parts.append(part)
             
             sub_parts = get_subparts_recursive(transformed_parts, hierarchy_level-1)
             
