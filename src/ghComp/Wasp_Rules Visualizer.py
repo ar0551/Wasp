@@ -48,7 +48,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Rules Visualizer"
 ghenv.Component.NickName = 'RuleViz'
-ghenv.Component.Message = 'VER 0.4.012'
+ghenv.Component.Message = 'VER 0.4.013'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"
@@ -95,6 +95,9 @@ def main(parts, rules, spacing_factor, base_plane, show_index, show_types):
     
     if spacing_factor == None:
         spacing_factor = 2.0
+    
+    if show_index is None:
+        show_index = True
     
     if show_types is None:
         show_types = True
