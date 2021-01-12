@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.012
+@version 0.4.013
 
 Collider classes and utilities
 """
@@ -65,6 +65,7 @@ class Collider(object):
 	########################################################################### check if valid connections need to be transformed or re-generated!!!
 	def transform(self, trans, transform_connections = False, maintain_valid = False):
 		geometry_trans = []
+		
 		for geo in self.geometry:
 			geo_trans = geo.Duplicate()
 			geo_trans.Transform(trans)
@@ -83,6 +84,7 @@ class Collider(object):
 		
 		return coll_trans
 	
+
 	## return a copy of the collider
 	def copy(self):
 		geometry_copy = []
@@ -99,6 +101,7 @@ class Collider(object):
 		
 		return coll_copy
 	
+
 	## check collisions between collider and given part
 	def check_collisions_w_parts(self, parts):
 		## multiple collider with associated connections
@@ -135,6 +138,7 @@ class Collider(object):
 							return True
 			return False
 	
+
 	## check collisions between collider and given ids in the given parts list
 	def check_collisions_by_id(self, parts, ids):
 		## multiple collider with associated connections
@@ -166,12 +170,14 @@ class Collider(object):
 							return True
 			return False
 
+
 	## check intersection between collider and line (for supports check)
 	def check_intersection_w_line(self, ln):
 		for geo in self.geometry:
 			if len(Intersection.MeshLine(geo, ln)[0]) > 0:
 				return True
 		return False
+	
 
 	#### WIP ####
 	def check_global_constraints(self, constraint):

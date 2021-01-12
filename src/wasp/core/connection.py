@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.012
+@version 0.4.013
 
 Connection class
 """
@@ -13,6 +13,8 @@ from Rhino.Geometry import Plane
 from Rhino.Geometry import Vector3d
 
 from wasp.utilities import plane_from_data, plane_to_data
+
+import math
 
 #################################################################### Connection ####################################################################
 class Connection(object):
@@ -88,9 +90,9 @@ class Connection(object):
 			conn_trans (Connection): Transformed copy of the Connection
 		'''
 		pln_trans = Plane(self.pln.Origin, self.pln.XAxis, self.pln.YAxis)
+		pln_trans.Transform(trans)
+		
 		conn_trans = Connection(pln_trans, self.type, self.part, self.id)
-		conn_trans.pln.Transform(trans)
-		conn_trans.flip_pln.Transform(trans)
 		return conn_trans
 	
 	## return a copy of the connection
