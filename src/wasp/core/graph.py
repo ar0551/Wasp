@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.012
+@version 0.4.013
 
 Graph class and utilities
 """
@@ -90,8 +90,8 @@ class Graph(object):
 	def add_node(self, id):
 		if id not in self.graph_dict:
 			self.graph_dict[id] = {}
-
 	
+
 	## add a new edges
 	def add_edge(self, start_id, end_id, start_conn, end_conn):
 		if start_id not in self.graph_dict:
@@ -105,6 +105,17 @@ class Graph(object):
 			edge_dict["conn_end"] = end_conn
 			self.graph_dict[start_id][end_id] = edge_dict		
 	
+	## remove a node and all its relative edges
+	def remove_node(self, id):
+		# delete the node
+		if id in self.graph_dict:
+			del self.graph_dict[id]
+		
+		# delete the edges associated with the node
+		for node in self.graph_dict:
+			if id in self.graph_dict[node]:
+				del self.graph_dict[node][id]		
+
 
 	## count the number of edges (!!! add check for duplicates)
 	def count_edges(self):

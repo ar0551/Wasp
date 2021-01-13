@@ -34,7 +34,7 @@ Extract the aggregation graph.
 Provided by Wasp 0.4
     Args:
         AGGR: Aggregation from which to extract the graph
-        FG: [NOT WORKING] OPTIONAL // True to compute the full graph (including edges on overlapping connections), False to create only the aggregation sequence graph (True by default)
+        FG: OPTIONAL // True to compute the full graph (including edges on overlapping connections), False to create only the aggregation sequence graph (True by default)
         HE: [NOT WORKING] OPTIONAL // True to calculate an half-edge graph (each connection represented twice), False to create only edges from earlier parts to further ones (True by default)
         F: OPTIONAL // True to flatten the edges list, False to maintain edges grouped by node (True by default).
     Returns:
@@ -49,7 +49,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Aggregation Graph"
 ghenv.Component.NickName = 'AggregationGraph'
-ghenv.Component.Message = 'VER 0.4.012'
+ghenv.Component.Message = 'VER 0.4.013'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -101,7 +101,11 @@ def main(aggregation, full_graph, half_edge, flatten_edges):
     if check_data:
         
         ## compute aggregation graph
-        g = Graph.from_aggregation(aggregation, full_graph)
+        g = None
+        if full_graph:
+            g = Graph.from_aggregation(aggregation, full_graph)
+        else:
+            g = aggregation.graph
         
         ## extract graph data
         nodes = [int(n) for n in g.get_nodes()]

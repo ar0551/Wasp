@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.012
+@version 0.4.013
 
 Aggregation class and functions
 """
@@ -235,11 +235,15 @@ class Aggregation(object):
 
 	## trim aggregated parts list to a specific length
 	def remove_elements(self, num):
-		## if using and limited, update the catalog by adding back the removed parts
-		if self.catalog is not None:
-			if self.catalog.is_limited:
-				self.removed_parts = self.aggregated_parts[num:]
-				for p in self.removed_parts:
+
+		self.removed_parts = self.aggregated_parts[num:]
+		for p in self.removed_parts:
+			## remove item from graph
+			self.graph.remove_node(p.id)
+
+			## if using and limited, update the catalog by adding back the removed parts
+			if self.catalog is not None:
+				if self.catalog.is_limited:
 					self.catalog.update(p.name, 1)
 
 		## trim the list to the desired length
@@ -548,6 +552,12 @@ class Aggregation(object):
 				self.aggregated_parts.append(next_part_trans)
 				
 				first_part_trans.children.append(next_part_trans)
+
+				## add data to graph
+				self.graph.add_node(first_part_trans.id)
+				self.graph.add_node(next_part_trans.id)
+				self.graph.add_edge(first_part_trans.id, next_part_trans.id, conn1, conn2)
+
 			
 			elif len(self.aggregated_parts) < len(graph_rules) + 1:
 				aggr_rule = rule.split(">")[0]
@@ -575,6 +585,12 @@ class Aggregation(object):
 					first_part.children.append(next_part_trans.id)
 					next_part_trans.parent = first_part.id
 					self.aggregated_parts.append(next_part_trans)
+
+					## add data to graph
+					self.graph.add_node(next_part_trans.id)
+					self.graph.add_edge(first_part.id, next_part_trans.id, conn1, conn2)
+
+
 				else:
 					pass ## implement error handling
 
@@ -601,8 +617,13 @@ class Aggregation(object):
 					first_part_trans = first_part.transform(Transform.Identity)
 					for conn in first_part_trans.connections:
 						conn.generate_rules_table(self.rules)
+					
 					first_part_trans.id = 0
 					self.aggregated_parts.append(first_part_trans)
+
+					## add data to graph
+					self.graph.add_node(next_part_trans.id)
+
 					added += 1
 					if use_catalog and self.catalog.is_limited:
 						self.catalog.update(first_part_trans.name, -1)
@@ -665,6 +686,10 @@ class Aggregation(object):
 						## add part to aggregated_parts list
 						self.aggregated_parts.append(next_part_trans)
 
+						## add data to graph
+						self.graph.add_node(next_part_trans.id)
+						self.graph.add_edge(part_01_id, next_part_trans.id, next_rule.conn1, next_rule.conn2)
+
 						## update catalog if using one
 						if use_catalog and self.catalog.is_limited:
 							self.catalog.update(next_part_trans.name, -1)
@@ -715,7 +740,7 @@ class Aggregation(object):
 						field_val = self.field[f_name].return_pt_val(next_center)
 						
 						queue_index = bisect.bisect_left(self.queue_values, field_val)
-						queue_entry = (next_part.name, part.id, orientTransform)
+						queue_entry = (next_part.name, part.id, orientTransform, rule.conn1, rule.conn2)
 						
 						self.queue_values.insert(queue_index, field_val)
 						self.aggregation_queue.insert(queue_index, queue_entry)
@@ -726,7 +751,7 @@ class Aggregation(object):
 						field_val = self.field.return_pt_val(next_center)
 						
 						queue_index = bisect.bisect_left(self.queue_values, field_val)
-						queue_entry = (next_part.name, part.id, orientTransform)
+						queue_entry = (next_part.name, part.id, orientTransform, rule.conn1, rule.conn2)
 						
 						self.queue_values.insert(queue_index, field_val)
 						self.aggregation_queue.insert(queue_index, queue_entry)
@@ -779,6 +804,9 @@ class Aggregation(object):
 					
 					first_part_trans.id = 0
 					self.aggregated_parts.append(first_part_trans)
+
+					## add data to graph
+					self.graph.add_node(first_part_trans.id)
 
 					## update catalog
 					if use_catalog and self.catalog.is_limited:
@@ -847,6 +875,10 @@ class Aggregation(object):
 						
 						## add part to aggregated_parts list
 						self.aggregated_parts.append(next_part_trans)
+
+						## add data to graph
+						self.graph.add_node(next_part_trans.id)
+						self.graph.add_edge(next_data[1], next_part_trans.id, next_data[3], next_data[4])
 
 						## update catalog if using one
 						if use_catalog and self.catalog.is_limited:
