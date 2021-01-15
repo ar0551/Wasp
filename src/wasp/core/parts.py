@@ -209,15 +209,16 @@ class Part(object):
 class AdvancedPart(Part):
 	
 	## constructor
-	def __init__(self, name, geometry, connections, collider, attributes, additional_collider, supports, dim = None, id=None, field=None, sub_parts=[], adjacency_const = []):
+	def __init__(self, name, geometry, connections, collider, attributes, additional_collider, supports, dim = None, id=None, field=None, sub_parts=[], adjacency_const = [], orientation_const=[]):
 		
 		super(AdvancedPart, self).__init__(name, geometry, connections, collider, attributes, dim=dim, id=id, field=field)
 		
 		self.add_collider = additional_collider
 		self.supports = supports
 		self.adjacency_const = adjacency_const
+		self.orientation_const = orientation_const
 
-		if self.add_collider is not None or len(self.supports) > 0 or len(self.adjacency_const):
+		if self.add_collider is not None or len(self.supports) > 0 or len(self.adjacency_const) > 0 or len(self.orientation_const) > 0:
 			self.is_constrained = True 
 		
 		## hierarchical sub-parts
@@ -295,6 +296,7 @@ class AdvancedPart(Part):
 			data['add_collider'] = self.add_collider.to_data()
 		## Supports not implemented (WILL BE REMOVED IN NEXT VERSION)
 		data['adjacency_const'] = [const.to_data() for const in self.adjacency_const]
+		## Orientation Constraints not implemented
 		data['sub_parts'] = [sub_p.to_data() for sub_p in self.sub_parts]
 		return data
 
@@ -349,18 +351,24 @@ class AdvancedPart(Part):
 				ac_trans = ac.transform(trans)
 				adjacency_const_trans.append(ac_trans)
 		
+		orient_const_trans = []
+		if len(self.orientation_const) > 0:
+			for oc in self.orientation_const:
+				oc_trans = oc.transform(trans)
+				orient_const_trans.append(oc_trans)
+
 		if transform_sub_parts and len(self.sub_parts) > 0 and sub_level > 0:
 			sub_parts_trans = []
 			for sp in self.sub_parts:
 				sp_trans = sp.transform(trans, transform_sub_parts = True, sub_level = sub_level - 1)
 				sub_parts_trans.append(sp_trans)
-			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_trans, adjacency_const = adjacency_const_trans)
+			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_trans, adjacency_const = adjacency_const_trans, orientation_const=orient_const_trans)
 			part_trans.transformation = Transform.Multiply(self.transformation, trans)
 			part_trans.is_constrained = True
 			return part_trans
 		
 		else:
-			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts, adjacency_const = adjacency_const_trans)
+			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts, adjacency_const = adjacency_const_trans, orientation_const=orient_const_trans)
 			part_trans.transformation = Transform.Multiply(self.transformation, trans)
 			part_trans.is_constrained = True
 			return part_trans
@@ -396,19 +404,25 @@ class AdvancedPart(Part):
 			for ac in self.adjacency_const:
 				ac_copy = ac.copy()
 				adjacency_const_copy.append(ac_copy)
+		
+		orient_const_copy = []
+		if len(self.orientation_const) > 0:
+			for oc in self.orientation_const:
+				oc_copy = oc.copy()
+				orient_const_copy.append(oc_copy)
 
 		if len(self.sub_parts) > 0:
 			sub_parts_copy = []
 			for sp in self.sub_parts:
 				sp_copy = sp.copy()
 				sub_parts_copy.append(sp_copy)
-			part_copy = AdvancedPart(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, add_collider_copy, supports_copy, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_copy, adjacency_const=adjacency_const_copy)
+			part_copy = AdvancedPart(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, add_collider_copy, supports_copy, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_copy, adjacency_const=adjacency_const_copy, orientation_const=orient_const_copy)
 			part_copy.transformation = self.transformation
 			part_copy.is_constrained = True
 			return part_copy
 		
 		else:
-			part_copy = AdvancedPart(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, add_collider_copy, supports_copy, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts, adjacency_const=adjacency_const_copy)
+			part_copy = AdvancedPart(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, add_collider_copy, supports_copy, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts, adjacency_const=adjacency_const_copy, orientation_const=orient_const_copy)
 			part_copy.transformation = self.transformation
 			part_copy.is_constrained = True
 			return part_copy

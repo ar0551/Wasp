@@ -4,16 +4,19 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.012
+@version 0.4.013
 
 Constraints classes
 """
 
 from Rhino.Geometry.Intersect import Intersection
-from Rhino.Geometry import Point3d, Line
+from Rhino.Geometry import Vector3d, Point3d, Line, Plane
 
 from wasp import global_tolerance
 from wasp.utilities import plane_from_data, plane_to_data, mesh_from_data, mesh_to_data
+
+import math
+
 
 #################################################################### Plane Constraint ####################################################################
 class Plane_Constraint(object):
@@ -272,3 +275,69 @@ class Adjacency_Constraint(object):
 			return True
 
 		return False
+
+
+#################################################################### Adjacency Constraint ####################################################################
+class Orientation_Constraint(object):
+
+	## constructor
+	def __init__(self, _dir, _range, _plane, _c_dir=None):
+		self.base_dir = _dir
+		self.plane = _plane
+		self.range = _range
+		
+		self.current_dir = None
+		if _c_dir is None:
+			self.current_dir = self.base_dir
+		else:
+			self.current_dir = _c_dir
+	
+
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "WaspOrientationConst [dir: %s,%s,%s, range: %s:%s]" % (self.base_dir.X, self.base_dir.Y, self.base_dir.Z, self.range[0], self.range[1])
+	
+
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		#### NOT IMPLEMENTED
+		return None
+
+		
+	## return the data dictionary representing the constraint
+	def to_data(self):
+		#### NOT IMPLEMENTED
+		data = {}
+		return data	
+
+	
+	## return a transformed copy of the support
+	def transform(self, trans):
+		base_dir_trans = Vector3d(self.base_dir)
+		pln_trans = Plane(self.plane.Origin, self.plane.XAxis, self.plane.YAxis)
+		pln_trans.Transform(trans)
+		current_dir_trans = Vector3d(self.current_dir)
+		current_dir_trans.Transform(trans)
+		orient_constraint_trans = Orientation_Constraint(base_dir_trans, pln_trans, self.range, _c_dir=current_dir_trans)
+		return orient_constraint_trans
+	
+
+	## return a copy of the support
+	def copy(self):
+		base_dir_copy = Vector3d(self.base_dir)
+		pln_copy = Plane(self.plane.Origin, self.plane.XAxis, self.plane.YAxis)
+		current_dir_copy = Vector3d(self.current_dir)
+		orient_constraint_copy = Orientation_Constraint(base_dir_copy, pln_copy, self.range, _c_dir=current_dir_copy)
+		return orient_constraint_copy
+	
+
+	## check if orientation is valid
+	def check(self):
+		angle = math.degrees(Vector3d.VectorAngle(self.base_dir, self.current_dir, self.plane))
+		if angle > 180:
+			angle = angle - 360
+		if self.range.IncludesParameter(angle):
+			return True
+		else:
+			return False

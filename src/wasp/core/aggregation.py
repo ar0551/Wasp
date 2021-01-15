@@ -338,6 +338,7 @@ class Aggregation(object):
 		add_coll_check = False
 		missing_sup_check = False
 		adjacencies_check = False
+		orientation_check = False
 		global_const_check = False
 
 		## variables to store already computed colliders
@@ -354,11 +355,14 @@ class Aggregation(object):
 				if part.is_constrained:
 					add_coll_check = self.additional_collider_check(part, trans)
 					
-					if add_coll_check == False:
+					if not add_coll_check:
 						missing_sup_check = self.missing_supports_check(part, trans)
 
-						if missing_sup_check == False:
+						if not missing_sup_check:
 							adjacencies_check = self.adjacencies_check(part, trans)
+
+							if not adjacencies_check:
+								orientation_check = self.orientation_check(part, trans)
 
 			
 			## onyl global constraints mode
@@ -370,17 +374,19 @@ class Aggregation(object):
 			elif self.mode == 3:
 				if len(self.global_constraints) > 0:
 					global_const_check = self.global_constraints_check(part, trans, part_center_trans, part_collider_trans)
-				if global_const_check == False and part.is_constrained:
+				if not global_const_check and part.is_constrained:
 					add_coll_check = self.additional_collider_check(part, trans)
-					if add_coll_check == False:
+					if not add_coll_check:
 						missing_sup_check = self.missing_supports_check(part, trans)
-						if missing_sup_check == False:
+						if not missing_sup_check:
 							adjacencies_check = self.adjacencies_check(part, trans)
+							if not adjacencies_check:
+								orientation_check = self.orientation_check(part, trans)
 
 		## combine all constraints check result
-		global_check = coll_check or add_coll_check or missing_sup_check or global_const_check or adjacencies_check
+		global_check = coll_check or add_coll_check or missing_sup_check or global_const_check or adjacencies_check or orientation_check
 
-		return global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check
+		return global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check, orientation_check
 
 	
 	## overlap // part-part collision check
@@ -450,6 +456,18 @@ class Aggregation(object):
 			return False
 	
 
+	## orientation check
+	def orientation_check(self, part, trans):
+		if len(part.orientation_const) > 0:
+			for oc in part.orientation_const:
+				oc_trans = oc.transform(trans)
+				if not oc_trans.check():
+					return True
+			return False
+		else:
+			return False
+
+
 	## global constraints check
 	def global_constraints_check(self, part, trans, part_center=None, part_collider=None):
 		valid_constraints = len(self.global_constraints)
@@ -489,7 +507,7 @@ class Aggregation(object):
 
 							next_part = self.parts[next_rule.part2]
 							orientTransform = Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn.pln)
-							_, coll_check, _, _, _, _ = self.check_all_constraints(next_part, orientTransform)
+							coll_check, _, _ = self.collision_check(next_part, orientTransform)
 							if coll_check:
 								conn.active_rules.remove(rule_id)
 								if len(conn.active_rules) == 0: 
@@ -622,7 +640,7 @@ class Aggregation(object):
 					self.aggregated_parts.append(first_part_trans)
 
 					## add data to graph
-					self.graph.add_node(next_part_trans.id)
+					self.graph.add_node(first_part_trans.id)
 
 					added += 1
 					if use_catalog and self.catalog.is_limited:
@@ -668,7 +686,7 @@ class Aggregation(object):
 					next_part = self.parts[next_rule.part2]
 					orientTransform = Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn_01.pln)
 					
-					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check = self.check_all_constraints(next_part, orientTransform)
+					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check, orientation_check = self.check_all_constraints(next_part, orientTransform)
 					
 					if not global_check:
 						next_part_trans = next_part.transform(orientTransform)
@@ -858,7 +876,7 @@ class Aggregation(object):
 					next_center = Point3d(next_part.center)
 					orientTransform = next_data[2]
 					
-					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check = self.check_all_constraints(next_part, orientTransform)
+					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check, orientation_check = self.check_all_constraints(next_part, orientTransform)
 						
 					if not global_check:
 						next_part_trans = next_part.transform(orientTransform)
