@@ -29,26 +29,27 @@
 #########################################################################
 
 """
-Create a connection from a given plane.
-It can create connections which cause collisions and overlapping of components
+Orientation Constraint.
+It allows to control if the part should be placed according to a custom orientation.
 -
 Provided by Wasp 0.4
     Args:
-        PLN: Connection plane
-        T: OPTIONAL // Connection type (to be used with Rule Generator component)
+        DIR: Directions of the part orientation to be tested (as Line or Vector)
+        R: Angle range which is allowed for the transformed part
+        PLN: OPTIONAL // Plane where to calculate the angle (Default is RhinoXY)
     Returns:
-        CONN: Connection object
-        PLN_OUT: Connection plane (for debugging)
+        OC: Orientation Constraint instance
 """
 
-ghenv.Component.Name = "Wasp_Connection From Plane"
-ghenv.Component.NickName = 'ConnPln'
+ghenv.Component.Name = "Wasp_Orientation Constraint"
+ghenv.Component.NickName = 'AdjExcConst'
 ghenv.Component.Message = 'VER 0.4.013'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "1 | Elements"
+ghenv.Component.SubCategory = "4 | Constraints"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
+
 
 import sys
 import Rhino.Geometry as rg
@@ -69,55 +70,35 @@ except:
 
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
-    from wasp.core import Connection
+    from wasp.core import Orientation_Constraint
 
 
-def main(conn_planes, conn_type):
-        
+def main(direction, range, base_plane):
+    
     check_data = True
     
     ##check inputs
-    if len(conn_planes) == 0:
+    if direction is None:
         check_data = False
-        msg = "No plane provided"
+        msg = "Please provide a valid direction line"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
-    types = []
-    if len(conn_type) == 0:
-        for i in range(len(conn_planes)):
-            types.append("")
-    elif len(conn_type) == 1:
-        for i in range(len(conn_planes)):
-            types.append(conn_type[0])
-    elif len(conn_planes) != len(conn_type):
+    if range is None:
         check_data = False
-        msg = "Different amount of planes and types provided"
-        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
-    else:
-        for i in range(len(conn_planes)):
-            types.append(conn_type[i])
+        msg = "Please provide a valid angle interval"
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
+    if base_plane is None:
+        base_plane = rg.Plane.WorldXY
     
     if check_data:
-        connections = []
-        out_planes = []
-        for i in range(len(conn_planes)):
-            plane = conn_planes[i]
-            if plane is None:
-                msg = "No valid plane provided for connection %d"%(i)
-                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
-            else:
-                conn = Connection(plane, types[i], "", -1)
-                connections.append(conn)
-                out_planes.append(plane)
-        
-        return connections, out_planes
-    
+        orient_constraint = Orientation_Constraint(direction, base_plane, range)
+        return orient_constraint
     else:
         return -1
 
-result = main(PLN, T)
+
+result = main(DIR, R, PLN)
 
 if result != -1:
-    CONN = result[0]
-    PLN_OUT = result[1]
+    OC = result

@@ -41,7 +41,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Orient Field"
 ghenv.Component.NickName = 'FieldOrient'
-ghenv.Component.Message = 'VER 0.4.012'
+ghenv.Component.Message = 'VER 0.4.013'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"

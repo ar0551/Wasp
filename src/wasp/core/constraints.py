@@ -281,7 +281,7 @@ class Adjacency_Constraint(object):
 class Orientation_Constraint(object):
 
 	## constructor
-	def __init__(self, _dir, _range, _plane, _c_dir=None):
+	def __init__(self, _dir, _plane, _range, _c_dir=None):
 		self.base_dir = _dir
 		self.plane = _plane
 		self.range = _range
@@ -334,7 +334,8 @@ class Orientation_Constraint(object):
 
 	## check if orientation is valid
 	def check(self):
-		angle = math.degrees(Vector3d.VectorAngle(self.base_dir, self.current_dir, self.plane))
+		angle = Vector3d.VectorAngle(self.base_dir, self.current_dir, self.plane)
+		angle = math.degrees(min(math.pi*2, max(-math.pi*2, angle)))
 		if angle > 180:
 			angle = angle - 360
 		if self.range.IncludesParameter(angle):
