@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.013
+@version 0.4.014
 
 Part classes and utilities
 """
@@ -431,11 +431,12 @@ class AdvancedPart(Part):
 ################################################################# Parts Catalog ##################################################################
 class PartCatalog(object):
 	##constructor
-	def __init__(self, _parts, _amounts, _is_limited=True):
+	def __init__(self, _parts, _amounts, _is_limited=True, _is_adaptive=False):
 		
 		self.parts = _parts
 		self.amounts = _amounts
 		self.is_limited = _is_limited
+		self.is_adaptive = _is_adaptive
 		
 		self.dict = {}
 		for i in xrange(len(self.parts)):
@@ -453,7 +454,7 @@ class PartCatalog(object):
 	## create class from data dictionary
 	@classmethod
 	def from_data(cls, data):
-		return cls(data['parts'], [int(a) for a in data['amounts']], _is_limited=data['is_limited'])
+		return cls(data['parts'], [int(a) for a in data['amounts']], _is_limited=data['is_limited'], _is_adaptive=data['is_adaptive'])
 
 		
 	## return the data dictionary representing the catalog
@@ -462,6 +463,7 @@ class PartCatalog(object):
 		data['parts'] = self.parts
 		data['amounts'] = self.amounts
 		data['is_limited'] = self.is_limited
+		data['is_adaptive'] = self.is_adaptive
 		return data	
 	
 
@@ -489,14 +491,24 @@ class PartCatalog(object):
 
 	## add or remove parts from the catalog	
 	def update(self, part_name, difference):
-		self.dict[part_name] += difference
-		self.parts_total = sum(self.dict.values())
-		if self.parts_total == 0:
-			self.is_empty = True
+		if self.is_limited:
+			self.dict[part_name] += difference
+			self.parts_total = sum(self.dict.values())
+			if self.parts_total == 0:
+				self.is_empty = True
+			else:
+				self.is_empty = False
+		elif self.is_adaptive:
+			self.dict[part_name] += difference
+			prev_parts_total = self.parts_total
+			self.parts_total = sum(self.dict.values())
+			for key in self.dict:
+				self.dict[key] = (self.dict[key] * prev_parts_total) / (self.parts_total)
+			self.parts_total = sum(self.dict.values())
 		else:
-			self.is_empty = False
+			pass
 	
 	## return a copy of the catalog
 	def copy(self):
 		amounts = [self.dict[part] for part in self.parts]
-		return PartCatalog(self.parts, amounts, _is_limited=self.is_limited)
+		return PartCatalog(self.parts, amounts, _is_limited=self.is_limited, _is_adaptive=self.is_adaptive)

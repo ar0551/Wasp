@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.013
+@version 0.4.014
 
 Aggregation class and functions
 """
@@ -243,8 +243,7 @@ class Aggregation(object):
 
 			## if using and limited, update the catalog by adding back the removed parts
 			if self.catalog is not None:
-				if self.catalog.is_limited:
-					self.catalog.update(p.name, 1)
+				self.catalog.update(p.name, 1)
 
 		## trim the list to the desired length
 		self.aggregated_parts = self.aggregated_parts[:num]
@@ -621,6 +620,7 @@ class Aggregation(object):
 			loops += 1
 			if loops > num*100:
 				break
+			
 			## if no part is present in the aggregation, add first random part
 			if len(self.aggregated_parts) == 0:
 				
@@ -643,8 +643,9 @@ class Aggregation(object):
 					self.graph.add_node(first_part_trans.id)
 
 					added += 1
-					if use_catalog and self.catalog.is_limited:
+					if use_catalog:
 						self.catalog.update(first_part_trans.name, -1)
+			
 			## otherwise add new random part
 			else:
 				next_rule = None
@@ -709,7 +710,7 @@ class Aggregation(object):
 						self.graph.add_edge(part_01_id, next_part_trans.id, next_rule.conn1, next_rule.conn2)
 
 						## update catalog if using one
-						if use_catalog and self.catalog.is_limited:
+						if use_catalog:
 							self.catalog.update(next_part_trans.name, -1)
 						
 						for i in range(len(self.aggregated_parts[part_01_id].active_connections)):
@@ -827,7 +828,7 @@ class Aggregation(object):
 					self.graph.add_node(first_part_trans.id)
 
 					## update catalog
-					if use_catalog and self.catalog.is_limited:
+					if use_catalog:
 						self.catalog.update(first_part_trans.name, -1)
 					
 					## compute all possible next parts and append to list
@@ -899,7 +900,7 @@ class Aggregation(object):
 						self.graph.add_edge(next_data[1], next_part_trans.id, next_data[3], next_data[4])
 
 						## update catalog if using one
-						if use_catalog and self.catalog.is_limited:
+						if use_catalog:
 							self.catalog.update(next_part_trans.name, -1)
 						
 						## compute all possible next parts and append to list
