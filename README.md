@@ -52,7 +52,7 @@ Wasp v0.4.013: Discrete Design for Grasshopper.
 URL https://github.com/ar0551/Wasp
 ```
 
-Note that there are two reasons for citing the software used. One is giving recognition to the work done by others which we already addressed. The other is giving details on the system used so that experiments can be replicated. For this, you should cite the version of Robot Components used. See [How to cite and describe software](https://software.ac.uk/how-cite-software) for more details and an in depth discussion.
+Note that there are two reasons for citing the software used. One is giving recognition to the work done by others which we already addressed. The other is giving details on the system used so that experiments can be replicated. For this, you should cite the version of Wasp used. See [How to cite and describe software](https://software.ac.uk/how-cite-software) for more details and an in depth discussion.
 
 # References
 Klavins, E, Ghrist, R and Lipsky, D. 2004. Graph grammars for self-assembling robotic systems. In Robotics and Automation, 2004. Proceedings. ICRA
