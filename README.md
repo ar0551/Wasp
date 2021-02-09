@@ -43,6 +43,17 @@ Significant parts of Wasp have been developed by Andrea Rossi as part of researc
 
 Wasp is heavily influenced by Ladybug (https://github.com/mostaphaRoudsari/ladybug), a free and open source environmental plugin for Grasshopper. It is using its code template, and follows the Labybug code organization. Some methods from Ladybug may have also been copied.
 
+## Cite Wasp
+Wasp is a free to use Grasshopper plugin and does not legally bind you to cite it. However, we would appreciate if you would cite if you used. To cite Wasp in publications use:
+
+```
+Andrea Rossi (2021).  
+Wasp v0.4.013: Discrete Design for Grasshopper. 
+URL https://github.com/ar0551/Wasp
+```
+
+Note that there are two reasons for citing the software used. One is giving recognition to the work done by others which we already addressed. The other is giving details on the system used so that experiments can be replicated. For this, you should cite the version of Wasp used. See [How to cite and describe software](https://software.ac.uk/how-cite-software) for more details and an in depth discussion.
+
 # References
 Klavins, E, Ghrist, R and Lipsky, D. 2004. Graph grammars for self-assembling robotic systems. In Robotics and Automation, 2004. Proceedings. ICRA
 
