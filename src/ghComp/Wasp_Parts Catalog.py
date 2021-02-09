@@ -36,13 +36,14 @@ Provided by Wasp 0.4
         PART: Parts from which to generate a parts catalog
         NUM: Amounts of each part in the catalog
         LIM: OPTIONAL // If True, the catalog will be limited, and aggregation will stop after using the given parts numbers. If False, the given numbers will be used as proportional (False by default)
+        AD: OPTIONAL // If True, catalog will be adaptive, and change its internal probabilities according to the aggregation state (False by default). Works only if LIM is set to False.
     Returns:
         CAT: Parts catalog
 """
 
 ghenv.Component.Name = "Wasp_Parts Catalog"
 ghenv.Component.NickName = 'PartCat'
-ghenv.Component.Message = 'VER 0.4.013'
+ghenv.Component.Message = 'VER 0.4.014'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -69,7 +70,7 @@ except:
 if wasp_loaded:
     from wasp.core import PartCatalog
 
-def main(parts, amounts, limited):
+def main(parts, amounts, limited, adaptive):
     
     check_data = True
     
@@ -98,15 +99,18 @@ def main(parts, amounts, limited):
     if limited is None:
         limited = True
     
+    if adaptive is None:
+        adaptive = False
+    
     if check_data:
         part_names = [part.name for part in parts]
-        parts_catalog = PartCatalog(part_names, amounts, _is_limited = limited)
+        parts_catalog = PartCatalog(part_names, amounts, _is_limited = limited, _is_adaptive = adaptive)
         return parts_catalog
     else:
         return -1
 
 
-result = main(PART, NUM, LIM)
+result = main(PART, NUM, LIM, AD)
 
 if result != -1:
     CAT = result
