@@ -546,6 +546,12 @@ class Aggregation(object):
 				conn2 = int(rule_parts[1].split("|")[1])
 				
 				rule_ids = rule.split(">")[1].split("_")
+				## TO FIX >>> conflict between text and int ids
+				try:
+					for i in range(2):
+						rule_ids[i] = int(rule_ids[i])
+				except:
+					pass
 				
 				first_part = self.parts[part1]
 				first_part_trans = first_part.transform(Transform.Identity)
@@ -556,6 +562,7 @@ class Aggregation(object):
 				orientTransform = Transform.PlaneToPlane(next_part.connections[conn2].flip_pln, first_part.connections[conn1].pln)
 				
 				next_part_trans = next_part.transform(orientTransform)
+
 				next_part_trans.id = rule_ids[1]
 				
 				## check additional collider (for fabrication constraints)
@@ -576,15 +583,28 @@ class Aggregation(object):
 				self.graph.add_edge(first_part_trans.id, next_part_trans.id, conn1, conn2)
 
 			
-			elif len(self.aggregated_parts) < len(graph_rules) + 1:
+			else:
 				aggr_rule = rule.split(">")[0]
 				rule_parts = aggr_rule.split("_")
-				part1_id = str(rule_parts[0].split("|")[0])
+				
+				## TO FIX >>> conflict between text and int ids
+				try:
+					part1_id = int(rule_parts[0].split("|")[0])
+				except:
+					part1_id = str(rule_parts[0].split("|")[0])
+				
 				conn1 = int(rule_parts[0].split("|")[1])
 				part2 = str(rule_parts[1].split("|")[0])
 				conn2 = int(rule_parts[1].split("|")[1])
 				
 				rule_ids = rule.split(">")[1].split("_")
+				## TO FIX >>> conflict between text and int ids
+				try:
+					for i in range(2):
+						rule_ids[i] = int(rule_ids[i])
+				except:
+					pass
+
 				
 				first_part = None
 				for part in self.aggregated_parts:
@@ -609,7 +629,9 @@ class Aggregation(object):
 
 
 				else:
-					pass ## implement error handling
+					## if a part with a given id could not be found, return an error message
+					msg = "Could not find part with id " + str(part1_id)
+					return msg
 
 	
 	## stochastic aggregation
