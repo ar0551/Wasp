@@ -46,11 +46,11 @@ Provided by Wasp 0.4
         
 ghenv.Component.Name = "Wasp_Graph-Grammar Aggregation"
 ghenv.Component.NickName = 'GraphAggr'
-ghenv.Component.Message = 'VER 0.4.013'
+ghenv.Component.Message = 'VER 0.4.014'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "X | Experimental"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
+ghenv.Component.SubCategory = "6 | Aggregation"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 
@@ -76,7 +76,7 @@ if wasp_loaded:
     from wasp.core import Aggregation
 
 
-def main(parts, rules_sequence, aggregation_id, reset, aggregation):
+def main(parts, previous_parts, rules_sequence, aggregation_id, reset, aggregation):
     
     check_data = True
     ##check inputs
@@ -101,11 +101,13 @@ def main(parts, rules_sequence, aggregation_id, reset, aggregation):
             for part in parts:
                 parts_copy.append(part.copy())
             
-            aggregation = Aggregation(aggregation_id, parts_copy, [], 0)
-        
-        aggregation.aggregate_sequence(rules_sequence)
-        return aggregation
+            aggregation = Aggregation(aggregation_id, parts_copy, [], 0, _prev = previous_parts)
             
+            error_msg = aggregation.aggregate_sequence(rules_sequence)
+            if error_msg is not None:
+                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, error_msg)
+        
+        return aggregation
     else:
         return -1
 
@@ -113,7 +115,7 @@ def main(parts, rules_sequence, aggregation_id, reset, aggregation):
 if 'aggregation_container' not in globals():
     aggregation_container = None
 
-result = main(PART, RULES, ID, RESET, aggregation_container)
+result = main(PART, PREV, RULES, ID, RESET, aggregation_container)
 
 if result != -1:
     aggregation_container = result
