@@ -41,7 +41,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Get Attribute by Name"
 ghenv.Component.NickName = 'GetAttr'
-ghenv.Component.Message = 'VER 0.4.013'
+ghenv.Component.Message = 'VER 0.4.014'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

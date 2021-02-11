@@ -51,7 +51,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_DisCo Rule Group"
 ghenv.Component.NickName = 'RuleG'
-ghenv.Component.Message = 'VER 0.4.013'
+ghenv.Component.Message = 'VER 0.4.014'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"
