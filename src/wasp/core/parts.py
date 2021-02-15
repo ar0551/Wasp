@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.014
+@version 0.4.015
 
 Part classes and utilities
 """
@@ -172,7 +172,7 @@ class Part(object):
 		
 		part_trans = Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, dim=self.dim, id=self.id, field=self.field)
 		
-		part_trans.transformation = Transform.Multiply(self.transformation, trans)
+		part_trans.transformation = Transform.Multiply(trans, self.transformation)
 		return part_trans
 	
 	## return a copy of the part
@@ -363,13 +363,13 @@ class AdvancedPart(Part):
 				sp_trans = sp.transform(trans, transform_sub_parts = True, sub_level = sub_level - 1)
 				sub_parts_trans.append(sp_trans)
 			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_trans, adjacency_const = adjacency_const_trans, orientation_const=orient_const_trans)
-			part_trans.transformation = Transform.Multiply(self.transformation, trans)
+			part_trans.transformation = Transform.Multiply(trans, self.transformation)
 			part_trans.is_constrained = True
 			return part_trans
 		
 		else:
 			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts, adjacency_const = adjacency_const_trans, orientation_const=orient_const_trans)
-			part_trans.transformation = Transform.Multiply(self.transformation, trans)
+			part_trans.transformation = Transform.Multiply(trans, self.transformation)
 			part_trans.is_constrained = True
 			return part_trans
 	
