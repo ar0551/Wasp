@@ -48,7 +48,7 @@ class DisCoPointConstraint(object):
 		return cls(pt.X, pt.Y, pt.Z)
 
 
-#################################################################### Point Constraint ####################################################################
+#################################################################### Curve Constraint ####################################################################
 class DisCoCurveConstraint(object):
 
 	## constructor
@@ -74,7 +74,7 @@ class DisCoCurveConstraint(object):
 	## return the data dictionary representing the class
 	def to_data(self):
 		data = {}
-		pts_data
+		pts_data = []
 		for pt in self.pts:
 			pt_data = {'x': pt.X, 'y' : pt.Y, 'z': pt.Z}
 			pts_data.append(pt_data)
@@ -84,12 +84,11 @@ class DisCoCurveConstraint(object):
 	
 	## create class from Rhino curve
 	@classmethod
-	def from_curve(cls, crv, sample=None):	 
-		count = 100
-		if sample is not None:
-			l = crv.GetLength()
-			count = max(int(l/sample), 1)
-
+	def from_curve(cls, crv, sample=None):
+		if sample is None:
+			sample = 0.1
+		l = crv.GetLength()
+		count = max(int(l/sample), 1)
 		crv_params = crv.DivideByCount(count, True)
 		pts = []
 		for p in crv_params:
@@ -98,7 +97,7 @@ class DisCoCurveConstraint(object):
 		return cls(pts)		   
 
 
-#################################################################### Point Constraint ####################################################################
+#################################################################### Box Constraint ####################################################################
 class DisCoBoxConstraint(object):
 
 	## constructor
@@ -138,3 +137,9 @@ class DisCoBoxConstraint(object):
 		data['minZ'] = self.min_z
 		data['maxZ'] = self.max_z
 		return data
+	
+
+	## create class from Rhino box
+	@classmethod
+	def from_bbox(cls, box):
+		return cls(box.Min.X, box.Max.X, box.Min.Y, box.Max.Y, box.Min.Z, box.Max.Z)

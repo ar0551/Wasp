@@ -9,5 +9,7 @@ This file is part of Wasp. https://github.com/ar0551/Wasp
 DisCo settings classes
 """
 
-from .d_player import *
-from .d_constraints import *
+from .player import *
+from .constraints import *
+from .environment import *
+from .setup import *

@@ -9,22 +9,22 @@ This file is part of Wasp. https://github.com/ar0551/Wasp
 DisCo player settings classes
 """
 
-from wasp.disco.d_constraints import *
+from wasp.disco.constraints import *
 
 
 #################################################################### Player ####################################################################
 class DisCoPlayer(object):
 
 	## constructor
-	def __init__(self, _name, _vr_fps, _tool, _place, _IO, _pt_const, _crv_const, _box_const):
+	def __init__(self, _name, _vr_fps, _tool, _place, _IO, _pt_const, _box_const, _crv_const):
 		self.name = _name
 		self.vr_fps = _vr_fps
 		self.tool_settings = _tool
 		self.placement_settings = _place
 		self.IO_settings = _IO
 		self.point_constraints = _pt_const
-		self.curve_constraints = _crv_const
 		self.box_constraints = _box_const
+		self.curve_constraints = _crv_const
 
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
@@ -41,9 +41,9 @@ class DisCoPlayer(object):
 		placement_settings = DisCoPlacementSettings.from_data(data['placementSettings'])
 		IO_settings = DisCoIOSettings.from_data(data['saveLoadSettings'])
 		point_constraints = [DisCoPointConstraint.from_data(pt_data) for pt_data in data['constraintPoints']]
-		curve_constraints = [DisCoCurveConstraint.from_data(crv_data) for crv_data in data['constraintCurves']]
 		box_constraints = [DisCoBoxConstraint.from_data(box_data) for box_data in data['constraintBoxes']]
-		return cls(name, vr_fps, tool_settings, placement_settings, IO_settings, point_constraints, curve_constraints, box_constraints)
+		curve_constraints = [DisCoCurveConstraint.from_data(crv_data) for crv_data in data['constraintCurves']]
+		return cls(name, vr_fps, tool_settings, placement_settings, IO_settings, point_constraints, box_constraints, curve_constraints)
 	
 
 	## return the data dictionary representing the class
@@ -53,10 +53,10 @@ class DisCoPlayer(object):
 		data['VrFps'] = self.vr_fps
 		data['toolsetSettings'] = self.tool_settings.to_data()
 		data['placementSettings'] = self.placement_settings.to_data()
-		data['saveLoadSettings'] = self.IO_settings.to_data
+		data['saveLoadSettings'] = self.IO_settings.to_data()
 		data['constraintPoints'] = [pc.to_data() for pc in self.point_constraints]
-		data['constraintCurves'] = [cc.to_data() for cc in self.curve_constraints]
 		data['constraintBoxes'] = [bc.to_data() for bc in self.box_constraints]
+		data['constraintCurves'] = [cc.to_data() for cc in self.curve_constraints]
 		return data
 
 
