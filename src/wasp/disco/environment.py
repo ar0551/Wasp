@@ -16,9 +16,10 @@ from wasp.utilities import mesh_to_data
 class DisCoEnvironment(object):
 
 	## constructor
-	def __init__(self, _game_area, _environment_geo):
+	def __init__(self, _game_area, _environment_geo, _ground_plane):
 		self.game_area = _game_area
 		self.environment_geo = _environment_geo
+		self.ground_plane = _ground_plane
 
 
 	## override Rhino .ToString() method (display name of the class in Gh)
@@ -46,6 +47,8 @@ class DisCoEnvironment(object):
 			env_geo_data.append(geo_data)
 			count += 1
 		data["AdditionalGeometry"] = env_geo_data
+
+		data['GroundPlane'] = self.ground_plane
 		
 		return data
 
