@@ -27,7 +27,7 @@ class DisCoSetup(object):
 		if probability_total == 1:
 			self.probabilities = _probabilities
 		elif probability_total == 0:
-			self.probabilities = [1.0/len(parts) for part in parts]
+			self.probabilities = [1.0/len(self.parts) for part in self.parts]
 		else:
 			self.probabilities = [p/probability_total for p in _probabilities]
 		
