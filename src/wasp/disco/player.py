@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.4.015
+@version 0.5.001
 
 DisCo player settings classes
 """
@@ -120,6 +120,7 @@ class DisCoPlacementSettings(object):
 		self.place = True
 		self.choreo = True
 		self.shoot = True
+		self.grow = True
 		self.pick = True
 		self.delete = True
 		self.delete_recursive = True
@@ -139,6 +140,7 @@ class DisCoPlacementSettings(object):
 		placement_settings.place = data['Place']
 		placement_settings.choreo = data['Choreograph']
 		placement_settings.shoot = data['Shoot']
+		placement_settings.grow = data['Grow']
 		placement_settings.pick = data['PickNChose']
 		placement_settings.delete = data['Delete']
 		placement_settings.delete_recursive = data['DeleteRec']
@@ -153,6 +155,7 @@ class DisCoPlacementSettings(object):
 		data['Place'] =	 self.place
 		data['Choreograph'] = self.choreo
 		data['Shoot'] = self.shoot
+		data['Grow'] = self.grow
 		data['PickNChose'] = self.pick
 		data['Delete'] = self.delete
 		data['DeleteRec'] = self.delete_recursive
