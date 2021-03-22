@@ -31,7 +31,7 @@
 """
 Loads an aggregation from a previously saved .txt file
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         PART: Parts definition for the aggregation
         FILE: File where the aggregation is saved (.json)
@@ -41,7 +41,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Load Aggregation from File"
 ghenv.Component.NickName = 'LoadAggr'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "6 | Aggregation"

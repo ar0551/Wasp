@@ -31,7 +31,7 @@
 """
 Saves current status of an aggregation to a .json file.
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         OBJ: Object to serialize and save to file
         FILTER: OPTIONAL // keys of the elements to serialize (by default, all object's parameters will be serialized)
@@ -46,7 +46,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Serialize Object to File"
 ghenv.Component.NickName = 'Serializer'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

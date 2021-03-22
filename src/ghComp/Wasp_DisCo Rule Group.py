@@ -29,33 +29,23 @@
 #########################################################################
 
 """
-Export Wasp information for DisCo VR software.
-DisCo (Discrete Choreography) is developed by Jan Philipp Drude at dMA Hannover - Prof. Mirco Becker.
-Project DisCo is available at: http://www.project-disco.com/
---> WIP Component: might be incomplete or contain bugs <--
+Export Wasp information for DisCo VR software
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
-        PART: Parts to be aggregated in DisCo
-        RULES: Aggregation rules
-        COLL: OPTIONAL // Part collider. If not provided, part geometry will be used.
-        PROB: OPTIONAL // Probability distribution for each part
-        ADD_GEO: OPTIONAL // Additional geometry to import in DisCo (e.g., environment geometry)
-        PATH: Path where to save the DisCo .json file
-        NAME: Export file name
-        SAVE: True to export
+        NAME: Rule group name. It will be used to activate/deactivate the rules contained in DisCo
+        GR: Rule grammars to be included in the group
     Returns:
-        TXT: ...
-        FILE: ...
+        RULE_G: Rule Group instance
 """
 
 ghenv.Component.Name = "Wasp_DisCo Rule Group"
 ghenv.Component.NickName = 'RuleG'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "5"
 except: pass
 
 import sys
@@ -78,7 +68,7 @@ except:
 
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
-    pass
+    from wasp.disco import DisCoRuleGroup
 
 
 def main(group_name, rule_grammar):
@@ -98,11 +88,7 @@ def main(group_name, rule_grammar):
     
     
     if check_data:
-        group_dict = {}
-        group_dict['RuleGroupName'] = group_name
-        group_dict["RuleGrammar"] = rule_grammar
-        
-        return json.dumps(group_dict)
+        return DisCoRuleGroup(group_name, rule_grammar)
     else:
         return -1
 

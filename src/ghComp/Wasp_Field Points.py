@@ -31,7 +31,7 @@
 """
 Generate a 3d point grid to be fed to the field component
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         BOU: List of geometries defining the boundaries of the field. Geometries must be closed breps or meshes.
         RES: Resolution (Dimension of each cell)
@@ -43,7 +43,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Field Points"
 ghenv.Component.NickName = 'FieldPts'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"

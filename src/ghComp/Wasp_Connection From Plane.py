@@ -32,7 +32,7 @@
 Create a connection from a given plane.
 It can create connections which cause collisions and overlapping of components
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         PLN: Connection plane
         T: OPTIONAL // Connection type (to be used with Rule Generator component)
@@ -43,7 +43,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Connection From Plane"
 ghenv.Component.NickName = 'ConnPln'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

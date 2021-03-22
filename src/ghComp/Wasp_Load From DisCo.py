@@ -30,9 +30,8 @@
 
 """
 Loads an aggregation from a DisCo-generated .json file (e.g., a saved game session).
---> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         PART: Parts definition for the aggregation
         FILE: File where the DisCo aggregation is saved (.json)
@@ -42,11 +41,11 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Load From DisCo"
 ghenv.Component.NickName = 'DisCoLoad'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
 except: pass
 
 
@@ -144,15 +143,10 @@ def main(parts, file_path):
             for part in PART:
                 if part.name == name:
                     
-                    center_vector = rg.Vector3d.Subtract(rg.Vector3d(0,0,0), rg.Vector3d(part.center))
-                    center_transform = rg.Transform.Translation(center_vector)
-                    
-                    full_trans = rg.Transform.Multiply(trans, center_transform)
-                    
-                    new_part = part.transform(full_trans)
+                    new_part = part.transform(trans)
                     
                     ## flip part if negative scaling occurs
-                    if full_trans.M00 * full_trans.M11 * full_trans.M22 < 0:
+                    if trans.M00 * trans.M11 * trans.M22 < 0:
                         ## geometry
                         new_part.geo.Flip(True, True, True)
                         ## connections

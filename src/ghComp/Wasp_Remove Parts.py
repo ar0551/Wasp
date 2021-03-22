@@ -32,7 +32,7 @@
 Remove specific parts from an aggregation.
 --> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         AGGR: Aggregation to edit
         ID: ID of the part to remove
@@ -48,7 +48,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Remove Parts"
 ghenv.Component.NickName = 'RemovePart'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

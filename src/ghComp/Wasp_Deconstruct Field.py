@@ -31,7 +31,7 @@
 """
 Generates a scalar field given a grid of points and their relative scalar values
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         FIELD: Field to deconstruct
     Returns:
@@ -45,7 +45,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Deconstruct Field"
 ghenv.Component.NickName = 'DeField'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"

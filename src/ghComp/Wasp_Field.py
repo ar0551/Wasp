@@ -31,7 +31,7 @@
 """
 Generates a scalar field given a grid of points and their relative scalar values
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         BOU: List of geometries defining the boundaries of the field. Geometries must be closed breps or meshes. All points of the field outside the geometries will be assigned a 0 value
         PTS: 3d point grid (from FieldPts component)
@@ -44,7 +44,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Field"
 ghenv.Component.NickName = 'Field'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"

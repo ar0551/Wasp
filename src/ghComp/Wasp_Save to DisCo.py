@@ -29,10 +29,9 @@
 #########################################################################
 
 """
-Saves current status of an aggregation to a .json file, to be imported into DisCo for further aggregation.
---> WIP Component: might be incomplete or contain bugs <--
+Saves current status of an aggregation to a .json file, to be imported into DisCo for further aggregation
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         AGGR: Aggregation to save
         PATH: Path where to save the aggregation
@@ -44,11 +43,11 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Save to DisCo"
 ghenv.Component.NickName = 'DisCoSave'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
 except: pass
 
 
@@ -109,10 +108,32 @@ def main(aggregation, path, filename, save):
             part_dict = {}
             
             part_dict['name'] = part.name
-            part_dict['active_connections'] = part.active_connections
+            
+            """
+            if aggregation.mode == 0:
+                part_dict['active_connections'] = part.active_connections
+            else:
+                part_dict['active_connections'] = [i for i in range(len(part.connections))]
+            """
+            
             part_dict['parent'] = part.parent
+            part_dict['parent_connection'] = None
+            part_dict['connection_to_parent'] = None
+            
+            if part.parent is not None:
+                parent_graph = aggregation.graph.graph_dict[part.parent]
+                part_dict['parent_connection'] = parent_graph[part.id]['conn_start']
+                part_dict['connection_to_parent'] = parent_graph[part.id]['conn_end']
+            
+            """
             part_dict['children'] = part.children
             
+            part_dict['children_connections'] = []
+            if len(part.children) > 0:
+                part_graph = aggregation.graph.graph_dict[part.id]
+                for child in part.children:
+                    pass
+            """
             
             part_dict['transform'] = {}
             
@@ -122,29 +143,31 @@ def main(aggregation, path, filename, save):
                     base_part = b_part
                     break
             
+            """
             center_vector = rg.Vector3d.Subtract(rg.Vector3d(base_part.center), rg.Vector3d(0,0,0))
             center_transform = rg.Transform.Translation(center_vector)
             full_trans = rg.Transform.Multiply(part.transformation, center_transform)
+            """
             
-            part_dict['transform']['M00'] = full_trans.M00
-            part_dict['transform']['M01'] = full_trans.M01
-            part_dict['transform']['M02'] = full_trans.M02
-            part_dict['transform']['M03'] = full_trans.M03
+            part_dict['transform']['M00'] = part.transformation.M00
+            part_dict['transform']['M01'] = part.transformation.M01
+            part_dict['transform']['M02'] = part.transformation.M02
+            part_dict['transform']['M03'] = part.transformation.M03
             
-            part_dict['transform']['M10'] = full_trans.M10
-            part_dict['transform']['M11'] = full_trans.M11
-            part_dict['transform']['M12'] = full_trans.M12
-            part_dict['transform']['M13'] = full_trans.M13
+            part_dict['transform']['M10'] = part.transformation.M10
+            part_dict['transform']['M11'] = part.transformation.M11
+            part_dict['transform']['M12'] = part.transformation.M12
+            part_dict['transform']['M13'] = part.transformation.M13
             
-            part_dict['transform']['M20'] = full_trans.M20
-            part_dict['transform']['M21'] = full_trans.M21
-            part_dict['transform']['M22'] = full_trans.M22
-            part_dict['transform']['M23'] = full_trans.M23
+            part_dict['transform']['M20'] = part.transformation.M20
+            part_dict['transform']['M21'] = part.transformation.M21
+            part_dict['transform']['M22'] = part.transformation.M22
+            part_dict['transform']['M23'] = part.transformation.M23
             
-            part_dict['transform']['M30'] = full_trans.M30
-            part_dict['transform']['M31'] = full_trans.M31
-            part_dict['transform']['M32'] = full_trans.M32
-            part_dict['transform']['M33'] = full_trans.M33
+            part_dict['transform']['M30'] = part.transformation.M30
+            part_dict['transform']['M31'] = part.transformation.M31
+            part_dict['transform']['M32'] = part.transformation.M32
+            part_dict['transform']['M33'] = part.transformation.M33
             
             part_dict['is_constrained'] = part.is_constrained
             

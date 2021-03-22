@@ -31,7 +31,7 @@
 """
 Plane global constraint
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         PLN: Plane to use as constraints
         POS: OPTIONAL // True to place parts on the positive direction of the Z axis, False for the negative direction (True by default)
@@ -44,7 +44,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Plane Constraint"
 ghenv.Component.NickName = 'PlaneConst'
-ghenv.Component.Message = "VER 0.4.014"
+ghenv.Component.Message = "VER 0.5.001"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Constraints"

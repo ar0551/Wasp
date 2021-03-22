@@ -31,7 +31,7 @@
 """
 Get the valid smart attributes from a given aggregation.
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         AGGR: Aggregation from which to extract the smart attributes
         ID: Name of the smart attribute to extract
@@ -41,7 +41,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Get Valid Smart Attributes"
 ghenv.Component.NickName = 'GetSmartAttr'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

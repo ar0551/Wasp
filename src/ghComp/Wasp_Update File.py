@@ -34,7 +34,7 @@ to your current installation. The components that can't be updated automatically
 will be marked and should be replaced manually.
 --> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
 Code is adapted from Ladybug file updater (https://github.com/mostaphaRoudsari/ladybug)
     
     Args:
@@ -45,7 +45,7 @@ Code is adapted from Ladybug file updater (https://github.com/mostaphaRoudsari/l
 
 ghenv.Component.Name = "Wasp_Update File"
 ghenv.Component.NickName = 'UpdateFile'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

@@ -31,7 +31,7 @@
 """
 Generate an aggregation rule from part names and connections ids
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         P1: Name of base part
         C1: Id of base connection
@@ -43,7 +43,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Rule"
 ghenv.Component.NickName = 'Rule'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"

@@ -32,7 +32,7 @@
 Draws isolines across a field object
 --> WIP Component: might be incomplete or contain bugs! <--
 -
-Provided by Wasp 0.4
+Provided by Wasp 0.5
     Args:
         FIELD: Field object to extract isolines from
         PLN: Plane for isolines extraction (0: XY Plane, 1: YZ Plane, 2: XZ Plane)
@@ -44,7 +44,7 @@ Provided by Wasp 0.4
 
 ghenv.Component.Name = "Wasp_Field Isolines"
 ghenv.Component.NickName = 'FieldIso'
-ghenv.Component.Message = 'VER 0.4.014'
+ghenv.Component.Message = 'VER 0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory =  "5 | Fields"
