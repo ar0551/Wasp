@@ -84,7 +84,6 @@ class Graph(object):
 			g = aggr.graph
 
 		return g
-	
 
 	## add a new node
 	def add_node(self, id):

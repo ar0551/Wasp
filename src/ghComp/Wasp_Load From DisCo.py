@@ -70,7 +70,7 @@ except:
 
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
-    pass
+    from wasp.core import Aggregation, Graph
 
 
 def main(parts, file_path):
@@ -92,6 +92,13 @@ def main(parts, file_path):
     if check_data:
         
         loaded_parts = []
+        loaded_graph = Graph()
+        
+        parts_copy = []
+        for part in parts:
+            parts_copy.append(part.copy())
+        loaded_aggregation = Aggregation('', parts_copy, [], 0)
+        
         aggr_dict = {}
         
         ## load json data
@@ -114,6 +121,11 @@ def main(parts, file_path):
             active_conn = part_data['active_connections']
             parent = part_data['parent']
             children = part_data['children']
+            
+            if parent is not None:
+                loaded_graph.add_node(parent)
+                
+                loaded_graph.add_edge(parent, id, part_data['parentCon'], part_data['connection_to_parent'])
             
             ## part transform
             trans = rg.Transform(0)
@@ -140,7 +152,7 @@ def main(parts, file_path):
             constrained = part_data['is_constrained']
             
             new_part = None
-            for part in PART:
+            for part in parts:
                 if part.name == name:
                     
                     new_part = part.transform(trans)
@@ -168,12 +180,16 @@ def main(parts, file_path):
                 new_part.is_constrained = constrained
                 
                 loaded_parts.append(new_part)
-            
-        return loaded_parts
+        
+        loaded_aggregation.graph = loaded_graph
+        loaded_aggregation.aggregated_parts = loaded_parts
+        
+        return loaded_aggregation, loaded_parts
     else:
         return -1
 
 result = main(PART, FILE)
 
 if result != -1:
-    PART_OUT = result
+    AGGR = result[0]
+    PART_OUT = result[1]
