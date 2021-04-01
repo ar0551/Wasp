@@ -155,7 +155,7 @@ class Part(object):
 	
 
 	## return a transformed copy of the part
-	def transform(self, trans, transform_sub_parts=False):
+	def transform(self, trans, transform_sub_parts=False, maintain_parent = False):
 		geo_trans = self.geo.Duplicate()
 		geo_trans.Transform(trans)
 		
@@ -171,12 +171,17 @@ class Part(object):
 				attributes_trans.append(attr.transform(trans))
 		
 		part_trans = Part(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, dim=self.dim, id=self.id, field=self.field)
-		
+
 		part_trans.transformation = Transform.Multiply(trans, self.transformation)
+
+		if maintain_parent:
+			part_trans.parent = self.parent
+			part_trans.children = self.children
+
 		return part_trans
 	
 	## return a copy of the part
-	def copy(self):
+	def copy(self, maintain_parent = False):
 		geo_copy = self.geo.Duplicate()
 		
 		collider_copy = self.collider.copy()
@@ -192,6 +197,11 @@ class Part(object):
 		
 		part_copy = Part(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, dim=self.dim, id=self.id, field=self.field)
 		part_copy.transformation = self.transformation
+
+		if maintain_parent:
+			part_trans.parent = self.parent
+			part_trans.children = self.children
+
 		return part_copy
 	
 	## return transformed center point of the part
@@ -320,7 +330,7 @@ class AdvancedPart(Part):
 	
 
 	## return a transformed copy of the part
-	def transform(self, trans, transform_sub_parts=False, sub_level = 0):
+	def transform(self, trans, transform_sub_parts=False, sub_level = 0, maintain_parent = False):
 		geo_trans = self.geo.Duplicate()
 		geo_trans.Transform(trans)
 		
@@ -365,17 +375,23 @@ class AdvancedPart(Part):
 			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_trans, adjacency_const = adjacency_const_trans, orientation_const=orient_const_trans)
 			part_trans.transformation = Transform.Multiply(trans, self.transformation)
 			part_trans.is_constrained = True
+			if maintain_parent:
+				part_trans.parent = self.parent
+				part_trans.children = self.children
 			return part_trans
 		
 		else:
 			part_trans = AdvancedPart(self.name, geo_trans, connections_trans, collider_trans, attributes_trans, add_collider_trans, supports_trans, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts, adjacency_const = adjacency_const_trans, orientation_const=orient_const_trans)
 			part_trans.transformation = Transform.Multiply(trans, self.transformation)
 			part_trans.is_constrained = True
+			if maintain_parent:
+				part_trans.parent = self.parent
+				part_trans.children = self.children
 			return part_trans
 	
 	
 	## return a copy of the part		
-	def copy(self):
+	def copy(self, maintain_parent = False):
 		geo_copy = self.geo.Duplicate()
 		
 		collider_copy = self.collider.copy()
@@ -419,12 +435,18 @@ class AdvancedPart(Part):
 			part_copy = AdvancedPart(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, add_collider_copy, supports_copy, dim=self.dim, id=self.id, field=self.field, sub_parts=sub_parts_copy, adjacency_const=adjacency_const_copy, orientation_const=orient_const_copy)
 			part_copy.transformation = self.transformation
 			part_copy.is_constrained = True
+			if maintain_parent:
+				part_trans.parent = self.parent
+				part_trans.children = self.children
 			return part_copy
 		
 		else:
 			part_copy = AdvancedPart(self.name, geo_copy, connections_copy, collider_copy, attributes_copy, add_collider_copy, supports_copy, dim=self.dim, id=self.id, field=self.field, sub_parts=self.sub_parts, adjacency_const=adjacency_const_copy, orientation_const=orient_const_copy)
 			part_copy.transformation = self.transformation
 			part_copy.is_constrained = True
+			if maintain_parent:
+				part_trans.parent = self.parent
+				part_trans.children = self.children
 			return part_copy
 
 
