@@ -76,14 +76,16 @@ class Aggregation(object):
 		if len(_prev) > 0:
 			self.prev_num = len(_prev)
 			for prev_p in _prev:
-				prev_p_copy = prev_p.copy()
+				prev_p_copy = prev_p.copy(maintain_parenting=True)
 				prev_p_copy.reset_part(self.rules)
-				prev_p_copy.id = len(self.aggregated_parts)
+				if prev_p_copy.id is None:
+					prev_p_copy.id = len(self.aggregated_parts)
 				self.aggregated_parts.append(prev_p_copy)
 
 				## add node to graph
 				self.graph.add_node(prev_p_copy.id)
-				## TO DO - Check if connections between the parts exist
+				if prev_p_copy.parent is not None:
+					self.graph.add_edge(prev_p_copy.parent, prev_p_copy.id, prev_p_copy.conn_on_parent, prev_p_copy.conn_to_parent)
 
 				if self.field is not None:
 					self.compute_next_w_field(prev_p_copy)
@@ -723,6 +725,8 @@ class Aggregation(object):
 						## parent-child tracking
 						self.aggregated_parts[part_01_id].children.append(next_part_trans.id)
 						next_part_trans.parent = self.aggregated_parts[part_01_id].id
+						next_part_trans.conn_on_parent = next_rule.conn1
+						next_part_trans.conn_to_parent = next_rule.conn2
 						
 						## add part to aggregated_parts list
 						self.aggregated_parts.append(next_part_trans)
