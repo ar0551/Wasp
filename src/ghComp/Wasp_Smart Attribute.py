@@ -45,7 +45,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Smart Attribute"
 ghenv.Component.NickName = 'SmartAttribute'
-ghenv.Component.Message = 'VER 0.5.001'
+ghenv.Component.Message = 'v0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

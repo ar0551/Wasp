@@ -45,7 +45,7 @@ Code is adapted from Ladybug file updater (https://github.com/mostaphaRoudsari/l
 
 ghenv.Component.Name = "Wasp_Update File"
 ghenv.Component.NickName = 'UpdateFile'
-ghenv.Component.Message = 'VER 0.5.001'
+ghenv.Component.Message = 'v0.5.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -93,7 +93,11 @@ def collectGHPythonComponents(document=None):
 
 
 def parseVersion(version):
-    version = sum(int(n) * 10 ** i for i, n in enumerate(reversed(version.split("VER ")[1].split("."))))
+    if version[:4] == "VER ":
+        version = sum(int(n) * 100 ** i for i, n in enumerate(reversed(version.split("VER ")[1].split("."))))
+    else:
+        version = sum(int(n) * 100 ** i for i, n in enumerate(reversed(version.split("v")[1].split("."))))
+    #print version
     return version
 
 
