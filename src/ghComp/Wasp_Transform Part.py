@@ -89,7 +89,7 @@ def main(part, transform):
     
     if check_data:
         ## transform part
-        part_trans = part.transform(transform)
+        part_trans = part.transform(transform, maintain_parenting=True)
         
         ## flip part if negative scaling occurs
         if transform.M00 * transform.M11 * transform.M22 < 0:

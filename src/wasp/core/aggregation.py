@@ -620,9 +620,14 @@ class Aggregation(object):
 					orientTransform = Transform.PlaneToPlane(next_part.connections[conn2].flip_pln, first_part.connections[conn1].pln)
 					next_part_trans = next_part.transform(orientTransform)
 					next_part_trans.id = rule_ids[1]
+
 					## parent-child tracking
 					first_part.children.append(next_part_trans.id)
 					next_part_trans.parent = first_part.id
+					next_part_trans.conn_on_parent = conn1
+					next_part_trans.conn_to_parent = conn2
+
+					## add part to aggregated_parts list
 					self.aggregated_parts.append(next_part_trans)
 
 					## add data to graph
@@ -917,6 +922,8 @@ class Aggregation(object):
 						## parent-child tracking
 						self.aggregated_parts[next_data[1]].children.append(next_part_trans.id)
 						next_part_trans.parent = self.aggregated_parts[next_data[1]].id
+						next_part_trans.conn_on_parent = next_data[3]
+						next_part_trans.conn_to_parent = next_data[4]						
 						
 						## add part to aggregated_parts list
 						self.aggregated_parts.append(next_part_trans)
