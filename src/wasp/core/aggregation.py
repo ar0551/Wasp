@@ -648,7 +648,8 @@ class Aggregation(object):
 		while added < num:
 			loops += 1
 			if loops > num*100:
-				break
+				msg = "Could not place " + str(num-added) + " parts"
+				return msg
 			
 			## if no part is present in the aggregation, add first random part
 			if len(self.aggregated_parts) == 0:
@@ -817,7 +818,8 @@ class Aggregation(object):
 			## avoid endless loops
 			loops += 1
 			if loops > num*100:
-				break
+				msg = "Could not place " + str(num-added) + " parts"
+				return msg
 			
 			## if no part is present in the aggregation, add first random part
 			if len(self.aggregated_parts) == 0 and self.prev_num == 0:
