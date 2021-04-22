@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.001
+@version 0.5.002
 
 Constraints classes
 """
@@ -211,7 +211,8 @@ class Adjacency_Constraint(object):
 			data['directions'].append(d_data)
 		data['is_adjacency'] = self.is_adjacency
 		data['names'] = self.names
-		return data	
+		return data
+	
 
 	## return a transformed copy of the support
 	def transform(self, trans):
@@ -275,6 +276,42 @@ class Adjacency_Constraint(object):
 			return True
 
 		return False
+	
+
+	## check against a single part (for back-checking exclusions)
+	def check_single(self, part):
+		## check adjacencies [NOT NECESSARY]
+		if self.is_adjacency:
+			required_adjacencies = len(self.directions)
+			for i in range(len(self.directions)):
+				if self.name_independent:
+					if part.collider.check_intersection_w_line(self.directions[i]):
+						required_adjacencies -= 1
+						break
+				else:
+					if part.name == self.names[i]:
+						if part.collider.check_intersection_w_line(self.directions[i]):
+							required_adjacencies -= 1
+							break
+			
+			if required_adjacencies == 0:
+				return True
+		
+		## check exclusions
+		else:
+			for i in range(len(self.directions)):
+				if self.name_independent:
+					if part.collider.check_intersection_w_line(self.directions[i]):
+						return False
+				else:
+					if part.name == self.names[i]:
+						if part.collider.check_intersection_w_line(self.directions[i]):
+							return False
+			return True
+
+		return False
+
+
 
 
 #################################################################### Adjacency Constraint ####################################################################

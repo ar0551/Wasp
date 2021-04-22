@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.001
+@version 0.5.002
 
 Aggregation class and functions
 """
@@ -339,6 +339,7 @@ class Aggregation(object):
 		add_coll_check = False
 		missing_sup_check = False
 		adjacencies_check = False
+		exclusions_back_check = False
 		orientation_check = False
 		global_const_check = False
 
@@ -363,7 +364,10 @@ class Aggregation(object):
 							adjacencies_check = self.adjacencies_check(part, trans)
 
 							if not adjacencies_check:
-								orientation_check = self.orientation_check(part, trans)
+								exclusions_back_check = self.exclusions_back_check(part, trans)
+
+								if not exclusions_back_check:
+									orientation_check = self.orientation_check(part, trans)
 
 			
 			## onyl global constraints mode
@@ -375,19 +379,26 @@ class Aggregation(object):
 			elif self.mode == 3:
 				if len(self.global_constraints) > 0:
 					global_const_check = self.global_constraints_check(part, trans, part_center_trans, part_collider_trans)
+				
 				if not global_const_check and part.is_constrained:
 					add_coll_check = self.additional_collider_check(part, trans)
+					
 					if not add_coll_check:
 						missing_sup_check = self.missing_supports_check(part, trans)
+						
 						if not missing_sup_check:
 							adjacencies_check = self.adjacencies_check(part, trans)
+							
 							if not adjacencies_check:
-								orientation_check = self.orientation_check(part, trans)
+								exclusions_back_check = self.exclusions_back_check(part, trans)
+
+								if not exclusions_back_check:
+									orientation_check = self.orientation_check(part, trans)
 
 		## combine all constraints check result
-		global_check = coll_check or add_coll_check or missing_sup_check or global_const_check or adjacencies_check or orientation_check
+		global_check = coll_check or add_coll_check or missing_sup_check or global_const_check or adjacencies_check or exclusions_back_check or orientation_check
 
-		return global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check, orientation_check
+		return global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check, exclusions_back_check, orientation_check
 
 	
 	## overlap // part-part collision check
@@ -413,6 +424,7 @@ class Aggregation(object):
 				part_collider = part.transform_collider(trans)
 			if part_collider.check_collisions_by_id(self.aggregated_parts, self.possible_collisions):
 				return True, None, None
+		
 		return False, part_center, part_collider
 	
 	
@@ -456,6 +468,21 @@ class Aggregation(object):
 		else:
 			return False
 	
+
+	## back-checking exclusions on already placed parts
+	def exclusions_back_check(self, part, trans):
+		part_trans = None
+		for id in self.possible_collisions:
+			if self.aggregated_parts[id].is_constrained:
+				if len(self.aggregated_parts[id].adjacency_const) > 0:
+					for adj_const in self.aggregated_parts[id].adjacency_const:
+						if not adj_const.is_adjacency:
+							if part_trans is None:
+								part_trans = part.transform(trans)
+							if not adj_const.check_single(part_trans):
+								return True
+		return False
+
 
 	## orientation check
 	def orientation_check(self, part, trans):
@@ -717,7 +744,7 @@ class Aggregation(object):
 					next_part = self.parts[next_rule.part2]
 					orientTransform = Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn_01.pln)
 					
-					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check, orientation_check = self.check_all_constraints(next_part, orientTransform)
+					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check, exclusions_back_check, orientation_check = self.check_all_constraints(next_part, orientTransform)
 					
 					if not global_check:
 						next_part_trans = next_part.transform(orientTransform)
@@ -910,7 +937,7 @@ class Aggregation(object):
 					next_center = Point3d(next_part.center)
 					orientTransform = next_data[2]
 					
-					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check, orientation_check = self.check_all_constraints(next_part, orientTransform)
+					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check, exclusions_back_check, orientation_check = self.check_all_constraints(next_part, orientTransform)
 						
 					if not global_check:
 						next_part_trans = next_part.transform(orientTransform)
