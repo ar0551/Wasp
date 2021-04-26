@@ -42,7 +42,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Support"
 ghenv.Component.NickName = 'Support'
-ghenv.Component.Message = 'v0.5.001'
+ghenv.Component.Message = 'v0.5.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Constraints"
