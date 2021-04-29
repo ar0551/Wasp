@@ -1,3 +1,0 @@
-3_01 Wasp Hierarchy
-3_02 Wasp Graph-Grammar Aggregation
-3_03 Aggregation Editor (Add / Delete Parts)
