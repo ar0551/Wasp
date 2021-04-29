@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Save to DisCo"
 ghenv.Component.NickName = 'DisCoSave'
-ghenv.Component.Message = 'v0.5.002'
+ghenv.Component.Message = 'v0.5.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"

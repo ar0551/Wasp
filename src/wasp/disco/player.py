@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.002
+@version 0.5.003
 
 DisCo player settings classes
 """
@@ -16,9 +16,10 @@ from wasp.disco.constraints import *
 class DisCoPlayer(object):
 
 	## constructor
-	def __init__(self, _name, _vr_fps, _tool, _place, _IO, _pt_const, _box_const, _crv_const):
+	def __init__(self, _name, _vr_fps, _scale, _tool, _place, _IO, _pt_const, _box_const, _crv_const):
 		self.name = _name
 		self.vr_fps = _vr_fps
+		self.scale = _scale
 		self.tool_settings = _tool
 		self.placement_settings = _place
 		self.IO_settings = _IO
@@ -37,13 +38,14 @@ class DisCoPlayer(object):
 	def from_data(cls, data):
 		name = data['playerName']
 		vr_fps = data['VrFps']
+		scale = data['Scale']
 		tool_settings = DisCoToolSettings.from_data(data['toolsetSettings'])
 		placement_settings = DisCoPlacementSettings.from_data(data['placementSettings'])
 		IO_settings = DisCoIOSettings.from_data(data['saveLoadSettings'])
 		point_constraints = [DisCoPointConstraint.from_data(pt_data) for pt_data in data['constraintPoints']]
 		box_constraints = [DisCoBoxConstraint.from_data(box_data) for box_data in data['constraintBoxes']]
 		curve_constraints = [DisCoCurveConstraint.from_data(crv_data) for crv_data in data['constraintCurves']]
-		return cls(name, vr_fps, tool_settings, placement_settings, IO_settings, point_constraints, box_constraints, curve_constraints)
+		return cls(name, vr_fps, scale, tool_settings, placement_settings, IO_settings, point_constraints, box_constraints, curve_constraints)
 	
 
 	## return the data dictionary representing the class
@@ -51,6 +53,7 @@ class DisCoPlayer(object):
 		data = {}
 		data['playerName'] = self.name
 		data['VrFps'] = self.vr_fps
+		data['Scale'] = self.scale
 		data['toolsetSettings'] = self.tool_settings.to_data()
 		data['placementSettings'] = self.placement_settings.to_data()
 		data['saveLoadSettings'] = self.IO_settings.to_data()

@@ -35,6 +35,7 @@ Provided by Wasp 0.5
     Args:
         NAME: Player name
         VRFPS: Player mode: 0 for VR player, 1 for FPS player
+        SCALE: Player scale factor (1.0 by default)
         TS: OPTIONAL // Tool settings (all tools availabe by default)
         PS: OPTIONAL // Placement settings (all placement modes availabe by default)
         IOS: OPTIONAL // IO settings (all IO modes availabe by default)
@@ -48,7 +49,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_DisCo Player"
 ghenv.Component.NickName = 'DisCoPlayer'
-ghenv.Component.Message = 'v0.5.002'
+ghenv.Component.Message = 'v0.5.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"
@@ -78,7 +79,7 @@ if wasp_loaded:
     from wasp.disco import *
 
 
-def main(name, vr_fps, tool, place, IO, points, boxes, curves, crv_sample):
+def main(name, vr_fps, scale, tool, place, IO, points, boxes, curves, crv_sample):
     
     check_data = True
     
@@ -91,6 +92,9 @@ def main(name, vr_fps, tool, place, IO, points, boxes, curves, crv_sample):
         check_data = False
         msg = "Please provide a payer mode (0 for VR, 1 for FPS)"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if scale is None:
+        scale = 1.0
     
     if tool is None:
         tool = DisCoToolSettings()
@@ -119,14 +123,14 @@ def main(name, vr_fps, tool, place, IO, points, boxes, curves, crv_sample):
             for crv in curves:
                 crv_const.append(DisCoCurveConstraint.from_curve(crv, crv_sample))
         
-        player = DisCoPlayer(name, vr_fps, tool, place, IO, pt_const, box_const, crv_const)
+        player = DisCoPlayer(name, vr_fps, scale, tool, place, IO, pt_const, box_const, crv_const)
         
         return player
     else:
         return -1
 
 
-result = main(NAME, VRFPS, TS, PS, IOS, PC, BC, CC, CCS)
+result = main(NAME, VRFPS, SCALE, TS, PS, IOS, PC, BC, CC, CCS)
 
 if result != -1:
     PLAY = result

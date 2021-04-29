@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.002
+@version 0.5.003
 
 Wasp: Discrete Design with Grasshopper plug-in (GPL) initiated by Andrea Rossi
  
@@ -44,6 +44,6 @@ __author__ = ['ar0551 <a.rossi.andrea@gmail.com>']
 __copyright__ = 'Copyright 2021-2022 - Andrea Rossi'
 __license__ = 'GPLv3.0'
 __email__ = 'ghwasp@gmail.com'
-__version__ = '0.5.002'
+__version__ = '0.5.003'
 
 
