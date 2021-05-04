@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Parts Catalog"
 ghenv.Component.NickName = 'PartCat'
-ghenv.Component.Message = 'VER 0.5.001'
+ghenv.Component.Message = 'v0.5.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -97,7 +97,7 @@ def main(parts, amounts, limited, adaptive):
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
     
     if limited is None:
-        limited = True
+        limited = False
     
     if adaptive is None:
         adaptive = False
