@@ -4,12 +4,13 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.003
+@version 0.5.004
 
 Collider classes and utilities
 """
 
 from Rhino.Geometry.Intersect import Intersection
+from wasp import is_rh7
 from wasp.core import Connection
 from wasp.utilities import mesh_from_data, mesh_to_data
 
@@ -174,8 +175,12 @@ class Collider(object):
 	## check intersection between collider and line (for supports check)
 	def check_intersection_w_line(self, ln):
 		for geo in self.geometry:
-			if len(Intersection.MeshLine(geo, ln)[0]) > 0:
-				return True
+			if is_rh7:
+				if len(Intersection.MeshLine(geo, ln)) > 0:
+					return True
+			else:
+				if len(Intersection.MeshLine(geo, ln)[0]) > 0:
+					return True
 		return False
 	
 

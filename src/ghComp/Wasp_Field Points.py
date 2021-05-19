@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Field Points"
 ghenv.Component.NickName = 'FieldPts'
-ghenv.Component.Message = 'v0.5.003'
+ghenv.Component.Message = 'v0.5.004'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"
@@ -101,7 +101,7 @@ def main(boundaries, resolution, base_plane):
         
         resolution = x_size / 10
         
-        msg = "No resolution provided. Default resolution set to %d units"%(resolution)
+        msg = "No resolution provided. Default resolution set to %f units"%(resolution)
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
         
     if check_data:

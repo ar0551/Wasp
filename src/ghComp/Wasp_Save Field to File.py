@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Save Field to File"
 ghenv.Component.NickName = 'SaveField'
-ghenv.Component.Message = 'v0.5.003'
+ghenv.Component.Message = 'v0.5.004'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"
@@ -101,19 +101,19 @@ def main(field, path, filename, save):
     ## execute main code if all needed inputs are available
     if check_data:
         
-        field_dict = field.to_data()
         full_path = os.path.join(path, filename + ".json")
         
         if save:
+            field_dict = field.to_data()
+            
             with open(full_path, "w") as outF:
                 json.dump(field_dict, outF)
         
-        return json.dumps(field_dict), full_path
+        return full_path
     else:
         return -1
 
 result = main(FIELD, PATH, NAME, SAVE)
 
 if result != -1:
-    TXT = result[0]
-    FILE = result[1]
+    FILE = result

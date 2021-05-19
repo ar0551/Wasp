@@ -34,14 +34,14 @@ Loads an aggregation from a previously saved .txt file
 Provided by Wasp 0.5
     Args:
         FILE: File where the field is saved (.json)
-        UPDATE: True to load the saved file
+        LOAD: True to reload the saved file
     Returns:
         FIELD: Imported field
 """
 
 ghenv.Component.Name = "Wasp_Load Field from File"
 ghenv.Component.NickName = 'LoadField'
-ghenv.Component.Message = 'v0.5.003'
+ghenv.Component.Message = 'v0.5.004'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"
@@ -71,7 +71,7 @@ if wasp_loaded:
     from wasp.field import Field
 
 
-def main(file_path, load_file):
+def main(file_path, load_file, field):
         
     check_data = True
     
@@ -82,12 +82,12 @@ def main(file_path, load_file):
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if load_file is None:
-        lad_file = False
+        load_file = False
     
     ## execute main code if all needed inputs are available
     if check_data:
         
-        if load_file:
+        if field is None or load_file:
             field_dict = {}
             
             ## load json data
@@ -96,15 +96,18 @@ def main(file_path, load_file):
                 field_dict = json.loads(txt_data)
             
             field = Field.from_data(field_dict)
-            return field
-        else:
-            return -1
+        
+        return field
         
     else:
         return -1
 
 
-result = main(FILE, LOAD)
+## create aggregation container in global variables dict
+if 'field_container' not in globals():
+    field_container = None
+
+result = main(FILE, LOAD, field_container)
 
 if result != -1:
     FIELD = result

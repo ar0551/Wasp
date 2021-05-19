@@ -35,15 +35,17 @@ import os
 import sys
 
 import scriptcontext
+from Rhino import RhinoApp
 
 
 global_tolerance = scriptcontext.doc.ModelAbsoluteTolerance*2
+is_rh7 = True if RhinoApp.ExeVersion == 7 else False
 
 
 __author__ = ['ar0551 <a.rossi.andrea@gmail.com>']
 __copyright__ = 'Copyright 2021-2022 - Andrea Rossi'
 __license__ = 'GPLv3.0'
 __email__ = 'ghwasp@gmail.com'
-__version__ = '0.5.003'
+__version__ = '0.5.004'
 
 

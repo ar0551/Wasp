@@ -42,7 +42,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Deconstruct Collider"
 ghenv.Component.NickName = 'DeColl'
-ghenv.Component.Message = 'v0.5.003'
+ghenv.Component.Message = 'v0.5.004'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
