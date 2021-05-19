@@ -37,6 +37,12 @@ You should have received a copy of the GNU General Public License along with Was
 
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
+# Supporters Wall
+
+Wasp is free and open-source. Its development is supported by its user through the [Wasp Patreon Page](https://www.patreon.com/wasp_toolkit). To them goes a great Thank You for enabling Wasp to continue growing:
+
+Arjen Deetman, diff-arch, Robert Dooley, Anton Savov, Alexander, Stefas, Roger Winkler
+
 # Credits
 ![ddu logo](http://www.dg.architektur.tu-darmstadt.de/media/architektur/fachgruppe_b/ika/flash/DDU_Logo_Website_182x0.jpg)
 Significant parts of Wasp have been developed by Andrea Rossi as part of research on digital materials and discrete design at DDU Digital Design Unit - Prof. Oliver Tessmann - Technische Universität Darmstadt (http://www.dg.architektur.tu-darmstadt.de/dg/startseite_3/index.de.jsp)
