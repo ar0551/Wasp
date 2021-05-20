@@ -41,7 +41,7 @@ You should have received a copy of the GNU General Public License along with Was
 
 Wasp is free and open-source. Its development is supported by its user through the [Wasp Patreon Page](https://www.patreon.com/wasp_toolkit). To them goes a great Thank You for enabling Wasp to continue growing:
 
-Arjen Deetman, diff-arch, Robert Dooley, Anton Savov, Alexander, Stefas, Roger Winkler
+Arjen Deetman, diff-arch, Robert Dooley, Thanat Prathnadi, Anton Savov, Alexander, Stefas, Roger Winkler
 
 # Credits
 ![ddu logo](http://www.dg.architektur.tu-darmstadt.de/media/architektur/fachgruppe_b/ika/flash/DDU_Logo_Website_182x0.jpg)
