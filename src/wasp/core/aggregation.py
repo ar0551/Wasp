@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.004
+@version 0.5.005
 
 Aggregation class and functions
 """
@@ -196,7 +196,7 @@ class Aggregation(object):
 			data['catalog'] = self.catalog.to_data()
 
 		#data['aggregated_parts'] = [part.to_data() for part in self.aggregated_parts]
-		data['aggregated_parts'] =  {}
+		data['aggregated_parts'] =	{}
 		data['aggregated_parts_sequence'] = []
 		for part in self.aggregated_parts:
 			data['aggregated_parts'][part.id] = part.to_data()
@@ -498,7 +498,13 @@ class Aggregation(object):
 
 	## global constraints check
 	def global_constraints_check(self, part, trans, part_center=None, part_collider=None):
-		valid_constraints = len(self.global_constraints)
+		
+		optional_constraints = 0
+		for constraint in self.global_constraints:
+			if not constraint.required:
+				optional_constraints += 1
+		
+		valid_optional_constraints = optional_constraints
 		for constraint in self.global_constraints:
 			if part_center is None:
 				part_center = part.transform_center(trans)
@@ -507,7 +513,7 @@ class Aggregation(object):
 					if constraint.required:
 						return True
 					else:
-						valid_constraints -= 1
+						valid_optional_constraints -= 1
 			else:
 				if part_collider is None:
 					part_collider = part.transform_collider(trans)
@@ -515,9 +521,9 @@ class Aggregation(object):
 					if constraint.required:
 						return True
 					else:
-						valid_constraints -= 1
+						valid_optional_constraints -= 1
 		
-		if valid_constraints == 0:
+		if optional_constraints > 0 and valid_optional_constraints == 0:
 			return True
 		
 		return False
