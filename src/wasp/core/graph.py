@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.004
+@version 0.5.005
 
 Graph class and utilities
 """
@@ -48,7 +48,7 @@ class Graph(object):
 
 	## create a graph from a given aggregation
 	@classmethod
-	def from_aggregation(cls, aggr, full_graph=True):
+	def from_aggregation(cls, aggr, full_graph=True, tolerance=global_tolerance):
 		g = cls()
 		
 		if full_graph:
@@ -63,7 +63,7 @@ class Graph(object):
 				for i2 in range(len(aggr.aggregated_parts)):
 					if aggr.aggregated_parts[i].id != aggr.aggregated_parts[i2].id:
 						p_dist = aggr.aggregated_parts[i].center.DistanceTo(aggr.aggregated_parts[i2].center)
-						if p_dist < (aggr.aggregated_parts[i].dim + aggr.aggregated_parts[i2].dim) + global_tolerance:
+						if p_dist < (aggr.aggregated_parts[i].dim + aggr.aggregated_parts[i2].dim) + tolerance:
 							neighbours.append(i2)
 				## check all connections for neighbouring parts
 				for i2 in range(len(aggr.aggregated_parts[i].connections)):
@@ -71,7 +71,7 @@ class Graph(object):
 						if aggr.aggregated_parts[i3].id != aggr.aggregated_parts[i].id:
 							for i4 in range(len(aggr.aggregated_parts[i3].connections)):
 								c_dist = aggr.aggregated_parts[i].connections[i2].pln.Origin.DistanceTo(aggr.aggregated_parts[i3].connections[i4].pln.Origin)
-								if c_dist < global_tolerance:
+								if c_dist < tolerance:
 
 									edge_dict = {}
 									edge_dict["start"] = aggr.aggregated_parts[i].id
