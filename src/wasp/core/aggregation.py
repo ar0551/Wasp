@@ -274,39 +274,12 @@ class Aggregation(object):
 				orientTransform = Transform.PlaneToPlane(next_part.connections[rule.conn2].flip_pln, current_conn.pln)
 				
 				## boolean checks for all constraints
-				coll_check = False
-				add_coll_check = False
-				valid_connections = []
-				missing_sup_check = False
-				global_const_check = False
+				global_check = False
 				
 				if check_constraints:
-					## collision check
-					self.possible_collisions = []
-					coll_check = self.collision_check(next_part, orientTransform)
-					
-					## constraints check
-					if self.mode == 1: ## only local constraints mode
-						if coll_check == False and next_part.is_constrained:
-							add_coll_check = self.additional_collider_check(next_part, orientTransform)
-							
-							if add_coll_check == False:
-							   missing_sup_check = self.missing_supports_check(next_part, orientTransform)
-					
-					elif self.mode == 2: ## onyl global constraints mode
-						if coll_check == False and len(self.global_constraints) > 0:
-							global_const_check = self.global_constraints_check(next_part, orientTransform)
-					
-					elif self.mode == 3: ## local+global constraints mode
-						if coll_check == False:
-							if len(self.global_constraints) > 0:
-								global_const_check = self.global_constraints_check(next_part, orientTransform)
-							if global_const_check == False and next_part.is_constrained:
-								add_coll_check = self.additional_collider_check(next_part, orientTransform)
-								if add_coll_check == False:
-								   missing_sup_check = self.missing_supports_check(next_part, orientTransform)
+					global_check, _, _, _, _, _, _, _ = self.check_all_constraints(next_part, orientTransform)
 				
-				if coll_check == False and add_coll_check == False and missing_sup_check == False and global_const_check == False:
+				if not global_check:
 					next_part_trans = next_part.transform(orientTransform)
 					possible_children.append(next_part_trans)
 			
