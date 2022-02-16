@@ -35,13 +35,14 @@ Provided by Wasp 0.5
     Args:
         PART: Parts definition for the aggregation
         FILE: File where the DisCo aggregation is saved (.json)
+        RENUM: True to renumber ids coming from DisCo. This is necessary to allow correct import of aggregations where the delete commands have been used (True by default)
     Returns:
         PART_OUT: Imported aggregation parts
 """
 
 ghenv.Component.Name = "Wasp_Load From DisCo"
 ghenv.Component.NickName = 'DisCoLoad'
-ghenv.Component.Message = 'v0.5.004'
+ghenv.Component.Message = 'v0.5.005'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"
@@ -70,10 +71,10 @@ except:
 
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
-    from wasp.core import Aggregation, Graph
+    from wasp.core import Aggregation, Graph, Attribute
 
 
-def main(parts, file_path):
+def main(parts, file_path, renumber):
         
     check_data = True
     
@@ -87,6 +88,9 @@ def main(parts, file_path):
         check_data = False
         msg = "No path provided for the file to load"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if renumber is None:
+        renumber = True
     
     ## execute main code if all needed inputs are available
     if check_data:
@@ -110,17 +114,34 @@ def main(parts, file_path):
         part_ids = [int(id) for id in aggr_dict['parts'].keys()]
         part_ids.sort()
         
+        ## create new ids for renumbering
+        renumbered_ids = None
+        if renumber:
+            renumbered_ids = range(len(part_ids))
+        
         ## load parts
-        for id in part_ids:
+        for i in range(len(part_ids)):
+            id = part_ids[i]
             part_data = aggr_dict['parts'][str(id)]
-                    
+            
+            if renumber:
+                id = i
+            
             ## part name
             name = part_data['name']
             
             ## part active connections
             active_conn = part_data['active_connections']
             parent = part_data['parent']
+            if renumber:
+                try:
+                    parent = part_ids.index(parent)
+                except:
+                    parent = None
+            
             children = part_data['children']
+            if renumber:
+                children = [part_ids.index(child) for child in children]
             
             if parent is not None:
                 loaded_graph.add_node(parent)
@@ -173,11 +194,32 @@ def main(parts, file_path):
                     new_part.id = id
                     break
             
+            owner_id_attr = None
+            if part_data.has_key("ownerID"):
+                owner_id_attr = Attribute("ownerID", [part_data["ownerID"]], False)
+            
+            owner_name_attr = None
+            if part_data.has_key("ownerName"):
+                owner_name_attr = Attribute("ownerName", [part_data["ownerName"]], False)
+            
+            freeze_time_attr = None
+            if part_data.has_key("freezeTime"):
+                freeze_time_attr = Attribute("freezeTime", [part_data["freezeTime"]], False)
+            
             if new_part is not None:
                 new_part.active_connections = active_conn
                 new_part.parent = parent
                 new_part.children = children
                 new_part.is_constrained = constrained
+                
+                if owner_id_attr is not None:
+                    new_part.attributes.append(owner_id_attr)
+                
+                if owner_name_attr is not None:
+                    new_part.attributes.append(owner_name_attr)
+                
+                if freeze_time_attr is not None:
+                    new_part.attributes.append(freeze_time_attr)
                 
                 loaded_parts.append(new_part)
         
@@ -188,7 +230,7 @@ def main(parts, file_path):
     else:
         return -1
 
-result = main(PART, FILE)
+result = main(PART, FILE, RENUM)
 
 if result != -1:
     AGGR = result[0]

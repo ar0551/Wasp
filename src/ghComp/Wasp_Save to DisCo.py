@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Save to DisCo"
 ghenv.Component.NickName = 'DisCoSave'
-ghenv.Component.Message = 'v0.5.004'
+ghenv.Component.Message = 'v0.5.005'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"
@@ -170,6 +170,18 @@ def main(aggregation, path, filename, save):
             part_dict['transform']['M33'] = part.transformation.M33
             
             part_dict['is_constrained'] = part.is_constrained
+            
+            if len(part.attributes) > 0:
+                for attribute in part.attributes:
+                    
+                    if attribute.name == "ownerID":
+                        part_dict["ownerID"] = attribute.values[0]
+                    
+                    if attribute.name == "ownerName":
+                        part_dict["ownerName"] = attribute.values[0]
+                    
+                    if attribute.name == "freezeTime":
+                        part_dict["freezeTime"] = attribute.values[0]
             
             aggr_dict['parts'][part.id] = part_dict
         

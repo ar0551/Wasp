@@ -44,7 +44,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Save Graph to File"
 ghenv.Component.NickName = 'SaveGraph'
-ghenv.Component.Message = 'v0.5.004'
+ghenv.Component.Message = 'v0.5.005'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "6 | Aggregation"

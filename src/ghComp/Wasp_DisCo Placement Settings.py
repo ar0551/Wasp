@@ -50,7 +50,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_DisCo Placement Settings"
 ghenv.Component.NickName = 'DisCoPlace'
-ghenv.Component.Message = 'v0.5.004'
+ghenv.Component.Message = 'v0.5.005'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"
