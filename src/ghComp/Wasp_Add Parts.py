@@ -51,7 +51,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Add Parts"
 ghenv.Component.NickName = 'AddPart'
-ghenv.Component.Message = 'v0.5.005'
+ghenv.Component.Message = 'v0.5.006'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

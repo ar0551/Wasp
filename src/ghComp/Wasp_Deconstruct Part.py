@@ -49,7 +49,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Deconstruct Part"
 ghenv.Component.NickName = 'DePart'
-ghenv.Component.Message = 'v0.5.005'
+ghenv.Component.Message = 'v0.5.006'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
