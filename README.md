@@ -41,7 +41,7 @@ You should have received a copy of the GNU General Public License along with Was
 
 Wasp is free and open-source. Its development is supported by its user through the [Wasp Patreon Page](https://www.patreon.com/wasp_toolkit). To them goes a great Thank You for enabling Wasp to continue growing:
 
-Arushi Agarwal, Анд Рей, Andrés Caicedo, Adam Colestock, Arjen Deetman, diff-arch, Robert Dooley, Max Fagan, Flux Estudio, Mark Foxworth, Nupur Gandhi, Ayush Kamalia, Lucie Ketelsen, Lothar Kolbeck, Marcus, Martyn Milligan, Mai Thi Nguyen, Thanat Prathnadi, Anton Savov, Naitik Sharma, Alexander Stefas, 庆铃 王, Andrea Tomalini, Domonkos Tóth, Roger Winkler
+Arushi Agarwal, Joshua Bonamy, Анд Рей, Andrés Caicedo, Adam Colestock, Arjen Deetman, diff-arch, Robert Dooley, Max Fagan, Flux Estudio, Mark Foxworth, Nupur Gandhi, Soubhi Jabal, Ayush Kamalia, Lucie Ketelsen, Lothar Kolbeck, Marcus, Martyn Milligan, Mai Thi Nguyen, Thanat Prathnadi, Anton Savov, Naitik Sharma, Alexander Stefas, 庆铃 王, Andrea Tomalini, Domonkos Tóth, Roger Winkler, Lei Zhang
 
 # Credits
 ![ddu logo](http://www.dg.architektur.tu-darmstadt.de/media/architektur/fachgruppe_b/ika/flash/DDU_Logo_Website_182x0.jpg)
