@@ -218,12 +218,11 @@ class Aggregation(object):
 
 	## reset rules and regenerate rule tables for each part
 	def reset_rules(self, rules):
-		if rules != self.rules:
-			self.rules = rules
-			self.reset_base_parts()
-			
-			for part in self.aggregated_parts:
-				part.reset_part(rules)
+		self.rules = rules
+		self.reset_base_parts()
+		
+		for part in self.aggregated_parts:
+			part.reset_part(rules)
 	
 
 	## recompute aggregation queue
