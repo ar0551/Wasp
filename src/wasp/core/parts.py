@@ -250,7 +250,7 @@ class AdvancedPart(Part):
 
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspAdvPart [name: %s, id: %s]" % (self.name, self.id)
+		return "WaspAdvancedPart [name: %s, id: %s]" % (self.name, self.id)
 	
 
 	## create class from data dictionary

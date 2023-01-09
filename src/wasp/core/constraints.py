@@ -33,7 +33,7 @@ class Plane_Constraint(object):
 
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspPlaneConst [+: %s, soft: %s, required: %s]" % (self.positive, self.soft, self.required)
+		return "WaspPlaneConstraint [+: %s, soft: %s, required: %s]" % (self.positive, self.soft, self.required)
 	
 
 	## create class from data dictionary
@@ -110,7 +110,7 @@ class Mesh_Constraint(object):
 
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspMeshConst [in: %s, soft: %s, required: %s]" % (self.inside, self.soft, self.required)
+		return "WaspMeshConstraint [in: %s, soft: %s, required: %s]" % (self.inside, self.soft, self.required)
 	
 	## create class from data dictionary
 	@classmethod
@@ -187,7 +187,7 @@ class Adjacency_Constraint(object):
 
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspAdjacencyConst [size: %s, type: %s]" % (len(self.directions), "Adjacency" if self.is_adjacency else "Exclusion")
+		return "WaspAdjacencyConstraint [size: %s, type: %s]" % (len(self.directions), "Adjacency" if self.is_adjacency else "Exclusion")
 	
 
 	## create class from data dictionary
@@ -332,7 +332,7 @@ class Orientation_Constraint(object):
 
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspOrientationConst [dir: %s,%s,%s, range: %s:%s]" % (self.base_dir.X, self.base_dir.Y, self.base_dir.Z, self.range[0], self.range[1])
+		return "WaspOrientationConstraint [dir: %s,%s,%s, range: %s:%s]" % (self.base_dir.X, self.base_dir.Y, self.base_dir.Z, self.range[0], self.range[1])
 	
 
 	## create class from data dictionary
