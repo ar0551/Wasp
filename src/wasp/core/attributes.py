@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.006
+@version 0.5.007
 
 Attribute classes and utilities
 """
@@ -162,3 +162,53 @@ class Support(object):
 			sup_dir_copy.append(dir_copy)
 		sup_copy = Support(sup_dir_copy)
 		return sup_copy
+
+
+#################################################################### Support ####################################################################
+class InternalTransform(Attribute):
+    
+    def __init__(self, id, part1, part2, tr_type, tr_axis, tr_domain):
+        
+        super(InternalTransform, self).__init__(id, [part1, part2, tr_axis], True)
+        
+        self.transform_type = tr_type
+        self.transform_domain = tr_domain
+        self.current_pos = 0.5
+    
+    def ToString(self):
+        return "WaspInternalTransform [name: %s]" % (self.name)
+    
+    def transform(self, trans):
+        values_trans = []
+        for val in self.values:
+            val_trans = None
+            if type(val) == Point3d:
+                val_trans = Point3d(val)
+            elif type(val) == Plane:
+                val_trans = Plane(val)
+            elif type(val) == Line:
+                val_trans = Line(val.From, val.To)
+            else:
+                val_trans = val.Duplicate()
+            val_trans.Transform(trans)
+            values_trans.append(val_trans)
+        
+        it_trans = InternalTransform(self.name, values_trans[0], values_trans[1], self.transform_type, values_trans[2], self.transform_domain)
+        return it_trans
+    
+    def copy(self):
+        values_copy = []
+        for val in self.values:
+            val_copy = None
+            if type(val) == Point3d:
+                val_copy = Point3d(val)
+            elif type(val) == Plane:
+                val_copy = Plane(val)
+            elif type(val) == Line:
+                val_copy = Line(val.From, val.To)
+            else:
+                val_copy = val.Duplicate()
+            values_copy.append(val_copy)
+        
+        it_copy = InternalTransform(self.name, values_copy[0], values_copy[1], self.transform_type, values_copy[2], self.transform_domain)
+        return it_copy
