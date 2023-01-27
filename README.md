@@ -27,7 +27,7 @@ The core of the framework relies on a set of aggregation procedures, allowing ge
 # License
 Wasp: Discrete Design with Grasshopper plug-in (LGPL) initiated by Andrea Rossi
 
-Copyright (c) 2017, Andrea Rossi
+Copyright (c) 2017-2023, Andrea Rossi
 
 Wasp is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License version 3.0 as published by the Free Software Foundation. 
 
