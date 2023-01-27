@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  Discrete Design with Grasshopper plug-in (GPL) initiated by Andrea Rossi
+  Discrete Design with Grasshopper plug-in (LGPL) initiated by Andrea Rossi
 </p>
 
 <p align="center">
@@ -25,23 +25,23 @@ The description of each individual part includes basic information necessary for
 The core of the framework relies on a set of aggregation procedures, allowing generation of specific structures from the combination of different modules. Each of these procedures is composed of strategies for the selection of basic aggregation rules, described as an instruction to orient one module over a selected connection of another module. Currently available procedures include stochastic aggregation and field-driven aggregation.
 
 # License
-Wasp: Discrete Design with Grasshopper plug-in (GPL) initiated by Andrea Rossi
+Wasp: Discrete Design with Grasshopper plug-in (LGPL) initiated by Andrea Rossi
 
-Copyright (c) 2017, Andrea Rossi
+Copyright (c) 2017-2023, Andrea Rossi
 
-Wasp is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation. 
+Wasp is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License version 3.0 as published by the Free Software Foundation. 
 
-Wasp is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+Wasp is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with Wasp; If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public License along with Wasp; If not, see <http://www.gnu.org/licenses/>.
 
-@license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
+@license LGPL-3.0 <https://www.gnu.org/licenses/lgpl-3.0.html>
 
 # Supporters Wall
 
 Wasp is free and open-source. Its development is supported by its user through the [Wasp Patreon Page](https://www.patreon.com/wasp_toolkit). To them goes a great Thank You for enabling Wasp to continue growing:
 
-Arushi Agarwal, Joshua Bonamy, Émile Brochu, Анд Рей, Andrés Caicedo, Adam Colestock, Arjen Deetman, diff-arch, Robert Dooley, Ibrahim Dusmukhamedov, Max Fagan, Flux Estudio, Mark Foxworth, Nupur Gandhi, Simon Greuel, Markus Hudert, Soubhi Jabal, Ayush Kamalia, Lucie Ketelsen, Lothar Kolbeck, Littieri M. Lamb, Joseph Loga, Marcus, Martyn Milligan, Mai Thi Nguyen, Eric Pham, Thanat Prathnadi, Anton Savov, Naitik Sharma, Alexander Stefas, 庆铃 王, Andrea Tomalini, Domonkos Tóth, TreeAsHouse, Roger Winkler, Lei Zhang
+Arushi Agarwal, Joshua Bonamy, Émile Brochu, Анд Рей, Andrés Caicedo, Adam Colestock, Arjen Deetman, diff-arch, Robert Dooley, Ibrahim Dusmukhamedov, Max Fagan, Flux Estudio, Mark Foxworth, Nupur Gandhi, Simon Greuel, Markus Hudert, Soubhi Jabal, Ayush Kamalia, Lucie Ketelsen, Lothar Kolbeck, Littieri M. Lamb, Joseph Loga, Marcus, Martyn Milligan, Mai Thi Nguyen, Eric Pham, Thanat Prathnadi, Anton Savov, Naitik Sharma, Alexander Stefas, 庆铃 王, Andrea Tomalini, Domonkos Tóth, TreeAsHouse, Μαρία Χατζητζίβα, Roger Winkler, Lei Zhang
 
 # Credits
 ![ddu logo](http://www.dg.architektur.tu-darmstadt.de/media/architektur/fachgruppe_b/ika/flash/DDU_Logo_Website_182x0.jpg)
