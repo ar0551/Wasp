@@ -2,7 +2,7 @@
 # 
 # This file is part of Wasp.
 # 
-# Copyright (c) 2017, Andrea Rossi <a.rossi.andrea@gmail.com>
+# Copyright (c) 2017-2023, Andrea Rossi <a.rossi.andrea@gmail.com>
 # Wasp is free software; you can redistribute it and/or modify 
 # it under the terms of the GNU Lesser General Public License as published 
 # by the Free Software Foundation; either version 3 of the License, 
@@ -18,7 +18,7 @@
 # 
 # @license LGPL-3.0 https://www.gnu.org/licenses/lgpl-3.0.html
 #
-# Significant parts of Wasp have been developed by Andrea Rossi
+# Early development of Wasp has been carried out by Andrea Rossi
 # as part of research on digital materials and discrete design at:
 # DDU Digital Design Unit - Prof. Oliver Tessmann
 # Technische Universitt Darmstadt

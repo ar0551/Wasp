@@ -2,7 +2,7 @@
 # 
 # This file is part of Wasp.
 # 
-# Copyright (c) 2017, Andrea Rossi <a.rossi.andrea@gmail.com>
+# Copyright (c) 2017-2023, Andrea Rossi <a.rossi.andrea@gmail.com>
 # Wasp is free software; you can redistribute it and/or modify 
 # it under the terms of the GNU Lesser General Public License as published 
 # by the Free Software Foundation; either version 3 of the License, 
@@ -18,7 +18,7 @@
 # 
 # @license LGPL-3.0 https://www.gnu.org/licenses/lgpl-3.0.html
 #
-# Significant parts of Wasp have been developed by Andrea Rossi
+# Early development of Wasp has been carried out by Andrea Rossi
 # as part of research on digital materials and discrete design at:
 # DDU Digital Design Unit - Prof. Oliver Tessmann
 # Technische Universitt Darmstadt
@@ -45,7 +45,7 @@ Provided by Wasp 0.5
 """
 
 ghenv.Component.Name = "Wasp_Serialize Object to File"
-ghenv.Component.NickName = 'Serializer'
+ghenv.Component.NickName = 'Serialize'
 ghenv.Component.Message = 'v0.5.007'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
@@ -78,16 +78,30 @@ if wasp_loaded:
     pass
 
 
-def main(object, filter, path, filename, save):
-        
+def main(obj, filter, path, filename, save):
+    
+    not_implemented_objects = ["Attribute", "SmartAttribute", "OrientationConstraint"]
+    
     check_data = True
     check_save_data = True
     
     ## check inputs
-    if object is None:
+    if obj is None:
         check_data = False
         msg = "No object provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    else:
+        object_type = obj.ToString().Split(" ")[0].Replace("Wasp", "")
+        if object_type in not_implemented_objects:
+            check_data = False
+            msg = "Serialization for %s not yet implemented" % (object_type)
+            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+        elif object_type == "Part" or object_type == "AdvancedPart":
+            if len(obj.attributes) > 0:
+                msg = "Serialization for Attributes not yet implemented. Attributes will not be serialized"
+                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
     
     if path is None:
         check_save_data = False
@@ -100,7 +114,7 @@ def main(object, filter, path, filename, save):
     
     ## execute main code if all needed inputs are available
     if check_data:
-        data = object.to_data()
+        data = obj.to_data()
         keys = data.keys()
         
         filtered_data = {}
@@ -110,6 +124,8 @@ def main(object, filter, path, filename, save):
                     filtered_data[f_key] = data[f_key]
         else:
             filtered_data = data
+        
+        filtered_data["object_type"] = object_type
         
         full_path = None
         if check_save_data:
@@ -123,7 +139,7 @@ def main(object, filter, path, filename, save):
                 msg = "Cannot save the file. Either the path or the filename are missing."
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
         
-        return keys, json.dumps(filtered_data, indent = 2), full_path
+        return keys, full_path
     else:
         return -1
 
@@ -131,6 +147,5 @@ result = main(OBJ, FILTER, PATH, NAME, SAVE)
 
 if result != -1:
     KEY = result[0]
-    TXT = result[1]
-    FILE = result[2]
+    FILE = result[1]
 
