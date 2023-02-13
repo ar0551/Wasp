@@ -46,6 +46,6 @@ __author__ = ['ar0551 <a.rossi.andrea@gmail.com>']
 __copyright__ = 'Copyright 2021-2022 - Andrea Rossi'
 __license__ = 'GPLv3.0'
 __email__ = 'ghwasp@gmail.com'
-__version__ = '0.5.006'
+__version__ = '0.5.007'
 
 
