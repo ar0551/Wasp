@@ -41,7 +41,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Deserialize Object from File"
 ghenv.Component.NickName = 'DeSerialize'
-ghenv.Component.Message = 'v0.5.007'
+ghenv.Component.Message = 'v0.5.008'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -131,7 +131,13 @@ def main(file_path, load_file, obj):
             elif object_type == "AdjacencyConstraint":
                 obj = Adjacency_Constraint.from_data(class_data)
             
-            ## Orientation_Constraint NOT IMPLEMENTED
+            ## Orientation_Constraint
+            elif object_type == "OrientationConstraint":
+                obj = Orientation_Constraint.from_data(class_data)
+            
+            ## Support
+            elif object_type == "Support":
+                obj = Support.from_data(class_data)
             
             ## Graph
             elif object_type == "Graph":

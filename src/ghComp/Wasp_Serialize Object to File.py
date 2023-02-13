@@ -46,7 +46,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Serialize Object to File"
 ghenv.Component.NickName = 'Serialize'
-ghenv.Component.Message = 'v0.5.007'
+ghenv.Component.Message = 'v0.5.008'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -80,7 +80,7 @@ if wasp_loaded:
 
 def main(obj, filter, path, filename, save):
     
-    not_implemented_objects = ["Attribute", "SmartAttribute", "OrientationConstraint"]
+    not_implemented_objects = ["Attribute", "SmartAttribute"]
     
     check_data = True
     check_save_data = True
