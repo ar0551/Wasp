@@ -12,6 +12,7 @@ Utilities
 from Rhino.Geometry import Mesh
 from Rhino.Geometry import Plane
 from Rhino.Geometry import Vector3d, Point3d
+from Rhino.Geometry import LineCurve
 from Rhino.Geometry import Transform
 
 

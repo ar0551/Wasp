@@ -4,13 +4,13 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.007
+@version 0.5.008
 
 Constraints classes
 """
 
 from Rhino.Geometry.Intersect import Intersection
-from Rhino.Geometry import Vector3d, Point3d, Line, Plane
+from Rhino.Geometry import Vector3d, Point3d, Line, Plane, Interval
 
 from wasp import global_tolerance
 from wasp.utilities import plane_from_data, plane_to_data, mesh_from_data, mesh_to_data
@@ -313,7 +313,6 @@ class Adjacency_Constraint(object):
 
 
 
-
 #################################################################### Adjacency Constraint ####################################################################
 class Orientation_Constraint(object):
 
@@ -338,15 +337,26 @@ class Orientation_Constraint(object):
 	## create class from data dictionary
 	@classmethod
 	def from_data(cls, data):
-		#### NOT IMPLEMENTED
-		return None
+		d_base_dir = Vector3d(data['base_dir'][0], data['base_dir'][1], data['base_dir'][2])
+		d_plane = plane_from_data(data['plane'])
+		d_range = Interval(data['range'][0], data['range'][1])
+		d_current_dir = None
+		if data['current_dir'] is not None:
+			d_current_dir = Vector3d(data['current_dir'][0], data['current_dir'][1], data['current_dir'][2])
+		return cls(d_base_dir, d_plane, d_range, _c_dir=d_current_dir)
 
 		
 	## return the data dictionary representing the constraint
 	def to_data(self):
 		#### NOT IMPLEMENTED
 		data = {}
-		return data	
+		data['base_dir'] = [self.base_dir.X, self.base_dir.Y, self.base_dir.Z]
+		data['plane'] = plane_to_data(self.plane)
+		data['range'] = [self.range.T0, self.range.T1]
+		data['current_dir'] = None
+		if self.current_dir is not None:
+			data['current_dir'] = [self.current_dir.X, self.current_dir.Y, self.current_dir.Z]
+		return data
 
 	
 	## return a transformed copy of the support
@@ -379,3 +389,62 @@ class Orientation_Constraint(object):
 			return True
 		else:
 			return False
+
+
+#################################################################### Support ####################################################################
+class Support(object):
+	
+	## constructor
+	def __init__(self, support_directions):
+		self.sup_dir = support_directions
+	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "WaspSupport [len: %s]" % (len(self.sup_dir))
+	
+	## return the data dictionary representing the support
+	def to_data(self):
+		data = {}
+		data['directions'] = []
+		for d in self.sup_dir:
+			d_data = {}
+			d = d.ToNurbsCurve()
+			d_data['start'] = [d.PointAtStart.X, d.PointAtStart.Y, d.PointAtStart.Z]
+			d_data['end'] = [d.PointAtEnd.X, d.PointAtEnd.Y, d.PointAtEnd.Z]
+			data['directions'].append(d_data)
+		return data
+	
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		sup_directions = []
+		for d_data in data['directions']:
+			d = Line(d_data['start'][0], d_data['start'][1], d_data['start'][2], d_data['end'][0], d_data['end'][1], d_data['end'][2])
+			sup_directions.append(d)
+		return cls(sup_directions)
+
+	## return a transformed copy of the support
+	def transform(self, trans):
+		sup_dir_trans = []
+		for dir in self.sup_dir:
+			dir = dir.ToNurbsCurve()
+			start_trans = dir.PointAtStart
+			end_trans = dir.PointAtEnd
+			start_trans.Transform(trans)
+			end_trans.Transform(trans)
+			dir_trans = Line(start_trans, end_trans)
+			sup_dir_trans.append(dir_trans)
+		sup_trans = Support(sup_dir_trans)
+		return sup_trans
+	
+	## return a copy of the support
+	def copy(self):
+		sup_dir_copy = []
+		for dir in self.sup_dir:
+			dir = dir.ToNurbsCurve()
+			start_copy = dir.PointAtStart
+			end_copy = dir.PointAtEnd
+			dir_copy = Line(start_copy, end_copy)
+			sup_dir_copy.append(dir_copy)
+		sup_copy = Support(sup_dir_copy)
+		return sup_copy

@@ -127,44 +127,6 @@ class SmartAttribute(Attribute):
 
 
 #################################################################### Support ####################################################################
-class Support(object):
-	
-	## constructor
-	def __init__(self, support_directions):
-		self.sup_dir = support_directions
-	
-	## override Rhino .ToString() method (display name of the class in Gh)
-	def ToString(self):
-		return "WaspSupport [len: %s]" % (len(self.sup_dir))
-	
-	## return a transformed copy of the support
-	def transform(self, trans):
-		sup_dir_trans = []
-		for dir in self.sup_dir:
-			dir = dir.ToNurbsCurve()
-			start_trans = dir.PointAtStart
-			end_trans = dir.PointAtEnd
-			start_trans.Transform(trans)
-			end_trans.Transform(trans)
-			dir_trans = Line(start_trans, end_trans)
-			sup_dir_trans.append(dir_trans)
-		sup_trans = Support(sup_dir_trans)
-		return sup_trans
-	
-	## return a copy of the support
-	def copy(self):
-		sup_dir_copy = []
-		for dir in self.sup_dir:
-			dir = dir.ToNurbsCurve()
-			start_copy = dir.PointAtStart
-			end_copy = dir.PointAtEnd
-			dir_copy = Line(start_copy, end_copy)
-			sup_dir_copy.append(dir_copy)
-		sup_copy = Support(sup_dir_copy)
-		return sup_copy
-
-
-#################################################################### Support ####################################################################
 class InternalTransform(Attribute):
     
     def __init__(self, id, part1, part2, tr_type, tr_axis, tr_domain):
