@@ -41,7 +41,7 @@ You should have received a copy of the GNU Lesser General Public License along w
 
 Wasp is free and open-source. Its development is supported by its user through the [Wasp Patreon Page](https://www.patreon.com/wasp_toolkit). To them goes a great Thank You for enabling Wasp to continue growing:
 
-Arushi Agarwal, Joseph Arc, Joshua Bonamy, Émile Brochu, Анд Рей, Andrés Caicedo, Adam Colestock, Arjen Deetman, diff-arch, Robert Dooley, Ibrahim Dusmukhamedov, Max Fagan, Flux Estudio, Mark Foxworth, Nupur Gandhi, Simon Greuel, Markus Hudert, Soubhi Jabal, Ayush Kamalia, Lucie Ketelsen, Lothar Kolbeck, Arayapon Kumjornpreecha, Littieri M. Lamb, Joseph Loga, Marcus, Martyn Milligan, Mai Thi Nguyen, Nyquist, Eric Pham, Thanat Prathnadi, Anton Savov, Naitik Sharma, Eleni Maria Skevaki, Alexander Stefas, 庆铃 王, Andrea Tomalini, Domonkos Tóth, TreeAsHouse, Μαρία Χατζητζίβα, Roger Winkler, Lei Zhang
+Arushi Agarwal, Joseph Arc, Georgios Bekakos, Joshua Bonamy, Émile Brochu, Анд Рей, Andrés Caicedo, Adam Colestock, Arjen Deetman, diff-arch, Robert Dooley, Ibrahim Dusmukhamedov, Max Fagan, Flux Estudio, Mark Foxworth, Nupur Gandhi, Simon Greuel, Markus Hudert, Soubhi Jabal, Ayush Kamalia, Lucie Ketelsen, Lothar Kolbeck, Arayapon Kumjornpreecha, Littieri M. Lamb, Joseph Loga, Marcus, Martyn Milligan, Mai Thi Nguyen, Eric Pham, Thanat Prathnadi, Anton Savov, Naitik Sharma, Eleni Maria Skevaki, Alexander Stefas, 庆铃 王, Andrea Tomalini, Domonkos Tóth, TreeAsHouse, Μαρία Χατζητζίβα, Jake Wilson, Roger Winkler, Lei Zhang
 
 # Credits
 ![ddu logo](http://www.dg.architektur.tu-darmstadt.de/media/architektur/fachgruppe_b/ika/flash/DDU_Logo_Website_182x0.jpg)
