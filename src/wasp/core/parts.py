@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.007
+@version 0.5.008
 
 Part classes and utilities
 """
@@ -283,8 +283,8 @@ class AdvancedPart(Part):
 		adv_part.transformation = transform_from_data(data['transform'])
 
 		adv_part.parent = data['parent']
-		part.conn_on_parent = data['conn_on_parent']
-		part.conn_to_parent = data['conn_to_parent']
+		adv_part.conn_on_parent = data['conn_on_parent']
+		adv_part.conn_to_parent = data['conn_to_parent']
 		
 		for child_data in data['children']:
 			child_id = None
