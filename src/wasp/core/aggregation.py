@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.007
+@version 0.5.008
 
 Aggregation class and functions
 """
@@ -384,13 +384,18 @@ class Aggregation(object):
 		coll_count = 0
 		for ex_part in self.aggregated_parts:
 			dist = ex_part.center.DistanceTo(part_center)
+
+			## if part centers overlap, return
 			if dist < global_tolerance:
 				return True, None, None
+				
+			## if not, check if the part is within collision range
 			elif dist < ex_part.dim + part.dim:
 				self.possible_collisions.append(coll_count)
-			coll_count += 1
+			
+			oll_count += 1
 		
-		## collision check
+		## check collisions with parts in range
 		if self.coll_check == True:
 			if part_collider is None:
 				part_collider = part.transform_collider(trans)
