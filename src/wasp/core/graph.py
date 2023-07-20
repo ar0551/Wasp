@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.007
+@version 0.5.008
 
 Graph class and utilities
 """
@@ -48,7 +48,7 @@ class Graph(object):
 
 	## create a graph from a given aggregation
 	@classmethod
-	def from_aggregation(cls, aggr, full_graph=True, tolerance=global_tolerance):
+	def from_aggregation(cls, aggr, full_graph=True, tolerance=global_tolerance, filter_by_rules=False):
 		g = cls()
 		
 		if full_graph:
@@ -65,6 +65,7 @@ class Graph(object):
 						p_dist = aggr.aggregated_parts[i].center.DistanceTo(aggr.aggregated_parts[i2].center)
 						if p_dist < (aggr.aggregated_parts[i].dim + aggr.aggregated_parts[i2].dim) + tolerance:
 							neighbours.append(i2)
+				
 				## check all connections for neighbouring parts
 				for i2 in range(len(aggr.aggregated_parts[i].connections)):
 					for i3 in neighbours:
@@ -72,14 +73,24 @@ class Graph(object):
 							for i4 in range(len(aggr.aggregated_parts[i3].connections)):
 								c_dist = aggr.aggregated_parts[i].connections[i2].pln.Origin.DistanceTo(aggr.aggregated_parts[i3].connections[i4].pln.Origin)
 								if c_dist < tolerance:
+									
+									## check if the connection is allowed by the aggregation rules
+									allowed_connection = True
+									if filter_by_rules:
+										allowed_connection = False
+										for r in aggr.rules:
+											if aggr.aggregated_parts[i].name == r.part1 and i2 == r.conn1 and aggr.aggregated_parts[i3].name == r.part2 and i4 == r.conn2:
+												allowed_connection = True
+												break
 
-									edge_dict = {}
-									edge_dict["start"] = aggr.aggregated_parts[i].id
-									edge_dict["end"] = aggr.aggregated_parts[i3].id
-									edge_dict["conn_start"] = i2
-									edge_dict["conn_end"] = i4
+									if allowed_connection:
+										edge_dict = {}
+										edge_dict["start"] = aggr.aggregated_parts[i].id
+										edge_dict["end"] = aggr.aggregated_parts[i3].id
+										edge_dict["conn_start"] = i2
+										edge_dict["conn_end"] = i4
 
-									g.graph_dict[aggr.aggregated_parts[i].id][aggr.aggregated_parts[i3].id] = edge_dict
+										g.graph_dict[aggr.aggregated_parts[i].id][aggr.aggregated_parts[i3].id] = edge_dict
 		else:
 			g = aggr.graph
 

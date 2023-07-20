@@ -393,7 +393,7 @@ class Aggregation(object):
 			elif dist < ex_part.dim + part.dim:
 				self.possible_collisions.append(coll_count)
 			
-			oll_count += 1
+			coll_count += 1
 		
 		## check collisions with parts in range
 		if self.coll_check == True:
