@@ -48,10 +48,15 @@ class Graph(object):
 
 	## create a graph from a given aggregation
 	@classmethod
-	def from_aggregation(cls, aggr, full_graph=True, tolerance=global_tolerance, filter_by_rules=False):
+	def from_aggregation(cls, aggr, full_graph=True, tolerance=global_tolerance, filter_by_rules=False, custom_rules=[]):
 		g = cls()
 		
 		if full_graph:
+
+			filtering_rules = aggr.rules
+			if len(custom_rules) > 0:
+				filtering_rules = custom_rules
+
 			for i in range(len(aggr.aggregated_parts)):
 				
 				if aggr.aggregated_parts[i].id not in g.graph_dict:
@@ -78,7 +83,7 @@ class Graph(object):
 									allowed_connection = True
 									if filter_by_rules:
 										allowed_connection = False
-										for r in aggr.rules:
+										for r in filtering_rules:
 											if aggr.aggregated_parts[i].name == r.part1 and i2 == r.conn1 and aggr.aggregated_parts[i3].name == r.part2 and i4 == r.conn2:
 												allowed_connection = True
 												break

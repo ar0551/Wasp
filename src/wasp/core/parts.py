@@ -11,6 +11,7 @@ Part classes and utilities
 
 from Rhino.Geometry import Transform
 from Rhino.Geometry import Point3d
+from Rhino.Geometry import AreaMassProperties
 
 from wasp.utilities import mesh_from_data, mesh_to_data
 from wasp.utilities import transform_from_data, transform_to_data
@@ -45,7 +46,7 @@ class Part(object):
 			count += 1
 		
 		self.transformation = Transform.Identity
-		self.center = self.geo.GetBoundingBox(False).Center
+		self.center = AreaMassProperties.Compute(self.geo).Centroid
 		self.collider = collider
 		
 		##part size
