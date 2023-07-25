@@ -46,7 +46,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Internal Transformation"
 ghenv.Component.NickName = 'InternalTr'
-ghenv.Component.Message = 'v0.5.007'
+ghenv.Component.Message = 'v0.5.008'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

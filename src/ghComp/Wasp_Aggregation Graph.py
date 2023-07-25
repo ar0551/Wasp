@@ -36,7 +36,8 @@ Provided by Wasp 0.5
         AGGR: Aggregation from which to extract the graph
         FG: OPTIONAL // True to compute the full graph (including edges on overlapping connections), False to create only the aggregation sequence graph (True by default)
         TOL: OPTIONAL // Tolerance below which two connections will be considered connected (only for full graph mode - default is Wasp global tolerance)
-        HE: [NOT IMPLEMENTED] OPTIONAL // True to calculate an half-edge graph (each connection represented twice), False to create only edges from earlier parts to further ones (True by default)
+        FR: OPTIONAL // When computing the full graph, filter the found connections according to a custom rule set (False by default)
+        CR: OPTIONAL // When computing the full graph with FR set to True, rules to use as connection filter (default values are the Aggregation rules)
         F: OPTIONAL // True to flatten the edges list, False to maintain edges grouped by node (True by default)
     Returns:
         G: Aggregation graph
@@ -50,7 +51,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Aggregation Graph"
 ghenv.Component.NickName = 'AggregationGraph'
-ghenv.Component.Message = 'v0.5.007'
+ghenv.Component.Message = 'v0.5.008'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "6 | Aggregation"
@@ -81,7 +82,7 @@ if wasp_loaded:
     from wasp import global_tolerance
 
 
-def main(aggregation, full_graph, tolerance, half_edge, flatten_edges):
+def main(aggregation, full_graph, tolerance, filter_by_rules, custom_rules, flatten_edges):
     
     check_data = True
     
@@ -97,8 +98,8 @@ def main(aggregation, full_graph, tolerance, half_edge, flatten_edges):
     if tolerance is None:
         tolerance = global_tolerance
     
-    if half_edge is None:
-        half_edge = True
+    if filter_by_rules is None:
+        filter_by_rules = False
     
     if flatten_edges is None:
         flatten_edges = True
@@ -108,7 +109,7 @@ def main(aggregation, full_graph, tolerance, half_edge, flatten_edges):
         ## compute aggregation graph
         g = None
         if full_graph:
-            g = Graph.from_aggregation(aggregation, full_graph, tolerance)
+            g = Graph.from_aggregation(aggregation, full_graph, tolerance, filter_by_rules, custom_rules)
         else:
             g = aggregation.graph
         
@@ -213,8 +214,7 @@ def main(aggregation, full_graph, tolerance, half_edge, flatten_edges):
     else:
         return -1
 
-
-result = main(AGGR, FG, TOL, HE, F)
+result = main(AGGR, FG, TOL, FR, CR, F)
 
 if result != -1:
     G = result[0]

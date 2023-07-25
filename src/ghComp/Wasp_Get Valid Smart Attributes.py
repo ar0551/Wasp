@@ -1,7 +1,7 @@
 
 ghenv.Component.Name = "Wasp_Get Valid Smart Attributes"
 ghenv.Component.NickName = 'GetSmartAttr'
-ghenv.Component.Message = 'v0.5.007'
+ghenv.Component.Message = 'v0.5.008'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
