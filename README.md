@@ -44,8 +44,7 @@ Wasp is free and open-source. Its development is supported by its user through t
 Arushi Agarwal, Joseph Arc, Georgios Bekakos, Joshua Bonamy, Émile Brochu, Анд Рей, Andrés Caicedo, Adam Colestock, Arjen Deetman, diff-arch, Robert Dooley, Ibrahim Dusmukhamedov, Max Fagan, Flux Estudio, Mark Foxworth, Nupur Gandhi, Mohammad Ghassani, Simon Greuel, Vahe Haroutounian, Clemente Hernandez, Markus Hudert, Soubhi Jabal, Ayush Kamalia, Lucie Ketelsen, Lothar Kolbeck, Arayapon Kumjornpreecha, Littieri M. Lamb, Joseph Loga, Marcus, Martyn Milligan, Mai Thi Nguyen, Eric Pham, Thanat Prathnadi, Anton Savov, Naitik Sharma, Eleni Maria Skevaki, Alexander Stefas, 庆铃 王, Andrea Tomalini, Domonkos Tóth, TreeAsHouse, Μαρία Χατζητζίβα, Jake Wilson, Roger Winkler, Lei Zhang
 
 # Credits
-![ddu logo](http://www.dg.architektur.tu-darmstadt.de/media/architektur/fachgruppe_b/ika/flash/DDU_Logo_Website_182x0.jpg)
-Significant parts of Wasp have been developed by Andrea Rossi as part of research on digital materials and discrete design at DDU Digital Design Unit - Prof. Oliver Tessmann - Technische Universität Darmstadt (http://www.dg.architektur.tu-darmstadt.de/dg/startseite_3/index.de.jsp)
+Early development of Wasp have been carried out by by Andrea Rossi as part of research on digital materials and discrete design at DDU Digital Design Unit - Prof. Oliver Tessmann - Technische Universität Darmstadt (http://www.dg.architektur.tu-darmstadt.de/dg/startseite_3/index.de.jsp)
 
 Wasp is heavily influenced by Ladybug (https://github.com/mostaphaRoudsari/ladybug), a free and open source environmental plugin for Grasshopper. It is using its code template, and follows the Labybug code organization. Some methods from Ladybug may have also been copied.
 
@@ -61,6 +60,8 @@ URL https://github.com/ar0551/Wasp
 Note that there are two reasons for citing the software used. One is giving recognition to the work done by others which we already addressed. The other is giving details on the system used so that experiments can be replicated. For this, you should cite the version of Wasp used. See [How to cite and describe software](https://software.ac.uk/how-cite-software) for more details and an in depth discussion.
 
 # References
+Rossi, A. 2023. Mediated Assemblies: An Open Source Software Approach to Combinatorial Design and Fabrication. Ph.D. Thesis. TU Darmstadt. DOI: https://doi.org/10.26083/tuprints-00024039
+
 Klavins, E, Ghrist, R and Lipsky, D. 2004. Graph grammars for self-assembling robotic systems. In Robotics and Automation, 2004. Proceedings. ICRA
 
 Rossi, A and Tessmann, O. 2017. Designing with DigitalMaterials. In Proceedings of CAADRIA 2017, Suzhou.
