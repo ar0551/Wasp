@@ -13,7 +13,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
 # GNU Lesser General Public License for more details.
 # 
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Lesser General Public License
 # along with Wasp; If not, see <http://www.gnu.org/licenses/>.
 # 
 # @license LGPL-3.0 https://www.gnu.org/licenses/lgpl-3.0.html
@@ -35,6 +35,7 @@ Provided by Wasp 0.5
     Args:
         PART: Parts definition for the aggregation
         FILE: File where the aggregation is saved (.json)
+        RENUM: If True, Part IDs are renumbered in sequential order, avoiding issues with missing IDs if elements have been removed from the Aggregation (False by default)
     Returns:
         PART_OUT: Imported aggregation parts
 """
@@ -73,7 +74,7 @@ if wasp_loaded:
     pass
 
 
-def main(parts, file_path):
+def main(parts, file_path, renumber):
         
     check_data = True
     
@@ -87,6 +88,9 @@ def main(parts, file_path):
         check_data = False
         msg = "No path provided for the file to load"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    if renumber is None:
+        renumber = False
     
     ## execute main code if all needed inputs are available
     if check_data:
@@ -103,17 +107,42 @@ def main(parts, file_path):
         part_ids = [int(id) for id in aggr_dict['parts'].keys()]
         part_ids.sort()
         
+        ## create new ids for renumbering
+        renumbered_ids = None
+        if renumber:
+            renumbered_ids = range(len(part_ids))
+        
         ## load parts
-        for id in part_ids:
+        for i in range(len(part_ids)):
+            id = part_ids[i]
             part_data = aggr_dict['parts'][str(id)]
-                    
+            
+            if renumber:
+                id = i
+            
             ## part name
             name = part_data['name']
             
             ## part active connections
             active_conn = part_data['active_connections']
+            
             parent = part_data['parent']
+            if renumber:
+                try:
+                    parent = part_ids.index(parent)
+                except:
+                    parent = None
+            
             children = part_data['children']
+            if renumber:
+                children_renum = []
+                for child in children:
+                    try:
+                        children_renum.append(part_ids.index(child))
+                    except:
+                        pass
+                children = children_renum
+            
             
             ## part transform
             trans = rg.Transform(0)
@@ -172,7 +201,7 @@ def main(parts, file_path):
     else:
         return -1
 
-result = main(PART, FILE)
+result = main(PART, FILE, RENUM)
 
 if result != -1:
     PART_OUT = result
