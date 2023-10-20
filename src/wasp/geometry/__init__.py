@@ -4,7 +4,9 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.008
+@version 1.0.001
 
-WIP - Wasp geometry library for interoperability between different softwares
+Wasp geometry library
 """
+
+from .part_geometry import *
