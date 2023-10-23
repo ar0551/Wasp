@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.008
+@version 0.5.009
 
 Aggregation class and functions
 """
@@ -526,20 +526,37 @@ class Aggregation(object):
 	
 
 	## check all connections of a given part for occlusion from other parts
-	def check_blocked_connections(self, part):
+	def check_blocked_connections(self, part, connections_only=False, custom_graph=None):
 		connection_matrix = []
-		for i in range(len(part.connections)):
-			connection_matrix.append(i)
 
-		for i in range(len(part.connections)):
-			conn = part.connections[i]
-			for other_part in self.aggregated_parts:
-				if other_part.id != part.id:
-					conn_cp = other_part.geo.ClosestPoint(conn.pln.Origin)
-					if conn.pln.Origin.DistanceTo(conn_cp) < global_tolerance:
-						connection_matrix.remove(i)
-						break
+		if custom_graph is None:
+			for i in range(len(part.connections)):
+				connection_matrix.append(i)
+
+			for i in range(len(part.connections)):
+				conn = part.connections[i]
+				for other_part in self.aggregated_parts:
+					if other_part.id != part.id:
+						if connections_only:
+							for other_conn in other_part.connections:
+								if conn.pln.Origin.DistanceTo(other_conn.pln.Origin) < global_tolerance:
+									connection_matrix.remove(i)
+									break
+						else:
+							conn_cp = other_part.geo.ClosestPoint(conn.pln.Origin)
+							if conn.pln.Origin.DistanceTo(conn_cp) < global_tolerance:
+								connection_matrix.remove(i)
+								break
 		
+		else:
+			for i in range(len(part.connections)):
+				connection_matrix.append(i)
+			
+			if part.id in custom_graph.graph_dict.keys():
+				if len(custom_graph.graph_dict[part.id]) > 0:
+					for connected_part in custom_graph.graph_dict[part.id].keys():
+						connection_matrix.remove(custom_graph.graph_dict[part.id][connected_part]["conn_start"])
+
 		return connection_matrix
 
 
