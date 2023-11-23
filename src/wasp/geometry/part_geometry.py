@@ -21,11 +21,15 @@ from wasp.core.colliders import Collider
 
 #################################################################### Base Geometry ####################################################################
 """
-class PartGeometry(ABCMeta, object):
+class PartGeometry(object):
 
+    """
     ## constructor
     def __init__(self):
         pass
+    """
+
+    __metaclass__ = ABCMeta
 
     ## override Rhino .ToString() method (display name of the class in Gh)
     @abstractmethod
