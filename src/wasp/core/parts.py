@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.008
+@version 1.0.001
 
 Part classes and utilities
 """
@@ -18,6 +18,7 @@ from wasp.utilities import transform_from_data, transform_to_data
 from wasp.core import Connection
 from wasp.core.colliders import Collider
 from wasp.core.constraints import Adjacency_Constraint
+from wasp.geometry import MeshPartGeometry
 
 import random
 
@@ -46,7 +47,7 @@ class Part(object):
 			count += 1
 		
 		self.transformation = Transform.Identity
-		self.center = AreaMassProperties.Compute(self.geo).Centroid
+		self.center = self.geo.get_geometry_center()
 		self.collider = collider
 		
 		##part size
@@ -163,8 +164,7 @@ class Part(object):
 
 	## return a transformed copy of the part
 	def transform(self, trans, transform_sub_parts=False, maintain_parenting = False):
-		geo_trans = self.geo.Duplicate()
-		geo_trans.Transform(trans)
+		geo_trans = self.geo.transform(trans)
 		
 		collider_trans = self.collider.transform(trans)
 		
@@ -191,7 +191,7 @@ class Part(object):
 	
 	## return a copy of the part
 	def copy(self, maintain_parenting = False):
-		geo_copy = self.geo.Duplicate()
+		geo_copy = self.geo.copy()
 		
 		collider_copy = self.collider.copy()
 		
