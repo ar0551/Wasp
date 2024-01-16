@@ -9,8 +9,9 @@ This file is part of Wasp. https://github.com/ar0551/Wasp
 Collider classes and utilities
 """
 
+from Rhino.Geometry import Line
 from Rhino.Geometry.Intersect import Intersection
-from wasp import is_rh7
+from wasp import is_rh7, global_tolerance
 from wasp.core import Connection
 from wasp.utilities import mesh_from_data, mesh_to_data
 
@@ -103,6 +104,17 @@ class Collider(object):
 		return coll_copy
 	
 
+	## return maximum distance from center of part
+	def return_max_dim(self, center):
+		max_collider_dist = None
+		for coll_geo in self.geometry:
+			for v in coll_geo.Vertices:
+				dist = center.DistanceTo(v)
+				if dist > max_collider_dist or max_collider_dist is None:
+					max_collider_dist = dist
+		return max_collider_dist
+
+
 	## check collisions between collider and given part
 	def check_collisions_w_parts(self, parts):
 		## multiple collider with associated connections
@@ -186,4 +198,103 @@ class Collider(object):
 
 	#### WIP ####
 	def check_global_constraints(self, constraint):
+		return False
+
+
+################################################################# Line Collider ##################################################################
+class LineCollider(object):
+	
+	## constructor
+	def __init__(self, _geo, _sizes, _multiple=False, _check_all = False, _connections=[], _valid_connections = []):
+	
+		self.geometry = _geo
+		## generate lines with tolerance
+		self.collider_geometry = []
+		for i in xrange(len(_geo)):
+			line = _geo[i]
+			shifted_end = line.PointAtLength(line.Length - _sizes[i] - global_tolerance)
+			collider_line = Line(line.From, shifted_end)
+			self.collider_geometry.append(collider_line)
+		
+		self.sizes = _sizes
+		self.multiple = _multiple
+		self.check_all = _check_all
+		self.connections = _connections
+		
+		self.valid_connections = _valid_connections
+		
+		self.set_connections = False
+		if len(self.connections) == len(self.geometry) and self.multiple == True:
+			self.set_connections = True
+	
+	## return a transformed copy of the collider
+	########################################################################### check if valid connections need to be transformed or re-generated!!!
+	def transform(self, trans, transform_connections = False, maintain_valid = False):
+		geometry_trans = []
+		for geo in self.geometry:
+			geo_trans = Line(geo.From, geo.To)
+			geo_trans.Transform(trans)
+			geometry_trans.append(geo_trans)
+		
+		connections_trans = []
+		if transform_connections:
+			for conn in self.connections:
+				connections_trans.append(conn.transform(trans))
+		
+		if maintain_valid:
+			valid_connection_trans = list(self.valid_connections)
+			coll_trans = LineCollider(geometry_trans, self.sizes, _multiple=self.multiple, _check_all=self.check_all, _connections=connections_trans, _valid_connections=valid_connection_trans)
+		else:
+			coll_trans = LineCollider(geometry_trans, self.sizes, _multiple=self.multiple, _check_all=self.check_all, _connections=connections_trans)
+		
+		return coll_trans
+	
+
+	## return a copy of the collider
+	def copy(self):
+		geometry_copy = []
+		for geo in self.geometry:
+			geo_copy = Line(geo.From, geo.To)
+			geometry_copy.append(geo_copy)
+		
+		connections_copy = []
+		for conn in self.connections:
+			connections_copy.append(conn.copy())
+		
+		valid_connection_copy = list(self.valid_connections)
+		coll_copy = LineCollider(geometry_copy, self.sizes, _multiple=self.multiple, _check_all=self.check_all, _connections=connections_copy, _valid_connections=valid_connection_copy)
+		
+		return coll_copy
+	
+
+	## return maximum distance from center of part
+	def return_max_dim(self, center):
+		max_collider_dist = None
+		for coll_geo in self.collider_geometry:
+			dist_from = center.DistanceTo(coll_geo.From)
+			if dist_from > max_collider_dist or max_collider_dist is None:
+				max_collider_dist = dist_from
+			dist_to = center.DistanceTo(coll_geo.To)
+			if dist_to > max_collider_dist or max_collider_dist is None:
+				max_collider_dist = dist_to
+		return max_collider_dist
+	
+
+	## check collisions between collider and given part
+	def check_collisions_w_parts(self, parts):
+		for geo in self.geometry:
+			for part in parts:
+				for other_geo in part.collider.geometry:
+					if len(Intersection.MeshMeshFast(geo, other_geo)) > 0:
+						return True
+		return False
+	
+
+	## check collisions between collider and given ids in the given parts list
+	def check_collisions_by_id(self, parts, ids):
+		for i in xrange(len(self.collider_geometry)):
+			for id in ids:
+				for j in xrange(len(parts[id].collider.collider_geometry)):
+					if self.collider_geometry[i].MinimumDistanceTo(parts[id].collider.collider_geometry[j]) < self.sizes[i] + parts[id].collider.sizes[j]:
+						return True
 		return False

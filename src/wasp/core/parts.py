@@ -18,7 +18,6 @@ from wasp.utilities import transform_from_data, transform_to_data
 from wasp.core import Connection
 from wasp.core.colliders import Collider
 from wasp.core.constraints import Adjacency_Constraint
-from wasp.geometry import MeshPartGeometry
 
 import random
 
@@ -54,14 +53,7 @@ class Part(object):
 		if dim is not None:
 			self.dim = dim
 		else:
-			max_collider_dist = None
-			for coll_geo in self.collider.geometry:
-				for v in coll_geo.Vertices:
-					dist = self.center.DistanceTo(v)
-					if dist > max_collider_dist or max_collider_dist is None:
-						max_collider_dist = dist
-			
-			self.dim = max_collider_dist
+			self.dim = self.collider.return_max_dim(self.center)
 		
 		self.parent = None
 		self.conn_on_parent = None

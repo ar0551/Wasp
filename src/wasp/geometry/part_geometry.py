@@ -11,71 +11,17 @@ Geometry classes
 
 from abc import ABCMeta, abstractmethod
 
-from Rhino.Geometry import Plane, Vector3d
+from Rhino.Geometry import Plane, Vector3d, Line, BoundingBox
 from Rhino.Geometry import AreaMassProperties
 from Rhino.Geometry.Transform import Scale
 from Rhino.Geometry.Intersect.Intersection import MeshMeshFast
 
 from wasp import global_tolerance
-from wasp.core.colliders import Collider
-
-#################################################################### Base Geometry ####################################################################
-"""
-class PartGeometry(object):
-
-    """
-    ## constructor
-    def __init__(self):
-        pass
-    """
-
-    __metaclass__ = ABCMeta
-
-    ## override Rhino .ToString() method (display name of the class in Gh)
-    @abstractmethod
-    def ToString(self):
-        pass
-
-    ## create class from data dictionary
-    @abstractmethod
-    @classmethod
-    def from_data(cls, data):
-        pass
-
-    ## return the data dictionary representing the part
-    @abstractmethod
-    def to_data(self):
-        pass
-
-    ## return a transformed copy of the part
-    @abstractmethod
-    def transform(self):
-        pass
-
-    ## return a copy of the part
-    @abstractmethod
-    def copy(self):
-        pass
-
-    ## compute the geometry center (for overlaps evaluation)
-    @abstractmethod
-    def get_geomety_center(self):
-        pass
-
-    ## return the original geometry data stored
-    @abstractmethod
-    def get_geometry(self):
-        pass
-
-    ## compute a collider from the geometry
-    @abstractmethod
-    def compute_collider(self):
-        pass
-"""
+from wasp.core.colliders import Collider, LineCollider
 
 
-#################################################################### Base Geometry ####################################################################
-class MeshPartGeometry(object):
+#################################################################### Mesh Geometry ####################################################################
+class MeshGeometry(object):
 
     ## constructor
     def __init__(self, _mesh):
@@ -84,7 +30,7 @@ class MeshPartGeometry(object):
 
     ## override Rhino .ToString() method (display name of the class in Gh)
     def ToString(self):
-        return "WaspMeshPartGeometry"
+        return "WaspMeshGeometry"
 
 
     ## create class from data dictionary
@@ -102,14 +48,14 @@ class MeshPartGeometry(object):
     def transform(self, trans):
         geo_trans = self.geo.Duplicate()
         geo_trans.Transform(trans)
-        part_geo_trans = MeshPartGeometry(geo_trans)
+        part_geo_trans = MeshGeometry(geo_trans)
         return part_geo_trans
 
 
     ## return a copy of the part
     def copy(self):
         geo_copy = self.geo.Duplicate()
-        part_geo_copy = MeshPartGeometry(geo_copy)
+        part_geo_copy = MeshGeometry(geo_copy)
         return part_geo_copy
 
 
@@ -142,4 +88,68 @@ class MeshPartGeometry(object):
         if collider_geo is not None:
             collider = Collider([collider_geo])
             return collider
+
+
+#################################################################### Mesh Geometry ####################################################################
+class PolylineGeometry(object):
+
+    ## constructor
+    def __init__(self, _lines, _sizes):
+        self.geo = _lines
+        self.sizes = _sizes
+
+
+    ## override Rhino .ToString() method (display name of the class in Gh)
+    def ToString(self):
+        return "WaspPolylineGeometry"
+
+
+    ## create class from data dictionary
+    @classmethod
+    def from_data(cls, data):
+        pass
+
+
+    ## return the data dictionary representing the part
+    def to_data(self):
+        pass
+
+
+    ## return a transformed copy of the part
+    def transform(self, trans):
+        geo_trans = []
+        for l in self.geo:
+            l_trans = Line(l.From, l.To)
+            l_trans.Transform(trans)
+            geo_trans.append(l_trans)
+        part_geo_trans = PolylineGeometry(geo_trans, self.sizes)
+        return part_geo_trans
+
+
+    ## return a copy of the part
+    def copy(self):
+        geo_copy = []
+        for l in self.geo:
+            l_copy = Line(l.From, l.To)
+            geo_copy.append(l_copy)
+        part_geo_copy = PolylineGeometry(geo_copy, self.sizes)
+        return part_geo_copy
+
+
+    ## compute the geometry center (for overlaps evaluation)
+    def get_geometry_center(self):
+        pts = []
+        for l in self.geo:
+            pts.append(l.From)
+            pts.append(l.To)
+        return BoundingBox(pts).Center
+
+
+    ## return the original geometry data stored
+    def get_geometry(self):
+        return (self.geo, self.sizes)
     
+
+    ## compute a collider from the geometry
+    def compute_collider(self):
+        return LineCollider(self.geo, self.sizes)
