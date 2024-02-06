@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.008
+@version 0.6.001
 
 Constraints classes
 """
@@ -12,7 +12,7 @@ Constraints classes
 from Rhino.Geometry.Intersect import Intersection
 from Rhino.Geometry import Vector3d, Point3d, Line, Plane, Interval
 
-from wasp import global_tolerance
+from wasp import global_tolerance, is_rh6
 from wasp.utilities import plane_from_data, plane_to_data, mesh_from_data, mesh_to_data
 
 import math
@@ -448,3 +448,49 @@ class Support(object):
 			sup_dir_copy.append(dir_copy)
 		sup_copy = Support(sup_dir_copy)
 		return sup_copy
+
+
+################################################################# Global Support #################################################################
+class Global_Support(object):
+	
+	## constructor
+	def __init__(self, _support_geos):
+		self.geos = _support_geos
+	
+	## override Rhino .ToString() method (display name of the class in Gh)
+	def ToString(self):
+		return "WaspGlobalSupportGeometry [len: %s]" % (len(self.geos))
+	
+	## return the data dictionary representing the support
+	#### NOT IMPLEMENTED
+	def to_data(self):
+		data = {}
+		return data
+	
+	## create class from data dictionary
+	#### NOT IMPLEMENTED
+	@classmethod
+	def from_data(cls, data):
+		support_geos = []
+		return cls(support_geos)
+
+	## return a transformed copy of the support
+	#### NOT IMPLEMENTED
+	def transform(self, trans):
+		return None
+	
+	## return a copy of the support
+	#### NOT IMPLEMENTED
+	def copy(self):
+		return None
+	
+	## check intersection between collider and line (for supports check)
+	def check_intersection_w_line(self, ln):
+		for geo in self.geos:
+			if is_rh6:
+				if len(Intersection.MeshLine(geo, ln)[0]) > 0:
+					return True
+			else:
+				if len(Intersection.MeshLine(geo, ln)) > 0:
+					return True
+		return False

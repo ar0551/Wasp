@@ -10,7 +10,7 @@ Collider classes and utilities
 """
 
 from Rhino.Geometry.Intersect import Intersection
-from wasp import is_rh7
+from wasp import is_rh6
 from wasp.core import Connection
 from wasp.utilities import mesh_from_data, mesh_to_data
 
@@ -175,11 +175,11 @@ class Collider(object):
 	## check intersection between collider and line (for supports check)
 	def check_intersection_w_line(self, ln):
 		for geo in self.geometry:
-			if is_rh7:
-				if len(Intersection.MeshLine(geo, ln)) > 0:
+			if is_rh6:
+				if len(Intersection.MeshLine(geo, ln)[0]) > 0:
 					return True
 			else:
-				if len(Intersection.MeshLine(geo, ln)[0]) > 0:
+				if len(Intersection.MeshLine(geo, ln)) > 0:
 					return True
 		return False
 	

@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.009
+@version 0.6.001
 
 Aggregation class and functions
 """
@@ -31,7 +31,7 @@ class Aggregation(object):
 	
 
 	## class constructor
-	def __init__(self, _name, _parts, _rules, _mode, _prev = [], _coll_check = True, _field = [], _global_constraints = [], _rnd_seed = None, _catalog = None):
+	def __init__(self, _name, _parts, _rules, _mode, _prev = [], _coll_check = True, _field = [], _global_constraints = [], _rnd_seed = None, _catalog = None, _global_supports = []):
 		
 		## basic parameters
 		self.name = _name
@@ -104,6 +104,9 @@ class Aggregation(object):
 		## parts catalog
 		self.catalog = _catalog
 
+		## global support geometry
+		self.global_supports = _global_supports
+
 		#### WIP ####
 		self.collision_shapes = []
 		
@@ -114,6 +117,7 @@ class Aggregation(object):
 	
 
 	## create class from data dictionary
+	#### GLOBAL SUPPORTS NOT IMPLEMENTED
 	@classmethod
 	def from_data(cls, data):
 		d_name = data['name']
@@ -172,6 +176,7 @@ class Aggregation(object):
 
 		
 	## return the data dictionary representing the aggregation
+	#### GLOBAL SUPPORTS NOT IMPLEMENTED
 	def to_data(self):
 		data = {}
 		data['name'] = self.name
@@ -423,10 +428,18 @@ class Aggregation(object):
 				supports_count = 0
 				sup_trans = sup.transform(trans)
 				for dir in sup_trans.sup_dir:
+					is_supported = False
 					for id in self.possible_collisions:
 						if self.aggregated_parts[id].collider.check_intersection_w_line(dir):
 							supports_count += 1
+							is_supported = True
 							break
+					if not is_supported and len(self.global_supports) > 0:
+						for gs in self.global_supports:
+							if gs.check_intersection_w_line(dir):
+								supports_count += 1
+								is_supported = True
+								break
 				if supports_count == len(sup_trans.sup_dir):
 					return False
 			return True

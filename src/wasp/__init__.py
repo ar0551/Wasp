@@ -39,7 +39,7 @@ from Rhino import RhinoApp
 
 
 global_tolerance = scriptcontext.doc.ModelAbsoluteTolerance*2
-is_rh7 = True if RhinoApp.ExeVersion == 7 else False
+is_rh6 = True if RhinoApp.ExeVersion == 6 else False
 
 
 __author__ = ['ar0551 <a.rossi.andrea@gmail.com>']
