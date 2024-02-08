@@ -21,7 +21,7 @@ from wasp import global_tolerance
 from wasp.core.parts import Part, AdvancedPart, PartCatalog
 from wasp.core.rules import Rule
 from wasp.core.graph import Graph
-from wasp.core.constraints import Plane_Constraint, Mesh_Constraint
+from wasp.core.constraints import Plane_Constraint, Mesh_Constraint, Global_Support
 
 from wasp.field import Field
 
@@ -150,6 +150,8 @@ class Aggregation(object):
 		if data['catalog'] is not None:
 			d_catalog = PartCatalog.from_data(data['catalog'])
 		
+		d_global_supports = [Global_Support.from_data(gs_data) for gs_data in data['global_supports']]
+		
 		aggregation = cls(d_name, d_parts, d_rules, d_mode, [], d_coll_check, _field = d_field, _global_constraints=d_global_constraints, _rnd_seed=d_rnd_seed, _catalog=d_catalog)
 
 		d_aggregated_parts = []
@@ -199,6 +201,8 @@ class Aggregation(object):
 		data['catalog'] = None
 		if self.catalog is not None:
 			data['catalog'] = self.catalog.to_data()
+		
+		data['global_supports'] = [gs.to_data() for gs in self.global_supports]
 
 		#data['aggregated_parts'] = [part.to_data() for part in self.aggregated_parts]
 		data['aggregated_parts'] =	{}
