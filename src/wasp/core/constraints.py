@@ -462,27 +462,17 @@ class Global_Support(object):
 		return "WaspGlobalSupportGeometry [len: %s]" % (len(self.geos))
 	
 	## return the data dictionary representing the support
-	#### NOT IMPLEMENTED
 	def to_data(self):
 		data = {}
+		data['type'] = self.type
+		data['geometry'] = [mesh_to_data(geo) for geo in self.geos]
 		return data
 	
 	## create class from data dictionary
-	#### NOT IMPLEMENTED
 	@classmethod
 	def from_data(cls, data):
-		support_geos = []
+		support_geos = [mesh_from_data(geo_data) for geo_data in data['geometry']]
 		return cls(support_geos)
-
-	## return a transformed copy of the support
-	#### NOT IMPLEMENTED
-	def transform(self, trans):
-		return None
-	
-	## return a copy of the support
-	#### NOT IMPLEMENTED
-	def copy(self):
-		return None
 	
 	## check intersection between collider and line (for supports check)
 	def check_intersection_w_line(self, ln):
