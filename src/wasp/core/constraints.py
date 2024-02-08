@@ -464,7 +464,6 @@ class Global_Support(object):
 	## return the data dictionary representing the support
 	def to_data(self):
 		data = {}
-		data['type'] = self.type
 		data['geometry'] = [mesh_to_data(geo) for geo in self.geos]
 		return data
 	
