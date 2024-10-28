@@ -26,3 +26,4 @@ $RECYCLE.BIN/
 
 # Folders
 .vscode/
+.wasp_env/
