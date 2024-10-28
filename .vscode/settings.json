@@ -1,3 +1,5 @@
 {
-    "python.pythonPath": "C:\\Users\\aross\\AppData\\Local\\Continuum\\anaconda3\\envs\\gh-dev\\python.exe"
+    "python.pythonPath": "C:\\Users\\aross\\AppData\\Local\\Continuum\\anaconda3\\envs\\gh-dev\\python.exe",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.autoSearchPaths": true
 }

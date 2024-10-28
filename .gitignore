@@ -23,3 +23,6 @@ $RECYCLE.BIN/
 
 # Python cache files
 *.pyc
+
+# Folders
+.vscode/
