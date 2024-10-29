@@ -34,7 +34,7 @@ to your current installation. The components that can't be updated automatically
 will be marked and should be replaced manually.
 --> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
 Code is adapted from Ladybug file updater (https://github.com/mostaphaRoudsari/ladybug)
     
     Args:
@@ -45,7 +45,7 @@ Code is adapted from Ladybug file updater (https://github.com/mostaphaRoudsari/l
 
 ghenv.Component.Name = "Wasp_Update File"
 ghenv.Component.NickName = 'UpdateFile'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
@@ -222,6 +222,8 @@ def updateComponent(component, uofolder):
 if UPDATE:
     # find the component
     uofolder = Grasshopper.Folders.UserObjectFolders[0]
+    if SUB_FOL is not None:
+        uofolder = os.path.join(uofolder, SUB_FOL)
     
     doc = ghenv.Component.OnPingDocument()
     

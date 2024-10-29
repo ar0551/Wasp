@@ -31,7 +31,7 @@
 """
 DisCo placement settings
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         SAVE: OPTIONAL // Allow to save game results to file (True by default)
         LOAD: OPTIONAL // Allow to load previously saved files (True by default)
@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_DisCo IO Settings"
 ghenv.Component.NickName = 'DisCoIO'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"

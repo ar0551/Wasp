@@ -32,7 +32,7 @@
 Orientation Constraint.
 It allows to control if the part should be placed according to a custom orientation.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         DIR: Directions of the part orientation to be tested (as Line or Vector)
         R: Angle range which is allowed for the transformed part
@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Orientation Constraint"
 ghenv.Component.NickName = 'AdjExcConst'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Constraints"

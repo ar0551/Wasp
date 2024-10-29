@@ -32,7 +32,7 @@
 Access sub-parts stored at different aggregation hierarchy levels
 --> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         AGGR: Aggregation from which to extract hierarchical parts
         LEVEL: Hierarchy level (0 to return the same parts in input)
@@ -42,7 +42,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Get Parts Hierarchy"
 ghenv.Component.NickName = 'GetHierarchy'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

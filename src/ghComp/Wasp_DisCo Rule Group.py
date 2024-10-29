@@ -31,7 +31,7 @@
 """
 Export Wasp information for DisCo VR software
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         NAME: Rule group name. It will be used to activate/deactivate the rules contained in DisCo
         GR: Rule grammars to be included in the group
@@ -41,7 +41,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_DisCo Rule Group"
 ghenv.Component.NickName = 'RuleG'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"

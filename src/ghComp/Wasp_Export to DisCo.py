@@ -33,7 +33,7 @@ Export Wasp information for DisCo VR software.
 DisCo (Discrete Choreography) is developed by Jan Philipp Drude at dMA Hannover - Prof. Mirco Becker.
 Project DisCo is available at: http://www.project-disco.com/
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         SETUP: OPTIONAL // DisCo setup data
         ENV: OPTIONAL // DisCo environment data
@@ -49,7 +49,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Export to DisCo"
 ghenv.Component.NickName = 'Wasp2DisCo'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"

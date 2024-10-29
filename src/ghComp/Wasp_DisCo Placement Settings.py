@@ -33,7 +33,7 @@ DisCo placement settings.
 DisCo (Discrete Choreography) is developed by Jan Philipp Drude at dMA Hannover - Prof. Mirco Becker.
 Project DisCo is available at: http://www.project-disco.com/
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         PLACE: OPTIONAL // Allow use of the Place tool (True by default)
         CHOREO: OPTIONAL // Allow use of the Choreograph tool (True by default)
@@ -50,7 +50,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_DisCo Placement Settings"
 ghenv.Component.NickName = 'DisCoPlace'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"

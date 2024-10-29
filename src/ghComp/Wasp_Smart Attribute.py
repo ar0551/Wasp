@@ -32,7 +32,7 @@
 Smart Attribute to be attached to a part.
 Similar to a default Attribute, but adds the possibility of returning the attribute only when a specific connection configuration is met.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         ID: Name of the attribute
         VAL: Value of the attribute (any type of Gh-compatible data possible)
@@ -45,7 +45,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Smart Attribute"
 ghenv.Component.NickName = 'SmartAttribute'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

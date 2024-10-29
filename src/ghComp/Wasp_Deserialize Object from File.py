@@ -31,7 +31,7 @@
 """
 Load a Wasp class from a serialized .json file.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         FILE: File where the object is saved (.json)
         LOAD: True to reload the saved file
@@ -41,7 +41,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Deserialize Object from File"
 ghenv.Component.NickName = 'DeSerialize'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

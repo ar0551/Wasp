@@ -31,7 +31,7 @@
 """
 DisCo Player settings
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         NAME: Player name
         VRFPS: Player mode: 0 for VR player, 1 for FPS player
@@ -49,7 +49,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_DisCo Player"
 ghenv.Component.NickName = 'DisCoPlayer'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"

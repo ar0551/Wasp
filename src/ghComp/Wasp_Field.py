@@ -31,7 +31,7 @@
 """
 Generates a scalar field given a grid of points and their relative scalar values
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         BOU: List of geometries defining the boundaries of the field. Geometries must be closed breps or meshes. All points of the field outside the geometries will be assigned a 0 value
         PTS: 3d point grid (from FieldPts component)
@@ -44,7 +44,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Field"
 ghenv.Component.NickName = 'Field'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"
@@ -72,6 +72,7 @@ except:
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
     from wasp.field import Field
+    from wasp.utilities import reserved_chars
 
 
 def main(name, empty_field, values):
@@ -81,6 +82,10 @@ def main(name, empty_field, values):
     ##check inputs
     if name is None:
         name = "field"
+    elif any(char in name for char in reserved_chars):
+        check_data = False
+        msg = "Field name " + name + " contains a space or one of the reserved characters: " + reserved_chars
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
     
     if empty_field is None:
         check_data = False

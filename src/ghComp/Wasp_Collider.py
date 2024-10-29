@@ -31,7 +31,7 @@
 """
 Generate a collider for a given geometry.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         GEO: Geometry of the collider(s)
         MUL: OPTIONAL // Set to True if you are using multiple colliders and it is sufficient for one of them not to collide (False by default)
@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Collider"
 ghenv.Component.NickName = 'Collider'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

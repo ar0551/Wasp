@@ -33,7 +33,7 @@ Applies a geometric transformation to an existing part, returning a transformed 
 Can be used with any Transform component from Grasshopper.
 Create a Transform component without inputting any geometry and plug the X output to the TR input.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         PART: Part to be transformed
         TR: Transformation
@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Transform Part"
 ghenv.Component.NickName = 'PartTr'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"

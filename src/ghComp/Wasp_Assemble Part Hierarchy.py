@@ -34,7 +34,7 @@ Can be used with any Transform component from Grasshopper.
 Create a Transform component without inputting any geometry and plug the X output to the TR input.
 --> WIP Component: might be incomplete or contain bugs <--
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         PART: Sub-parts to be assembled
         TR: Relative transformation of each sub-part in the higher hierarchy assembly
@@ -44,7 +44,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Assemble Part Hierarchy"
 ghenv.Component.NickName = 'PartHierarchy'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

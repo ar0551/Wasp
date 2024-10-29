@@ -31,7 +31,7 @@
 """
 Count the number of transformable parts in an aggregation (to determine the number of values for the Actuate Internal Transformations component.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         AGGR: Aggregation to evaluate
     Returns:
@@ -41,7 +41,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Count Transformable Parts"
 ghenv.Component.NickName = 'CountTrParts'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

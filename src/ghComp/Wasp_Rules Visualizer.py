@@ -31,7 +31,7 @@
 """
 Visualize the provided rules.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         PART: Parts from which to visualize the rules
         R: Rules to visualize
@@ -48,7 +48,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Rules Visualizer"
 ghenv.Component.NickName = 'RuleViz'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"

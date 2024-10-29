@@ -31,7 +31,7 @@
 """
 DisCo enviroment data
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         GA: OPTIONAL // Game Area as a box. Default is (-5.0, 5.0, -5.0, 5.0, 0, 5.0)
         EG: OPTIONAL // Additional environment geometry as mesh
@@ -44,7 +44,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_DisCo Environment"
 ghenv.Component.NickName = 'DisCoEnv'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"

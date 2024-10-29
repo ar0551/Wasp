@@ -31,7 +31,7 @@
 """
 Part Catalog. It allows to define a fixed number of each type of part to be used in a stochastic aggregation.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         PART: Parts from which to generate a parts catalog
         NUM: Amounts of each part in the catalog
@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Parts Catalog"
 ghenv.Component.NickName = 'PartCat'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"

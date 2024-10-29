@@ -31,7 +31,7 @@
 """
 Extract all information stored in a part. Useful for visualization or for further geometry processing
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         PART: Parts to deconstruct
     Returns:
@@ -49,7 +49,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Deconstruct Part"
 ghenv.Component.NickName = 'DePart'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"

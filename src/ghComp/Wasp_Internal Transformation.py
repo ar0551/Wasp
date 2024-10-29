@@ -32,7 +32,7 @@
 Internal transformation object, allowing to make a part transformable after aggregation.
 Currently support only rotations and translations.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         ID: Name if the internal transformation
         L1: Geometry of the first link
@@ -46,7 +46,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Internal Transformation"
 ghenv.Component.NickName = 'InternalTr'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

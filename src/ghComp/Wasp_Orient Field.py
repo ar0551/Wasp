@@ -31,7 +31,7 @@
 """
 Changes the base plane of the field, with the effect of creating a transformed copy.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         FIELD: Field to be transformed
         PLN: Target plane
@@ -41,7 +41,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Orient Field"
 ghenv.Component.NickName = 'FieldOrient'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"

@@ -31,7 +31,7 @@
 """
 Saves current status of an aggregation to a .json file.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         AGGR: Aggregation to save
         PATH: Path where to save the aggregation
@@ -44,7 +44,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Save Aggregation to File"
 ghenv.Component.NickName = 'SaveAggr'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "6 | Aggregation"

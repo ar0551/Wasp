@@ -31,7 +31,7 @@
 """
 Generate an aggregation rule from a text string description
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         TXT: Text description of the rule with format "Part1|Conn1_Part2|Conn2"
     Returns:
@@ -40,7 +40,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Rule From Text"
 ghenv.Component.NickName = 'RuleTxt'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"

@@ -31,7 +31,7 @@
 """
 Loads an aggregation from a DisCo-generated .json file (e.g., a saved game session).
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         PART: Parts definition for the aggregation
         FILE: File where the DisCo aggregation is saved (.json)
@@ -42,7 +42,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Load From DisCo"
 ghenv.Component.NickName = 'DisCoLoad'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | DisCo VR"

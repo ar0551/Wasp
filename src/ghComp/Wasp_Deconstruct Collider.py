@@ -31,7 +31,7 @@
 """
 Deconstruct a collider object.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         COLL: Collider object
     Returns:
@@ -42,7 +42,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Deconstruct Collider"
 ghenv.Component.NickName = 'DeColl'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"

@@ -32,7 +32,7 @@
 Aggregate the given parts according to a given scalar field. New parts are added following higher values in the field.
 The component works additively, hence increasing the number of parts in an aggregation just adds new parts on the existing ones, without triggering recomputing of the previous element
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         PART: Parts to be aggregated (can be more than one)
         PREV: OPTIONAL // Previous aggregated parts. It is possible to input the results of a previous aggregation, or parts transformed with the TransformPart component
@@ -53,7 +53,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Field-driven Aggregation"
 ghenv.Component.NickName = 'FieldAggregation'
-ghenv.Component.Message = "v0.5.008"
+ghenv.Component.Message = "v0.6.001"
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "6 | Aggregation"

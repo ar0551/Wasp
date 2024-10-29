@@ -32,7 +32,7 @@
 Actuates predefined internal transformations, chaining them to transform the full aggregation while maintaining connectivity.
 NB! At the current stage only open chains are supported, closed loops might be broken.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         AGGR: Aggregation to transform
         VAL: Transformation values (0-1). Can use a single value for all parts, or a value for each transformable part
@@ -45,7 +45,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Actuate Internal Transforms"
 ghenv.Component.NickName = 'ActIntTrans'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

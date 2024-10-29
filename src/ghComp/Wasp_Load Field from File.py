@@ -31,7 +31,7 @@
 """
 Loads an aggregation from a previously saved .txt file
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         FILE: File where the field is saved (.json)
         LOAD: True to reload the saved file
@@ -41,7 +41,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Load Field from File"
 ghenv.Component.NickName = 'LoadField'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "5 | Fields"

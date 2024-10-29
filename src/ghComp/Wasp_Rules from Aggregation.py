@@ -31,7 +31,7 @@
 """
 Extract aggregation rules from an aggregation. These can be used to recreate the aggregation using the Graph-Grammar Aggregation component, as well as to replace parts in an aggregation.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         AGGR: Aggregation from which to extract the rules
         ON: OPTIONAL // If replacing parts, old names of the existing parts in the aggregation
@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Rules from Aggregation"
 ghenv.Component.NickName = 'GraphRules'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "3 | Rules"

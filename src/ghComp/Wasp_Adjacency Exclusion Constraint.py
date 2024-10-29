@@ -32,7 +32,7 @@
 Part Adjacencies and Exclusions Constraint.
 It allows to control if certain connection should be allowed to be in contact with other parts or not.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         DIR: Directions of the support locations as lines
         PN: OPTIONAL // If the adjacency/exclusion direction has to be associated to a specific part
@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Adjacency Exclusion Constraint"
 ghenv.Component.NickName = 'AdjExcConst'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "4 | Constraints"

@@ -31,7 +31,7 @@
 """
 Extract the aggregation graph.
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         AGGR: Aggregation from which to extract the graph
         FG: OPTIONAL // True to compute the full graph (including edges on overlapping connections), False to create only the aggregation sequence graph (True by default)
@@ -51,7 +51,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Aggregation Graph"
 ghenv.Component.NickName = 'AggregationGraph'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "6 | Aggregation"
