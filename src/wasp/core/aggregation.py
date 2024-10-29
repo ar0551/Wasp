@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.5.009
+@version 0.6.001
 
 Aggregation class and functions
 """
@@ -729,6 +729,8 @@ class Aggregation(object):
 									next_rule = conn_01.rules_table[next_rule_id]
 									if next_rule.part2 == next_part.name:
 										break
+									else:
+										next_rule = None
 					else:
 						part_01_id = random.randint(0,len(self.aggregated_parts)-1)
 						part_01 = self.aggregated_parts[part_01_id]
