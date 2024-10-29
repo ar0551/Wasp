@@ -500,7 +500,7 @@ class PartCatalog(object):
 		self.is_adaptive = _is_adaptive
 		
 		self.dict = {}
-		for i in xrange(len(self.parts)):
+		for i in range(len(self.parts)):
 			self.dict[self.parts[i]] = _amounts[i]
 		
 		self.is_empty = False

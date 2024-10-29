@@ -261,9 +261,9 @@ class Field(object):
 
 	def compute_voxel_mesh(self, iso, cap = True):
 		voxel_mesh = Mesh()
-		for z in xrange(self.z_count):
-			for y in xrange(self.y_count):
-				for x in xrange(self.x_count):
+		for z in range(self.z_count):
+			for y in range(self.y_count):
+				for x in range(self.x_count):
 					if self.vals[z][y][x] > iso:
 						if x == 0:
 							if cap:

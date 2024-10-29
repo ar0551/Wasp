@@ -799,10 +799,10 @@ class Aggregation(object):
 	## compute all possibilities for child-parts of the given part, and store them in the aggregation queue
 	def compute_next_w_field(self, part):
 		
-		for i in xrange(len(part.active_connections)-1, -1, -1):
+		for i in range(len(part.active_connections)-1, -1, -1):
 			conn_id = part.active_connections[i]
 			conn = part.connections[conn_id]
-			for i2 in xrange(len(conn.active_rules)-1, -1, -1):
+			for i2 in range(len(conn.active_rules)-1, -1, -1):
 				rule_id = conn.active_rules[i2]
 				rule = conn.rules_table[rule_id]
 				
