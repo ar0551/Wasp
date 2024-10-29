@@ -39,6 +39,7 @@ Code is adapted from Ladybug file updater (https://github.com/mostaphaRoudsari/l
     
     Args:
         UPDATE: Set to "True" if you want this component to search through the current Grasshopper file and update all Wasp components.
+        SUB_FOL: OPTIONAL // If the Wasp user objects have been placed in a sub-folder, name of the sub-folder in the Gh UserObjects folder.
     Returns:
         LOG: List of updated files.
 """
