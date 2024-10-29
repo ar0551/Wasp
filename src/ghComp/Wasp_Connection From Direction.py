@@ -32,7 +32,7 @@
 Create a connection on a given part geometry from center and X-asix direction
 (Z direction is determined based on the normals of the component geometry)
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         GEO: Geometry of the part to which the connection belongs
         CEN: Origin of the connection plane
@@ -45,7 +45,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Connection From Direction"
 ghenv.Component.NickName = 'ConnDir'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
@@ -109,8 +109,10 @@ def main(part_geo, conn_centers, conn_ups, conn_type):
     if check_data:
         connections = []
         out_planes = []
+        
+        part_geo.Normals.ComputeNormals()
+        
         for i in range(len(conn_centers)):
-            
             center = conn_centers[i]
             up = conn_ups[i]
             plane = None
@@ -119,28 +121,13 @@ def main(part_geo, conn_centers, conn_ups, conn_type):
             up_end = rg.Vector3d(up.PointAtEnd)
             up_vec = rg.Vector3d.Subtract(up_end, up_start)
             
-            if type(part_geo) == rg.Brep:
-                for face in part_geo.Faces:
-                    pt_uv = face.ClosestPoint(center)
-                    pt = face.PointAt(pt_uv[1], pt_uv[2])
-                    dist = rg.Point3d.DistanceTo(center, pt)
-                    if(dist < global_tolerance):
-                        normal = face.NormalAt(pt_uv[1], pt_uv[2])
-                        plane = rg.Plane(center, normal)
-                        x_axis = plane.XAxis
-                        angle = rg.Vector3d.VectorAngle(x_axis, up_vec, plane)
-                        plane.Rotate(angle, normal)
-                        break
-            
-            elif type(part_geo) == rg.Mesh:
-                part_geo.Normals.ComputeNormals()
-                mesh_pt = part_geo.ClosestMeshPoint(center, global_tolerance)
-                if mesh_pt is not None:
-                    normal = part_geo.NormalAt(mesh_pt)
-                    plane = rg.Plane(center, normal)
-                    x_axis = plane.XAxis
-                    angle = rg.Vector3d.VectorAngle(x_axis, up_vec, plane)
-                    plane.Rotate(angle, normal)
+            mesh_pt = part_geo.ClosestMeshPoint(center, global_tolerance)
+            if mesh_pt is not None:
+                normal = part_geo.NormalAt(mesh_pt)
+                plane = rg.Plane(center, normal)
+                x_axis = plane.XAxis
+                angle = rg.Vector3d.VectorAngle(x_axis, up_vec, plane)
+                plane.Rotate(angle, normal)
             
             if plane is None:
                 msg = "No valid plane provided for connection %d"%(i)
