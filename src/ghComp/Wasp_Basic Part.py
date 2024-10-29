@@ -31,7 +31,7 @@
 """
 Create a basic Wasp Part to be used for aggregation
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         NAME: Part name
         GEO: Part geometry. It will be converted to mesh - to improve performance, perform the conversion before adding to the part and user a low-poly count
@@ -44,7 +44,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Basic Part"
 ghenv.Component.NickName = 'Part'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "2 | Parts"
@@ -73,6 +73,7 @@ if wasp_loaded:
     from wasp.core import Part
     from wasp.core import Collider
     from wasp import global_tolerance
+    from wasp.utilities import reserved_chars
 
 
 def main(part_name, part_geo, connections, collider, attributes):
@@ -84,6 +85,10 @@ def main(part_name, part_geo, connections, collider, attributes):
         check_data = False
         msg = "No part name provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    elif any(char in part_name for char in reserved_chars):
+        check_data = False
+        msg = "Part name " + part_name + " contains a space or one of the reserved characters: " + reserved_chars
+        ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
     
     if part_geo is None:
         check_data = False

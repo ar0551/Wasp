@@ -17,6 +17,8 @@ from Rhino.Geometry import Transform
 
 
 #################################################################### Utilities ####################################################################
+reserved_chars = "_|> "
+
 def mesh_to_data(mesh):
 	data = {}
 	vertices = []

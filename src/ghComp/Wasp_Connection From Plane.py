@@ -32,7 +32,7 @@
 Create a connection from a given plane.
 It can create connections which cause collisions and overlapping of components
 -
-Provided by Wasp 0.5
+Provided by Wasp 0.6
     Args:
         PLN: Connection plane
         T: OPTIONAL // Connection type (to be used with Rule Generator component)
@@ -43,7 +43,7 @@ Provided by Wasp 0.5
 
 ghenv.Component.Name = "Wasp_Connection From Plane"
 ghenv.Component.NickName = 'ConnPln'
-ghenv.Component.Message = 'v0.5.008'
+ghenv.Component.Message = 'v0.6.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "1 | Elements"
@@ -70,6 +70,7 @@ except:
 ## if Wasp is installed correctly, load the classes required by the component
 if wasp_loaded:
     from wasp.core import Connection
+    from wasp.utilities import reserved_chars
 
 
 def main(conn_planes, conn_type):
@@ -81,6 +82,12 @@ def main(conn_planes, conn_type):
         check_data = False
         msg = "No plane provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
+    
+    for ct in conn_type:
+        if any(char in ct for char in reserved_chars):
+            check_data = False
+            msg = "Connection type " + ct + " contains a space or one of the reserved characters: " + reserved_chars
+            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
     
     types = []
     if len(conn_type) == 0:

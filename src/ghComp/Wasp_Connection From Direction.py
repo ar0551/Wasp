@@ -73,6 +73,7 @@ except:
 if wasp_loaded:
     from wasp.core import Connection
     from wasp import global_tolerance
+    from wasp.utilities import reserved_chars
 
 
 def main(part_geo, conn_centers, conn_ups, conn_type):
@@ -89,6 +90,12 @@ def main(part_geo, conn_centers, conn_ups, conn_type):
         check_data = False
         msg = "Different amount of centers and up vectors provided"
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
+    
+    for ct in conn_type:
+        if any(char in ct for char in reserved_chars):
+            check_data = False
+            msg = "Connection type " + ct + " contains a space or one of the reserved characters: " + reserved_chars
+            ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
     
     types = []
     if len(conn_type) == 0:
