@@ -22,6 +22,7 @@ from wasp.core.parts import Part, AdvancedPart, PartCatalog
 from wasp.core.rules import Rule
 from wasp.core.graph import Graph
 from wasp.core.constraints import Plane_Constraint, Mesh_Constraint
+from wasp.core.attributes import Attribute
 
 from wasp.field import Field
 
@@ -991,6 +992,7 @@ class Aggregation(object):
 		loops = 0
 
 		current_recipe = None
+		recipes_count = 0
 		recipe_step = 0
 		start_id = -1
 
@@ -1018,6 +1020,9 @@ class Aggregation(object):
 					for conn in first_part_trans.connections:
 						conn.generate_rules_table(self.rules)
 					
+					attr = Attribute('recipe', [recipes_count], False)
+					first_part_trans.attributes.append(attr)
+					
 					first_part_trans.id = 0
 					self.aggregated_parts.append(first_part_trans)
 
@@ -1041,6 +1046,7 @@ class Aggregation(object):
 				if recipe_step > len(current_recipe.return_rules_sequence()) - 1:
 					current_recipe = random.choice(recipes)
 					recipe_step = 0
+					recipes_count += 1
 					possible_start_ids = current_recipe.filter_start_locations(self)
 					if len(possible_start_ids) > 0:
 						start_id = random.choice(possible_start_ids).id
@@ -1106,6 +1112,10 @@ class Aggregation(object):
 							if next_part_trans.active_connections[i] == next_rule.conn2:
 								next_part_trans.active_connections.pop(i)
 								break
+						
+						
+						attr = Attribute('recipe', [recipes_count], False)
+						next_part_trans.attributes.append(attr)
 						next_part_trans.id = len(self.aggregated_parts)
 						
 						## parent-child tracking
