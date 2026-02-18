@@ -165,18 +165,23 @@ class Graph(object):
 	
 	
 	## get a list of all edge attributes
-	def get_edges_attributes(self, flatten = True):
+	def get_edges_attributes(self, flatten=True, sort=False):
 		edges_attr = []
+
+		g_dict = self.graph_dict
+		if sort:
+			g_dict = dict(sorted(self.graph_dict.items()))
+
 		if flatten:
-			for node in self.graph_dict:
-				for neighbour in self.graph_dict[node]:
-					edges_attr.append(self.graph_dict[node][neighbour])
+			for node in g_dict:
+				for neighbour in g_dict[node]:
+					edges_attr.append(g_dict[node][neighbour])
 		else:
 			n_count = 0
-			for node in self.graph_dict:
+			for node in g_dict
 				edges_attr.append([])
-				for neighbour in self.graph_dict[node]:
-					edges_attr[n_count].append(self.graph_dict[node][neighbour])
+				for neighbour in g_dict[node]:
+					edges_attr[n_count].append(g_dict[node][neighbour])
 				n_count +=1
 
 		return edges_attr

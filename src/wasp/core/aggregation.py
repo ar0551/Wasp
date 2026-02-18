@@ -1,10 +1,10 @@
 """
-(C) 2017-2020 Andrea Rossi <ghwasp@gmail.com>
+(C) 2017-2026 Andrea Rossi <ghwasp@gmail.com>
 
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.6.001
+@version 0.7.001
 
 Aggregation class and functions
 """
@@ -981,5 +981,170 @@ class Aggregation(object):
 					
 					self.queue_count -=1
 				else:
+					msg = "Could not place " + str(num-added) + " parts"
+					return msg
+	
+
+	## recipe-based stockastic aggregation
+	def aggregate_recipes_rnd(self, num, recipes, use_catalog = False):
+		added = 0
+		loops = 0
+
+		current_recipe = None
+		recipe_step = 0
+		start_id = -1
+
+		while added < num:
+			loops += 1
+			if loops > num*100:
+				msg = "Could not place " + str(num-added) + " parts"
+				return msg
+			
+			## if no part is present in the aggregation, add first part from current recipe
+			if len(self.aggregated_parts) == 0:
+				
+				"""
+				if use_catalog:
+					first_part = self.parts[self.catalog.return_weighted_part()]
+				else:
+					first_part = self.parts[random.choice(self.parts.keys())]	
+				"""	
+				current_recipe = random.choice(recipes)
+				first_part = current_recipe.return_start_part()
+				start_id = 0
+
+				if first_part is not None:
+					first_part_trans = first_part.transform(Transform.Identity)
+					for conn in first_part_trans.connections:
+						conn.generate_rules_table(self.rules)
+					
+					first_part_trans.id = 0
+					self.aggregated_parts.append(first_part_trans)
+
+					## add data to graph
+					self.graph.add_node(first_part_trans.id)
+
+					added += 1
+					"""
+					if use_catalog:
+						self.catalog.update(first_part_trans.name, -1)
+					"""
+			
+			## otherwise execute recipe
+			else:
+				next_rule = None
+				part_01_id = -1
+				conn_01_id = -1
+				next_rule_id = -1
+				new_rule_attempts = 0
+
+				if recipe_step > len(current_recipe.return_rules_sequence()) - 1:
+					current_recipe = random.choice(recipes)
+					recipe_step = 0
+					possible_start_ids = current_recipe.filter_start_locations(self)
+					if len(possible_start_ids) > 0:
+						start_id = random.choice(possible_start_ids).id
+						current_recipe.update_ids(start_id, len(self.aggregated_parts))
+
+						next_rule = current_recipe.return_rules_sequence()[0]
+						part_01_id = current_recipe.id_converter[0]
+						conn_01_id = next_rule.conn1
+
+				else:
+					next_rule = current_recipe.return_rules_sequence()[recipe_step]
+					part_01_id = current_recipe.id_converter[next_rule.part1_id]
+					conn_01_id = next_rule.conn1
+				"""
+				next_rule = None
+				part_01_id = -1
+				conn_01_id = -1
+				next_rule_id = -1
+				new_rule_attempts = 0
+				
+				while new_rule_attempts < 10000:
+					new_rule_attempts += 1
+					next_rule = None
+					if use_catalog:
+						if self.catalog.is_limited and self.catalog.is_empty:
+							break
+						next_part = self.parts[self.catalog.return_weighted_part()]
+						if next_part is not None:
+							part_01_id = random.randint(0,len(self.aggregated_parts)-1)
+							part_01 = self.aggregated_parts[part_01_id]
+							if len(part_01.active_connections) > 0:
+								conn_01_id = part_01.active_connections[random.randint(0, len(part_01.active_connections)-1)]
+								conn_01 = part_01.connections[conn_01_id]
+								if len(conn_01.active_rules) > 0:
+									next_rule_id = conn_01.active_rules[random.randint(0, len(conn_01.active_rules)-1)]
+									next_rule = conn_01.rules_table[next_rule_id]
+									if next_rule.part2 == next_part.name:
+										break
+									else:
+										next_rule = None
+					else:
+						part_01_id = random.randint(0,len(self.aggregated_parts)-1)
+						part_01 = self.aggregated_parts[part_01_id]
+						if len(part_01.active_connections) > 0:
+							conn_01_id = part_01.active_connections[random.randint(0, len(part_01.active_connections)-1)]
+							conn_01 = part_01.connections[conn_01_id]
+							if len(conn_01.active_rules) > 0:
+								next_rule_id = conn_01.active_rules[random.randint(0, len(conn_01.active_rules)-1)]
+								next_rule = conn_01.rules_table[next_rule_id]
+								break
+				"""
+				if next_rule is not None:
+					next_part = self.parts[next_rule.part2]
+					conn_01 = self.aggregated_parts[part_01_id].connections[conn_01_id]
+					orientTransform = Transform.PlaneToPlane(next_part.connections[next_rule.conn2].flip_pln, conn_01.pln)
+					
+					global_check, coll_check, add_coll_check, missing_sup_check, global_const_check, adjacencies_check, exclusions_back_check, orientation_check = self.check_all_constraints(next_part, orientTransform)
+					
+					if not global_check:
+						next_part_trans = next_part.transform(orientTransform)
+						next_part_trans.reset_part(self.rules)
+						for i in range(len(next_part_trans.active_connections)):
+							if next_part_trans.active_connections[i] == next_rule.conn2:
+								next_part_trans.active_connections.pop(i)
+								break
+						next_part_trans.id = len(self.aggregated_parts)
+						
+						## parent-child tracking
+						self.aggregated_parts[part_01_id].children.append(next_part_trans.id)
+						next_part_trans.parent = self.aggregated_parts[part_01_id].id
+						next_part_trans.conn_on_parent = next_rule.conn1
+						next_part_trans.conn_to_parent = next_rule.conn2
+						
+						## add part to aggregated_parts list
+						self.aggregated_parts.append(next_part_trans)
+
+						## add data to graph
+						self.graph.add_node(next_part_trans.id)
+						self.graph.add_edge(part_01_id, next_part_trans.id, next_rule.conn1, next_rule.conn2)
+
+						## update catalog if using one
+						if use_catalog:
+							self.catalog.update(next_part_trans.name, -1)
+						
+						for i in range(len(self.aggregated_parts[part_01_id].active_connections)):
+							if self.aggregated_parts[part_01_id].active_connections[i] == conn_01_id:
+								self.aggregated_parts[part_01_id].active_connections.pop(i)
+								break
+						added += 1
+						recipe_step += 1
+					## TO FIX --> do not remove rules when only caused by missing supports
+					else:
+						## remove rules if they cause collisions or overlappings
+						for i in range(len(self.aggregated_parts[part_01_id].connections[conn_01_id].active_rules)):
+							if self.aggregated_parts[part_01_id].connections[conn_01_id].active_rules[i] == next_rule_id:
+								self.aggregated_parts[part_01_id].connections[conn_01_id].active_rules.pop(i)
+								break
+						## check if the connection is still active (still active rules available)
+						if len(self.aggregated_parts[part_01_id].connections[conn_01_id].active_rules) == 0:
+							for i in range(len(self.aggregated_parts[part_01_id].active_connections)):
+								if self.aggregated_parts[part_01_id].active_connections[i] == conn_01_id:
+									self.aggregated_parts[part_01_id].active_connections.pop(i)
+									break
+				else:
+					## if no part is available, exit the aggregation routine and return an error message
 					msg = "Could not place " + str(num-added) + " parts"
 					return msg
