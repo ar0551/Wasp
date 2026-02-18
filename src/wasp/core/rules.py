@@ -74,26 +74,27 @@ class Recipe(object):
 
 		for i in range(len(aggr_in.aggregated_parts)):
 			part = aggr_in.aggregated_parts[i]
-			p_matrix = aggr_in.check_blocked_connections(part)
-			is_valid = True
+			if part.name == self.aggregation.aggregated_parts[0].name:
+				p_matrix = aggr_in.check_blocked_connections(part)
+				is_valid = True
 
-			for i2 in range(len(self.start_mask)):
-				if self.start_mask[i2] == 1:
-					if self.start_connections[i2].id not in p_matrix:
-						is_valid = False
-						break
-				elif self.start_mask[i2] == -1:
-					if self.start_connections[i2].id in p_matrix:
-						is_valid = False
-						break
-			if is_valid:
-				valid_start_locations.append(part)
+				for i2 in range(len(self.start_mask)):
+					if self.start_mask[i2] == 1:
+						if self.start_connections[i2].id not in p_matrix:
+							is_valid = False
+							break
+					elif self.start_mask[i2] == -1:
+						if self.start_connections[i2].id in p_matrix:
+							is_valid = False
+							break
+				if is_valid:
+					valid_start_locations.append(part)
 
 		return valid_start_locations
 	
 
 	## return the rules sequence
-	def return_rule_sequence(self):
+	def return_rules_sequence(self):
 		rules = []
 		graph_edges = self.aggregation.graph.get_edges_attributes()
 		
