@@ -1020,7 +1020,7 @@ class Aggregation(object):
 					for conn in first_part_trans.connections:
 						conn.generate_rules_table(self.rules)
 					
-					attr = Attribute('recipe', [recipes_count], False)
+					attr = Attribute('recipe', [current_recipe.name + "_" + str(recipes_count)], False)
 					first_part_trans.attributes.append(attr)
 					
 					first_part_trans.id = 0
@@ -1043,7 +1043,7 @@ class Aggregation(object):
 				next_rule_id = -1
 				new_rule_attempts = 0
 
-				if recipe_step > len(current_recipe.return_rules_sequence()) - 1:
+				if recipe_step > len(current_recipe.return_rules_sequence()) - 1 or recipe_step == -1:
 					current_recipe = random.choice(recipes)
 					recipe_step = 0
 					recipes_count += 1
@@ -1114,7 +1114,7 @@ class Aggregation(object):
 								break
 						
 						
-						attr = Attribute('recipe', [recipes_count], False)
+						attr = Attribute('recipe', [current_recipe.name + "_" + str(recipes_count)], False)
 						next_part_trans.attributes.append(attr)
 						next_part_trans.id = len(self.aggregated_parts)
 						
@@ -1154,6 +1154,9 @@ class Aggregation(object):
 								if self.aggregated_parts[part_01_id].active_connections[i] == conn_01_id:
 									self.aggregated_parts[part_01_id].active_connections.pop(i)
 									break
+						## mark the recipe as blocked
+						recipe_step = -1
+
 				else:
 					## if no part is available, exit the aggregation routine and return an error message
 					msg = "Could not place " + str(num-added) + " parts"

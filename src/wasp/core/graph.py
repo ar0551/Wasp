@@ -178,7 +178,7 @@ class Graph(object):
 					edges_attr.append(g_dict[node][neighbour])
 		else:
 			n_count = 0
-			for node in g_dict
+			for node in g_dict:
 				edges_attr.append([])
 				for neighbour in g_dict[node]:
 					edges_attr[n_count].append(g_dict[node][neighbour])

@@ -79,7 +79,8 @@ class GraphRule(Rule):
 class Recipe(object):
 
 	## constructor
-	def __init__(self, _aggregation, _start_conns, _start_mask):
+	def __init__(self, _name, _aggregation, _start_conns, _start_mask):
+		self.name = _name
 		self.aggregation = _aggregation
 		self.start_connections = _start_conns
 		self.start_mask = _start_mask
@@ -90,7 +91,7 @@ class Recipe(object):
 
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
-		return "WaspRecipe [%d]" % (len(self.aggregation.aggregated_parts))
+		return "WaspRecipe [name: %s, count: %d]" % (self.name, len(self.aggregation.aggregated_parts))
 	
 
 	## create class from data dictionary (NOT IMPLEMENTED)
