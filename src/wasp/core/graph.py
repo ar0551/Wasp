@@ -32,7 +32,15 @@ class Graph(object):
 	@classmethod
 	def from_data(cls, data):
 		g = cls()
-		g.graph_dict = data
+
+		g.graph_dict = {
+			int(start): {
+				int(end): edge_data
+				for end, edge_data in connections.items()
+			}
+			for start, connections in data.items()
+		}
+		
 		return g
 
 

@@ -97,12 +97,18 @@ class Recipe(object):
 	## create class from data dictionary (NOT IMPLEMENTED)
 	@classmethod
 	def from_data(cls, data):
-		return None
+		from wasp.core import Connection
+		from wasp.core.aggregation import Aggregation
+		return cls(data['name'], Aggregation.from_data(data['aggregation']), [Connection.from_data(conn) for conn in data['start_connections']], data['start_mask'])
 
 		
 	## return the data dictionary representing the class (NOT IMPLEMENTED)
 	def to_data(self):
 		data = {}
+		data['name'] = self.name
+		data['aggregation'] = self.aggregation.to_data()
+		data['start_connections'] = [conn.to_data() for conn in self.start_connections]
+		data['start_mask'] = self.start_mask
 		return data
 	
 

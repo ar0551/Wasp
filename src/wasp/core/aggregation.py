@@ -599,13 +599,11 @@ class Aggregation(object):
 				## self.additional_collider_check(next_part, orientTransform)
 				
 				## parent-child tracking
-				first_part_trans.children.append(next_part_trans)
-				next_part_trans.parent = first_part_trans
+				first_part_trans.children.append(next_part_trans.id)
+				next_part_trans.parent = first_part_trans.id
 				
 				self.aggregated_parts.append(first_part_trans)
 				self.aggregated_parts.append(next_part_trans)
-				
-				first_part_trans.children.append(next_part_trans)
 
 				## add data to graph
 				self.graph.add_node(first_part_trans.id)
