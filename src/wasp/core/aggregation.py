@@ -26,6 +26,8 @@ from wasp.core.attributes import Attribute
 
 from wasp.field import Field
 
+from wasp.utilities import transform_from_data, transform_to_data
+
 
 #################################################################### Aggregation ####################################################################
 class Aggregation(object):
@@ -115,6 +117,7 @@ class Aggregation(object):
 	
 
 	## create class from data dictionary
+	#### TO DO: Check if the geometry of aggregated parts is included. If not, create from base parts and transformations
 	@classmethod
 	def from_data(cls, data):
 		d_name = data['name']
@@ -173,7 +176,7 @@ class Aggregation(object):
 
 		
 	## return the data dictionary representing the aggregation
-	def to_data(self):
+	def to_data(self, include_aggr_geo = True):
 		data = {}
 		data['name'] = self.name
 		data['parts'] = [part.to_data() for part in self.parts.values()]
@@ -196,11 +199,23 @@ class Aggregation(object):
 		if self.catalog is not None:
 			data['catalog'] = self.catalog.to_data()
 
-		#data['aggregated_parts'] = [part.to_data() for part in self.aggregated_parts]
+		## save aggregated parts
+		data['include_aggr_geo'] = include_aggr_geo
 		data['aggregated_parts'] =	{}
 		data['aggregated_parts_sequence'] = []
 		for part in self.aggregated_parts:
-			data['aggregated_parts'][part.id] = part.to_data()
+			if include_aggr_geo:
+				data['aggregated_parts'][part.id] = part.to_data()
+			else:
+				p_data = part.return_part_data()
+				data['aggregated_parts'][part.id] = {}
+				data['aggregated_parts'][part.id]['name'] = p_data['name']
+				data['aggregated_parts'][part.id]['active_connections'] = p_data['active_connections']
+				data['aggregated_parts'][part.id]['parent'] = p_data['parent']
+				data['aggregated_parts'][part.id]['children'] = p_data['children']
+				data['aggregated_parts'][part.id]['transform'] = transform_to_data(p_data['transform'])
+				data['aggregated_parts'][part.id]['is_constrained'] = p_data['is_constrained']				
+				
 			data['aggregated_parts_sequence'].append(part.id)
 
 		return data

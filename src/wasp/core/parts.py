@@ -147,18 +147,20 @@ class Part(object):
 	
 	## return a dictionary containing all part data
 	def return_part_data(self):
-		data_dict = {}
-		data_dict['name'] = self.name
-		data_dict['id'] = self.id
-		data_dict['geo'] = self.geo
-		data_dict['connections'] = self.connections
-		data_dict['transform'] = self.transformation
-		data_dict['collider'] = self.collider
-		data_dict['center'] = self.center
-		data_dict['parent'] = self.parent
-		data_dict['children'] = self.children
-		data_dict['attributes'] = self.attributes
-		return data_dict
+		data = {}
+		data['name'] = self.name
+		data['id'] = self.id
+		data['geo'] = self.geo
+		data['connections'] = self.connections
+		data['active_connections'] = self.active_connections
+		data['transform'] = self.transformation
+		data['collider'] = self.collider
+		data['center'] = self.center
+		data['parent'] = self.parent
+		data['children'] = self.children
+		data['is_constrained'] = self.is_constrained
+		data['attributes'] = self.attributes
+		return data
 	
 
 	## return a transformed copy of the part
