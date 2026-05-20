@@ -81,9 +81,17 @@ class Part(object):
 
 	## create class from data dictionary
 	@classmethod
-	def from_data(cls, data):
+	def from_data(cls, data, base_part=None):
 		p_name = data['name']
-		p_geometry = mesh_from_data(data['geometry'])
+		if data.has_key('geometry'):
+			p_geometry = mesh_from_data(data['geometry'])
+		elif base_part is not None:
+			p_geometry = base_part.geo.Duplicate()
+			p_trasform = transform_from_data(data['transform'])
+			p_geometry.Transform(p_trasform)
+		else:
+			return None
+
 		p_connections = [Connection.from_data(c_data) for c_data in data['connections']]
 		p_collider = Collider.from_data(data['collider'])
 		p_attributes = [] #### ATTRIBUTES NOT IMPLEMENTED
@@ -94,6 +102,7 @@ class Part(object):
 			p_id = int(data['id'])
 		except:
 			p_id = data['id']
+		
 		p_field = data['field']
 
 		part = cls(p_name, p_geometry, p_connections, p_collider, p_attributes, dim=p_dim, id=p_id, field=p_field)
@@ -104,7 +113,6 @@ class Part(object):
 		part.conn_to_parent = data['conn_to_parent']
 		
 		for child_data in data['children']:
-			child_id = None
 			try:
 				part.children.append(int(child_data))
 			except:
@@ -114,14 +122,15 @@ class Part(object):
 
 		
 	## return the data dictionary representing the part
-	def to_data(self):
+	def to_data(self, include_geo=True):
 		data = {}
 		## class types
 		data['class_type'] = 'Part'
 		## shared parameters
 		data['name'] = self.name
 		data['id'] = self.id
-		data['geometry'] = mesh_to_data(self.geo)
+		if include_geo:
+			data['geometry'] = mesh_to_data(self.geo)
 		data['field'] = self.field
 		data['connections'] = [conn.to_data() for conn in self.connections]
 		data['active_connections'] = self.active_connections
@@ -258,9 +267,18 @@ class AdvancedPart(Part):
 
 	## create class from data dictionary
 	@classmethod
-	def from_data(cls, data):
+	def from_data(cls, data, base_part=None):
 		p_name = data['name']
-		p_geometry = mesh_from_data(data['geometry'])
+		
+		if data.has_key('geometry'):
+			p_geometry = mesh_from_data(data['geometry'])
+		elif base_part is not None:
+			p_geometry = base_part.geo.Duplicate()
+			p_transform = transform_from_data(data['transform'])
+			p_geometry.Transform(p_transform)
+		else:
+			return None
+
 		p_connections = [Connection.from_data(c_data) for c_data in data['connections']]
 		p_collider = Collider.from_data(data['collider'])
 		p_attributes = [] #### ATTRIBUTES NOT IMPLEMENTED
@@ -300,7 +318,7 @@ class AdvancedPart(Part):
 
 		
 	## return the data dictionary representing the part
-	def to_data(self):
+	def to_data(self, include_geo=True):
 		data = {}
 
 		## class types
@@ -309,7 +327,8 @@ class AdvancedPart(Part):
 		## shared parameters
 		data['name'] = self.name
 		data['id'] = self.id
-		data['geometry'] = mesh_to_data(self.geo)
+		if include_geo:
+			data['geometry'] = mesh_to_data(self.geo)
 		data['field'] = self.field
 		data['connections'] = [conn.to_data() for conn in self.connections]
 		data['active_connections'] = self.active_connections

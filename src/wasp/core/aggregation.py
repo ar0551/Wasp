@@ -160,8 +160,6 @@ class Aggregation(object):
 						d_aggregated_parts.append(Part.from_data(aggr_part_data))
 					elif aggr_part_data['class_type'] == 'AdvancedPart':
 						d_aggregated_parts.append(AdvancedPart.from_data(aggr_part_data))
-					else:
-						pass
 				else:
 					## if geometry is not included, create part from base part and transformation
 					base_part = None
@@ -171,14 +169,10 @@ class Aggregation(object):
 							break
 					
 					if base_part is not None:
-						d_trans = transform_from_data(aggr_part_data['transform'])
-						d_aggr_part = base_part.transform(d_trans)
-						d_aggr_part.id = aggr_part_data['id']
-						d_aggr_part.active_connections = aggr_part_data['active_connections']
-						d_aggr_part.parent = aggr_part_data['parent']
-						d_aggr_part.children = aggr_part_data['children']
-						d_aggr_part.is_constrained = aggr_part_data['is_constrained']
-						d_aggregated_parts.append(d_aggr_part)
+						if aggr_part_data['class_type'] == 'Part':
+							d_aggregated_parts.append(Part.from_data(aggr_part_data, base_part=base_part))
+						elif aggr_part_data['class_type'] == 'AdvancedPart':
+							d_aggregated_parts.append(AdvancedPart.from_data(aggr_part_data, base_part=base_part))
 		
 		aggregation.aggregated_parts = d_aggregated_parts
 
@@ -222,20 +216,7 @@ class Aggregation(object):
 		data['aggregated_parts'] =	{}
 		data['aggregated_parts_sequence'] = []
 		for part in self.aggregated_parts:
-			if include_aggr_geo:
-				data['aggregated_parts'][part.id] = part.to_data()
-			else:
-				p_data = part.return_part_data()
-				data['aggregated_parts'][part.id] = {}
-				data['aggregated_parts'][part.id]['class_type'] = str(type(part).__name__)
-				data['aggregated_parts'][part.id]['name'] = p_data['name']
-				data['aggregated_parts'][part.id]['id'] = p_data['id']
-				data['aggregated_parts'][part.id]['active_connections'] = p_data['active_connections']
-				data['aggregated_parts'][part.id]['parent'] = p_data['parent']
-				data['aggregated_parts'][part.id]['children'] = p_data['children']
-				data['aggregated_parts'][part.id]['transform'] = transform_to_data(p_data['transform'])
-				data['aggregated_parts'][part.id]['is_constrained'] = p_data['is_constrained']				
-				
+			data['aggregated_parts'][part.id] = part.to_data(include_aggr_geo)					
 			data['aggregated_parts_sequence'].append(part.id)
 
 		return data
