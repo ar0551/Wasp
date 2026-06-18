@@ -31,7 +31,7 @@
 """
 DisCo Player settings
 -
-Provided by Wasp 0.6
+Provided by Wasp 0.7
     Args:
         NAME: Player name
         VRFPS: Player mode: 0 for VR player, 1 for FPS player
@@ -49,10 +49,10 @@ Provided by Wasp 0.6
 
 ghenv.Component.Name = "Wasp_DisCo Player"
 ghenv.Component.NickName = 'DisCoPlayer'
-ghenv.Component.Message = 'v0.6.001'
+ghenv.Component.Message = 'v0.7.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "7 | DisCo VR"
+ghenv.Component.SubCategory = "8 | DisCo VR"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 

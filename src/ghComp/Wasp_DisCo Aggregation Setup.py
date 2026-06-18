@@ -31,7 +31,7 @@
 """
 Setup aggregation information for DisCo
 -
-Provided by Wasp 0.6
+Provided by Wasp 0.7
     Args:
         PART: Parts to be aggregated in DisCo
         RULES: Aggregation rules
@@ -44,10 +44,10 @@ Provided by Wasp 0.6
 
 ghenv.Component.Name = "Wasp_DisCo Aggregation Setup"
 ghenv.Component.NickName = 'DisCoSetup'
-ghenv.Component.Message = 'v0.6.001'
+ghenv.Component.Message = 'v0.7.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "7 | DisCo VR"
+ghenv.Component.SubCategory = "8 | DisCo VR"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "2"
 except: pass
 

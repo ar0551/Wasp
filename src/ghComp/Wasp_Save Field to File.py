@@ -31,7 +31,7 @@
 """
 Saves current status of an aggregation to a .json file.
 -
-Provided by Wasp 0.6
+Provided by Wasp 0.7
     Args:
         FIELD: Field to save
         PATH: Path where to save the field
@@ -43,10 +43,10 @@ Provided by Wasp 0.6
 
 ghenv.Component.Name = "Wasp_Save Field to File"
 ghenv.Component.NickName = 'SaveField'
-ghenv.Component.Message = 'v0.6.001'
+ghenv.Component.Message = 'v0.7.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "5 | Fields"
+ghenv.Component.SubCategory = "7 | IO"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "3"
 except: pass
 

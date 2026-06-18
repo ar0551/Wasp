@@ -31,10 +31,11 @@
 """
 Saves current status of an aggregation to a .json file.
 -
-Provided by Wasp 0.6
+Provided by Wasp 0.7
     Args:
         OBJ: Object to serialize and save to file
         FILTER: OPTIONAL // keys of the elements to serialize (by default, all object's parameters will be serialized)
+        IG: OPTIONAL // When serializing an Aggregation object, True to serialize the full geometry of each aggregated part (False by default)
         PATH: Path where to save the object
         NAME: Name of the exported file
         SAVE: True to export
@@ -46,11 +47,11 @@ Provided by Wasp 0.6
 
 ghenv.Component.Name = "Wasp_Serialize Object to File"
 ghenv.Component.NickName = 'Serialize'
-ghenv.Component.Message = 'v0.6.001'
+ghenv.Component.Message = 'v0.7.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "X | Experimental"
-try: ghenv.Component.AdditionalHelpFromDocStrings = "5"
+ghenv.Component.SubCategory = "7 | IO"
+try: ghenv.Component.AdditionalHelpFromDocStrings = "1"
 except: pass
 
 
@@ -78,7 +79,10 @@ if wasp_loaded:
     pass
 
 
-def main(obj, filter, path, filename, save):
+def main(obj, filter, include_geo, path, filename, save):
+    
+    def object_type(object):
+        return object.ToString().Split(" ")[0].Replace("Wasp", "")
     
     not_implemented_objects = ["Attribute", "SmartAttribute"]
     
@@ -92,16 +96,17 @@ def main(obj, filter, path, filename, save):
         ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     else:
-        object_type = obj.ToString().Split(" ")[0].Replace("Wasp", "")
-        if object_type in not_implemented_objects:
+        if object_type(obj) in not_implemented_objects:
             check_data = False
             msg = "Serialization for %s not yet implemented" % (object_type)
             ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
-        elif object_type == "Part" or object_type == "AdvancedPart":
+        elif object_type(obj) == "Part" or object_type(obj) == "AdvancedPart":
             if len(obj.attributes) > 0:
                 msg = "Serialization for Attributes not yet implemented. Attributes will not be serialized"
                 ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
+    if include_geo is None:
+        include_geo = False
     
     if path is None:
         check_save_data = False
@@ -114,7 +119,12 @@ def main(obj, filter, path, filename, save):
     
     ## execute main code if all needed inputs are available
     if check_data:
-        data = obj.to_data()
+        
+        if object_type(obj) == "Aggregation":
+            data = obj.to_data(include_geo)
+        else:
+            data = obj.to_data()
+        
         keys = data.keys()
         
         filtered_data = {}
@@ -125,7 +135,7 @@ def main(obj, filter, path, filename, save):
         else:
             filtered_data = data
         
-        filtered_data["object_type"] = object_type
+        filtered_data["object_type"] = object_type(obj)
         
         full_path = None
         if check_save_data:
@@ -143,7 +153,7 @@ def main(obj, filter, path, filename, save):
     else:
         return -1
 
-result = main(OBJ, FILTER, PATH, NAME, SAVE)
+result = main(OBJ, FILTER, IG, PATH, NAME, SAVE)
 
 if result != -1:
     KEY = result[0]

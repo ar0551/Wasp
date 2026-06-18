@@ -31,7 +31,7 @@
 """
 Compute a voxel-mesh of the given field at the chosen iso-level.
 -
-Provided by Wasp 0.6
+Provided by Wasp 0.7
     Args:
         FIELD: Field object to extract iso-voxels from
         ISO: Isolevel of the voxel mesh
@@ -41,7 +41,7 @@ Provided by Wasp 0.6
 
 ghenv.Component.Name = "Wasp_Field Iso Voxels"
 ghenv.Component.NickName = 'FieldVox'
-ghenv.Component.Message = 'v0.6.001'
+ghenv.Component.Message = 'v0.7.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory =  "5 | Fields"

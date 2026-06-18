@@ -31,7 +31,7 @@
 """
 Saves current status of an aggregation to a .json file, to be imported into DisCo for further aggregation
 -
-Provided by Wasp 0.6
+Provided by Wasp 0.7
     Args:
         AGGR: Aggregation to save
         PATH: Path where to save the aggregation
@@ -43,10 +43,10 @@ Provided by Wasp 0.6
 
 ghenv.Component.Name = "Wasp_Save to DisCo"
 ghenv.Component.NickName = 'DisCoSave'
-ghenv.Component.Message = 'v0.6.001'
+ghenv.Component.Message = 'v0.7.001'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
-ghenv.Component.SubCategory = "7 | DisCo VR"
+ghenv.Component.SubCategory = "8 | DisCo VR"
 try: ghenv.Component.AdditionalHelpFromDocStrings = "4"
 except: pass
 
