@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.6.001
+@version 0.7.001
 
 Aggregation class and functions
 """
@@ -200,7 +200,8 @@ class Aggregation(object):
 		if self.field is None:
 			data['field'] = None
 		elif not self.multiple_fields:
-			data['field'] = [self.field.to_data()]
+			if not isinstance(self.field, dict):
+				data['field'] = [self.field.to_data()]
 		else:
 			data['field'] = [f.to_data() for f in self.field.values()]
 		
@@ -700,10 +701,10 @@ class Aggregation(object):
 				
 				## choose first part
 				first_part = None
-				if use_catalog:
+				if use_catalog and self.catalog is not None:
 					first_part = self.parts[self.catalog.return_weighted_part()]
 				else:
-					first_part = self.parts[random.choice(self.parts.keys())]		
+					first_part = self.parts[random.choice(list(self.parts.keys()))]		
 
 				if first_part is not None:
 					first_part_trans = first_part.transform(Transform.Identity)
@@ -717,7 +718,7 @@ class Aggregation(object):
 					self.graph.add_node(first_part_trans.id)
 
 					added += 1
-					if use_catalog:
+					if use_catalog and self.catalog is not None:
 						self.catalog.update(first_part_trans.name, -1)
 			
 			## otherwise add new random part
@@ -731,7 +732,7 @@ class Aggregation(object):
 				while new_rule_attempts < 10000:
 					new_rule_attempts += 1
 					next_rule = None
-					if use_catalog:
+					if use_catalog and self.catalog is not None:
 						if self.catalog.is_limited and self.catalog.is_empty:
 							break
 						next_part = self.parts[self.catalog.return_weighted_part()]
@@ -788,7 +789,7 @@ class Aggregation(object):
 						self.graph.add_edge(part_01_id, next_part_trans.id, next_rule.conn1, next_rule.conn2)
 
 						## update catalog if using one
-						if use_catalog:
+						if use_catalog and self.catalog is not None:
 							self.catalog.update(next_part_trans.name, -1)
 						
 						for i in range(len(self.aggregated_parts[part_01_id].active_connections)):
@@ -831,7 +832,7 @@ class Aggregation(object):
 				orientTransform = Transform.PlaneToPlane(next_part.connections[rule.conn2].flip_pln, conn.pln)
 				next_center.Transform(orientTransform)
 				
-				if self.multiple_fields:
+				if self.multiple_fields and isinstance(self.field, dict):
 					f_name = next_part.field
 					if self.field[f_name].bbox.Contains(next_center) == True:
 						field_val = self.field[f_name].return_pt_val(next_center)
@@ -843,8 +844,8 @@ class Aggregation(object):
 						self.aggregation_queue.insert(queue_index, queue_entry)
 						self.queue_count += 1
 					
-				else:
-					if self.field.bbox.Contains(next_center) == True:
+				elif self.field is not None and not isinstance(self.field, dict):
+					if self.field.bbox.Contains(next_center):
 						field_val = self.field.return_pt_val(next_center)
 						
 						queue_index = bisect.bisect_left(self.queue_values, field_val)
@@ -872,20 +873,20 @@ class Aggregation(object):
 
 				## choose first part
 				first_part = None
-				if use_catalog:
+				if use_catalog and self.catalog is not None:
 					first_part = self.parts[self.catalog.return_weighted_part()]
 				else:
-					first_part = self.parts[random.choice(self.parts.keys())]
+					first_part = self.parts[random.choice(list(self.parts.keys()))]
 				
 				if first_part is not None:
 					start_point = None
-					if self.multiple_fields:
+					if self.multiple_fields and isinstance(self.field, dict):
 						f_name = first_part.field
 						if (self.mode == 2 or self.mode == 3) and len(self.global_constraints) > 0:
 							start_point = self.field[f_name].return_highest_pt(constraints=self.global_constraints)
 						else:
 							start_point = self.field[f_name].return_highest_pt()
-					else:
+					elif self.field is not None and not isinstance(self.field, dict):
 						if (self.mode == 2 or self.mode == 3) and len(self.global_constraints) > 0:
 							start_point = self.field.return_highest_pt(constraints=self.global_constraints)
 						else:
@@ -907,7 +908,7 @@ class Aggregation(object):
 					self.graph.add_node(first_part_trans.id)
 
 					## update catalog
-					if use_catalog:
+					if use_catalog and self.catalog is not None:
 						self.catalog.update(first_part_trans.name, -1)
 					
 					## compute all possible next parts and append to list
@@ -928,7 +929,7 @@ class Aggregation(object):
 
 				## choose next part
 				#### with catalog > best in queue of a give type
-				if use_catalog:
+				if use_catalog and self.catalog is not None:
 					if self.catalog.is_limited and self.catalog.is_empty:
 						msg = "Could not place " + str(num-added) + " parts. Part Catalog is empty."
 						return msg
