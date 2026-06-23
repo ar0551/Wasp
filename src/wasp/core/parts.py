@@ -4,7 +4,7 @@
 This file is part of Wasp. https://github.com/ar0551/Wasp
 @license GPL-3.0 <https://www.gnu.org/licenses/gpl.html>
 
-@version 0.7.001
+@version 0.7.002
 
 Part classes and utilities
 """
@@ -93,7 +93,15 @@ class Part(object):
 			return None
 
 		p_connections = [Connection.from_data(c_data) for c_data in data['connections']]
-		p_collider = Collider.from_data(data['collider'])
+
+		if data.has_key('collider'):
+			p_collider = Collider.from_data(data['collider'])
+		elif base_part is not None:
+			p_trasform = transform_from_data(data['transform'])
+			p_collider = base_part.collider.transform(p_trasform, transform_connections=True, maintain_valid=True)
+		else:
+			return None
+			
 		p_attributes = [] #### ATTRIBUTES NOT IMPLEMENTED
 		p_dim = float(data['dim'])
 		
@@ -134,7 +142,8 @@ class Part(object):
 		data['field'] = self.field
 		data['connections'] = [conn.to_data() for conn in self.connections]
 		data['active_connections'] = self.active_connections
-		data['collider'] = self.collider.to_data()
+		if include_geo:
+			data['collider'] = self.collider.to_data()
 		data['transform'] = transform_to_data(self.transformation)
 		data['dim'] = self.dim
 		data['parent'] = self.parent
