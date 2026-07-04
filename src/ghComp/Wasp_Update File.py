@@ -46,7 +46,7 @@ Code is adapted from Ladybug file updater (https://github.com/mostaphaRoudsari/l
 
 ghenv.Component.Name = "Wasp_Update File"
 ghenv.Component.NickName = 'UpdateFile'
-ghenv.Component.Message = 'v0.7.001'
+ghenv.Component.Message = 'v0.7.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"

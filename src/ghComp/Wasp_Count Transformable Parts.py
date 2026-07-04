@@ -41,7 +41,7 @@ Provided by Wasp 0.7
 
 ghenv.Component.Name = "Wasp_Count Transformable Parts"
 ghenv.Component.NickName = 'CountTrParts'
-ghenv.Component.Message = 'v0.7.001'
+ghenv.Component.Message = 'v0.7.002'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
