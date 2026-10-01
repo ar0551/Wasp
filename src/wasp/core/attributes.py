@@ -9,9 +9,11 @@ This file is part of Wasp. https://github.com/ar0551/Wasp
 Attribute classes and utilities
 """
 
-from Rhino.Geometry import Point3d
-from Rhino.Geometry import Plane
-from Rhino.Geometry import Line
+from Rhino.Geometry import Point3d, Plane, Line, Mesh, Vector3d
+from Rhino.FileIO import SerializationOptions
+from Rhino.Runtime import CommonObject
+
+from wasp.utilities import plane_from_data, plane_to_data, mesh_from_data, mesh_to_data, attribute_value_to_data, attribute_value_from_data
 
 #################################################################### Attribute ####################################################################
 class Attribute(object):
@@ -25,6 +27,33 @@ class Attribute(object):
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspAttribute [name: %s]" % (self.name)
+	
+
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		name = data['name']
+		values = []
+		for val_data in data['values']:
+			val = attribute_value_from_data(val_data)
+			values.append(val)
+		transformable = data['transformable']
+		return cls(name, values, transformable)
+
+		
+	## return the data dictionary representing the attribute
+	def to_data(self):
+		data = {}
+		data['name'] = self.name
+		data['values'] = []
+		
+		for val in self.values:
+			val_data = attribute_value_to_data(val)
+			data['values'].append(val_data)
+		
+		data['transformable'] = self.transformable
+		return data	
+	
 	
 	## return a transformed copy of the attribute
 	def transform(self, trans):
