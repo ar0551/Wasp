@@ -2,7 +2,7 @@
   Wasp - Discrete Design for Grasshopper
 </h1>
 <p align="center">
-  <img src=https://github.com/ar0551/Wasp/blob/master/Graphics/Logo_01_hexaBkg.png>
+  <img src="https://github.com/ar0551/Wasp/blob/main/Graphics/Logo_01_hexaBkg.png">
 </p>
 
 <p align="center">
