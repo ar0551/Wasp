@@ -16,7 +16,7 @@ from Rhino.Geometry import AreaMassProperties
 from wasp.utilities import mesh_from_data, mesh_to_data
 from wasp.utilities import transform_from_data, transform_to_data
 from wasp.core import Connection
-from wasp.core.attributes import Attribute
+from wasp.core.attributes import Attribute, SmartAttribute
 from wasp.core.colliders import Collider
 from wasp.core.constraints import Adjacency_Constraint
 
@@ -105,7 +105,11 @@ class Part(object):
 			
 		p_attributes = []
 		if data.has_key('attributes'):
-			p_attributes = [Attribute.from_data(attr_data) for attr_data in data['attributes']]
+			for attr_data in data['attributes']:
+				if attr_data['class_type'] == "Attribute":
+					p_attributes.append(Attribute.from_data(attr_data))
+				elif attr_data['class_type'] == "SmartAttribute":
+					p_attributes.append(SmartAttribute.from_data(attr_data))
 		
 		p_dim = float(data['dim'])
 		
@@ -296,9 +300,14 @@ class AdvancedPart(Part):
 
 		p_connections = [Connection.from_data(c_data) for c_data in data['connections']]
 		p_collider = Collider.from_data(data['collider'])
+
 		p_attributes = []
 		if data.has_key('attributes'):
-			p_attributes = [Attribute.from_data(attr_data) for attr_data in data['attributes']]
+			for attr_data in data['attributes']:
+				if attr_data['class_type'] == "Attribute":
+					p_attributes.append(Attribute.from_data(attr_data))
+				elif attr_data['class_type'] == "SmartAttribute":
+					p_attributes.append(SmartAttribute.from_data(attr_data))
 		
 		p_dim = float(data['dim'])
 
@@ -357,6 +366,7 @@ class AdvancedPart(Part):
 		data['conn_on_parent'] = self.conn_on_parent
 		data['conn_to_parent'] = self.conn_to_parent
 		data['children'] = self.children
+		
 		if include_attributes:
 			data['attributes'] = [attr.to_data() for attr in self.attributes]
 
