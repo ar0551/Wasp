@@ -9,9 +9,12 @@ This file is part of Wasp. https://github.com/ar0551/Wasp
 Attribute classes and utilities
 """
 
-from Rhino.Geometry import Point3d
-from Rhino.Geometry import Plane
-from Rhino.Geometry import Line
+from Rhino.Geometry import Point3d, Plane, Line, Mesh, Vector3d
+from Rhino.FileIO import SerializationOptions
+from Rhino.Runtime import CommonObject
+
+from wasp.utilities import plane_from_data, plane_to_data, mesh_from_data, mesh_to_data, attribute_value_to_data, attribute_value_from_data
+from wasp.core import Connection
 
 #################################################################### Attribute ####################################################################
 class Attribute(object):
@@ -25,6 +28,34 @@ class Attribute(object):
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspAttribute [name: %s]" % (self.name)
+	
+
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		name = data['name']
+		values = []
+		for val_data in data['values']:
+			val = attribute_value_from_data(val_data)
+			values.append(val)
+		transformable = data['transformable']
+		return cls(name, values, transformable)
+
+		
+	## return the data dictionary representing the attribute
+	def to_data(self):
+		data = {}
+		data['class_type'] = "Attribute"
+		data['name'] = self.name
+		data['values'] = []
+		
+		for val in self.values:
+			val_data = attribute_value_to_data(val)
+			data['values'].append(val_data)
+		
+		data['transformable'] = self.transformable
+		return data	
+	
 	
 	## return a transformed copy of the attribute
 	def transform(self, trans):
@@ -47,6 +78,7 @@ class Attribute(object):
 		else:
 			attr_trans = Attribute(self.name, self.values, self.transformable)
 		return attr_trans
+
 	
 	## return a copy of the attribute
 	def copy(self):
@@ -78,10 +110,47 @@ class SmartAttribute(Attribute):
 
 		self.connections = connections
 		self.conn_mask = conn_mask
+
 	
 	## override Rhino .ToString() method (display name of the class in Gh)
 	def ToString(self):
 		return "WaspSmartAttribute [name: %s]" % (self.name)
+
+
+	## create class from data dictionary
+	@classmethod
+	def from_data(cls, data):
+		name = data['name']
+		values = []
+		for val_data in data['values']:
+			val = attribute_value_from_data(val_data)
+			values.append(val)
+		transformable = data['transformable']
+
+		connections = [Connection.from_data(c_data) for c_data in data['connections']]
+		conn_mask = data['conn_mask']
+
+		return cls(name, values, transformable, connections, conn_mask)
+
+		
+	## return the data dictionary representing the attribute
+	def to_data(self):
+		data = {}
+		data['class_type'] = "SmartAttribute"
+		data['name'] = self.name
+		data['values'] = []
+		
+		for val in self.values:
+			val_data = attribute_value_to_data(val)
+			data['values'].append(val_data)
+		
+		data['transformable'] = self.transformable
+
+		data['connections'] = [conn.to_data() for conn in self.connections]
+		data['conn_mask'] = self.conn_mask
+		
+		return data	
+
 	
 	## return a transformed copy of the attribute
 	def transform(self, trans):
@@ -104,6 +173,7 @@ class SmartAttribute(Attribute):
 		else:
 			attr_trans = SmartAttribute(self.name, self.values, self.transformable, self.connections, self.conn_mask)
 		return attr_trans
+
 	
 	## return a copy of the attribute
 	def copy(self):
