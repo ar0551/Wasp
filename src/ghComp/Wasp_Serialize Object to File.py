@@ -47,7 +47,7 @@ Provided by Wasp 0.7
 
 ghenv.Component.Name = "Wasp_Serialize Object to File"
 ghenv.Component.NickName = 'Serialize'
-ghenv.Component.Message = 'v0.7.002'
+ghenv.Component.Message = 'v0.7.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | IO"
@@ -84,7 +84,7 @@ def main(obj, filter, include_geo, path, filename, save):
     def object_type(object):
         return object.ToString().Split(" ")[0].Replace("Wasp", "")
     
-    not_implemented_objects = ["Attribute", "SmartAttribute"]
+    not_implemented_objects = []
     
     check_data = True
     check_save_data = True
@@ -100,10 +100,6 @@ def main(obj, filter, include_geo, path, filename, save):
             check_data = False
             msg = "Serialization for %s not yet implemented" % (object_type)
             ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Error, msg)
-        elif object_type(obj) == "Part" or object_type(obj) == "AdvancedPart":
-            if len(obj.attributes) > 0:
-                msg = "Serialization for Attributes not yet implemented. Attributes will not be serialized"
-                ghenv.Component.AddRuntimeMessage(gh.Kernel.GH_RuntimeMessageLevel.Warning, msg)
     
     if include_geo is None:
         include_geo = False

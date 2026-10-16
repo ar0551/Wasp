@@ -41,7 +41,7 @@ Provided by Wasp 0.7
 
 ghenv.Component.Name = "Wasp_Deserialize Object from File"
 ghenv.Component.NickName = 'DeSerialize'
-ghenv.Component.Message = 'v0.7.002'
+ghenv.Component.Message = 'v0.7.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "7 | IO"
@@ -73,7 +73,7 @@ if wasp_loaded:
     from wasp.core.connection import *
     from wasp.core.parts import *
     from wasp.core.rules import *
-    ##from wasp.core.attributes import *  ### NOT IMPLEMENTED
+    from wasp.core.attributes import *
     from wasp.core.aggregation import *
     from wasp.core.constraints import *
     from wasp.core.colliders import *
@@ -162,6 +162,14 @@ def main(file_path, load_file, obj):
             ## Field
             elif object_type == "Field":
                 obj = Field.from_data(class_data)
+            
+            ## Attribute
+            elif object_type == "Attribute":
+                obj = Attribute.from_data(class_data)
+            
+            ## Field
+            elif object_type == "SmartAttribute":
+                obj = SmartAttribute.from_data(class_data)
             
             else:
                 obj = None

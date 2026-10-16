@@ -48,7 +48,7 @@ Provided by Wasp 0.7
 
 ghenv.Component.Name = "Wasp_DisCo Tool Settings"
 ghenv.Component.NickName = 'DisCoTool'
-ghenv.Component.Message = 'v0.7.002'
+ghenv.Component.Message = 'v0.7.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "8 | DisCo VR"

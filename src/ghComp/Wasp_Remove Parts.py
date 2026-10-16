@@ -48,7 +48,7 @@ Provided by Wasp 0.7
 
 ghenv.Component.Name = "Wasp_Remove Parts"
 ghenv.Component.NickName = 'RemovePart'
-ghenv.Component.Message = 'v0.7.002'
+ghenv.Component.Message = 'v0.7.003'
 ghenv.Component.IconDisplayMode = ghenv.Component.IconDisplayMode.application
 ghenv.Component.Category = "Wasp"
 ghenv.Component.SubCategory = "X | Experimental"
